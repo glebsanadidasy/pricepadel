@@ -19,7 +19,8 @@ export default async function AdminOrder({ params }: { params: Promise<{ number:
   const a = orderAddress(o);
   const sourceTotal = items.reduce((n, i) => n + (offers[i.productId]?.variants[i.sku]?.sourcePrice ?? 0) * i.qty, 0);
   const deliveryCost = ourDeliveryCost(sourceTotal, readSettings().delivery.ourCostTiers);
-  const allowed = ORDER_STATUSES.filter((s) => s !== "Paid" && (o.status !== "Awaiting payment" || s === "Cancelled"));
+  // Paid / Awaiting payment come only from the payment flow; an unpaid order can only be cancelled.
+  const allowed = o.status === "Awaiting payment" ? (["Cancelled"] as const) : ORDER_STATUSES.filter((s) => s !== "Paid" && s !== "Awaiting payment");
 
   return (
     <div className="mt-[24px] grid gap-[20px] lg:grid-cols-[1fr_380px]">
@@ -92,7 +93,7 @@ export default async function AdminOrder({ params }: { params: Promise<{ number:
         <Card title="Status">
           {allowed.length === 0 ? <p>No changes possible.</p> : (
             <form action={changeOrderStatus.bind(null, o.number)} className="space-y-[10px]">
-              <select name="status" defaultValue={o.status} className="h-[38px] w-full border border-line px-[8px] text-ink">
+              <select name="status" defaultValue={(allowed as readonly string[]).includes(o.status) ? o.status : allowed[0]} className="h-[38px] w-full border border-line px-[8px] text-ink">
                 {allowed.map((s) => (
                   <option key={s}>{s}</option>
                 ))}

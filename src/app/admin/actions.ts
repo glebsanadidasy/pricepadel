@@ -111,7 +111,7 @@ export async function changeOrderStatus(number: string, form: FormData) {
   const status = String(form.get("status")) as OrderStatus;
   if (!o || !ORDER_STATUSES.includes(status)) return;
   // "Paid" comes only from a verified payment notification, never from a click.
-  if (status === "Paid" || (o.status === "Awaiting payment" && status !== "Cancelled")) return;
+  if (status === "Paid" || status === "Awaiting payment" || (o.status === "Awaiting payment" && status !== "Cancelled")) return;
   setOrderStatus(o.id, status, String(form.get("note") ?? "").slice(0, 300), "admin");
   revalidatePath(`/admin/orders/${number}`);
 }

@@ -120,14 +120,21 @@ up to 5 photos in the best quality. Categories: rackets, shoes, apparel, bags, b
 - Catalogue: `src/lib/catalog.ts` (filters, live + test products). Public product type `src/lib/catalog-types.ts` — never add supplier fields there.
 - Test products: `src/data/test-products.ts`, all `isTest: true`; shown only in `next dev` or with `SHOW_TEST_PRODUCTS=1`, and only while the live catalogue is empty.
 - Catalogue pipeline (`scripts/catalog/`, rules in the section above):
-  `npm run catalog:collect -- --limit 60` (collect, resumable; `--limit 0` = whole sitemap) →
-  `npm run catalog:sheets` (contact sheets in `.source-data/review/`; decisions go to `data/catalog/photo-review.json`) →
-  `npm run catalog:import` (builds `data/catalog/products.json`, photos to `public/images/products/` — git-ignored, rebuilt from `.source-data`) →
-  `npm run catalog:refresh` (prices + stock only, no photos). Report for the owner: `data/catalog/import-report.md`.
-- `data/catalog/products.json` holds supplier fields; read it only through `src/lib/catalog-store.ts` (server-only).
-  `src/lib/catalog.ts` copies public fields one by one (`toPublic`) — never spread an imported record into a page.
-  Settings (markups, delivery, hidden sources, `rewriteApproved`): `data/catalog/settings.json`, edited in the admin panel.
-- Admin panel `/admin` (overview, products): local preview only (`next dev`) until admin sign-in exists; 404 in production.
+  `npm run catalog:collect -- --limit 0` (collect, resumable) → `npm run catalog:import` (photos to `public/images/products/xx/`,
+  automatic photo checks incl. local OCR `scripts/catalog/ocr/ocr.swift`) → `npm run catalog:refresh` (prices + stock only, no photos).
+  `node scripts/catalog/check-public.mjs <baseUrl>` = leak + price check; `node scripts/catalog/margins.mjs` = margin check.
+- Overnight runner: `nohup caffeinate -ims scripts/overnight/run.sh >/dev/null 2>&1 &` (state/logs in `.overnight/`, updates `overnight-report.md`).
+  It commits only `data/catalog` + photos, holding `.overnight/git.lock`; take the same lock (mkdir) before committing code.
+- Data: `data/catalog/products.json` + `settings.json` (public, in Git); `sources/<id>/offers.json` (source links, prices, stock, SKUs — never in Git),
+  read only through `src/lib/catalog-store.ts` (server-only). `src/lib/catalog.ts` copies public fields one by one (`toPublic`).
+- Customers: SQLite (`node:sqlite`) in `.data/store.db` (`src/lib/db.ts`); auth `src/lib/auth.ts` (scrypt, hashed session tokens, rate limits);
+  cart cookie `src/lib/cart.ts` (server re-prices); orders `src/lib/orders.ts`; e-mails go to `outbox/` (`src/lib/mail.ts`) until mail is connected.
+- Payments: only the gateway's hosted page. Local simulation `/mock-gateway/[id]` + signed webhook `/api/payments/webhook` (`src/lib/payments.ts`);
+  Paid only from a verified notification. Mock is on in `next dev`, or with `MOCK_PAYMENTS=1`.
+- Admin `/admin` (login with `ADMIN_PASSWORD` from `.env`; never print it): orders, products (hide product / photo), markups, rates, delivery cost.
+- Secrets in `.env`: `ADMIN_PASSWORD`, `PAYMENT_WEBHOOK_SECRET`.
+- Tests: `npx playwright test` (own server on :3200 with a copy of the data in `.test-data/` and test-only secrets); `SCREENS=1` adds screenshots.
+- `NEXT_DIST_DIR` selects the build folder (`.next-test`, `.next-overnight`) so checks never disturb the preview.
 - Old-site redirects will be read from `data/redirects.json` by `next.config.ts` (list in `old-site/report.md`).
 - Taken from ~/orbex-chronogem (code only): stack/config choices, security headers + redirect loader in `next.config.ts`,
   `eslint.config.mjs`, the `AutoSubmit` filter helper. Nothing else (no data, texts, payment module, names).
@@ -136,11 +143,11 @@ up to 5 photos in the best quality. Categories: rackets, shoes, apparel, bags, b
 - Figma: View seat hit the MCP call limit — originals of some pictures are still temporary crops (see design/design-notes.md).
 - Hero background photo carries Vecteezy watermarks — needs a licence or replacement before launch.
 - Old site named HYPERION MOTION LTD (17358996) as the operator; new site uses PRICE PADEL LTD — owner to confirm.
-- Catalogue (stage 2): our own delivery cost per order is not set yet (admin → Delivery).
-  Apparel photos on the source are mostly worn by models → most apparel ends up hidden; owner to decide.
-  Colour-specific photos are not collected (the source loads them separately), so a multi-colour product shows one colour's photos.
-  Shoe sizes are EU sizes as on the source. Full-catalogue photo check needs a decision (manual review of ~10k photos).
+- Shoe sizes are EU sizes as on the source. Terms & Conditions and other policy texts are still empty pages.
+- With free delivery and 15 % markup, single-item orders under ~£86 source price lose money (see overnight-report.md).
 
 ## Stage log
 - Stage 1 (2026-11-05): Git, old-site research, design notes, home page, catalogue, product page, preview with test products.
 - Stage 2 (2026-11-05): catalogue collector for Padel Nuestro UK, 60-product sample imported, admin panel (sources, markups, delivery, products).
+- Stage 3 (2026-11-05/06, overnight): full collection runner, supplier data moved to sources/, private GitHub repo, accounts, cart, checkout,
+  mock payment gateway, orders + e-mails to outbox, admin login, Playwright tests. Report: overnight-report.md.

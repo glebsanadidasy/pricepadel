@@ -49,6 +49,16 @@ function compareSizes(a: string, b: string) {
   return a.localeCompare(b);
 }
 
+const PER_PAGE = 36;
+
+function pageHref(params: Record<string, string | string[] | undefined>, page: number) {
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) if (k !== "page") for (const x of Array.isArray(v) ? v : v ? [v] : []) qs.append(k, x);
+  if (page > 1) qs.set("page", String(page));
+  const s = qs.toString();
+  return s ? `/shop?${s}` : "/shop";
+}
+
 function activeChips(f: Filters) {
   const chips: { label: string; param: string; value: string }[] = [];
   f.category.forEach((c) => chips.push({ label: CATEGORY_LABELS[c], param: "category", value: c }));
@@ -61,7 +71,7 @@ function activeChips(f: Filters) {
 
 function withoutParam(params: Record<string, string | string[] | undefined>, param: string, value: string) {
   const qs = new URLSearchParams();
-  for (const [k, v] of Object.entries(params)) for (const x of Array.isArray(v) ? v : v ? [v] : []) if (!(k === param && x === value)) qs.append(k, x);
+  for (const [k, v] of Object.entries(params)) for (const x of Array.isArray(v) ? v : v ? [v] : []) if (k !== "page" && !(k === param && x === value)) qs.append(k, x);
   const s = qs.toString();
   return s ? `/shop?${s}` : "/shop";
 }
@@ -73,6 +83,9 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const products = listProducts(f);
   const opts = filterOptions(f);
   const chips = activeChips(f);
+  const pages = Math.max(1, Math.ceil(products.length / PER_PAGE));
+  const page = Math.min(pages, Math.max(1, Number(Array.isArray(params.page) ? params.page[0] : params.page) || 1));
+  const shown = products.slice((page - 1) * PER_PAGE, page * PER_PAGE);
   const title = f.category.length === 1 ? CATEGORY_LABELS[f.category[0]] : "Shop";
   const brands = [...opts.brand.keys()].sort();
   const sizes = [...opts.size.keys()].sort(compareSizes);
@@ -108,7 +121,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
               <form action="/shop" method="get" className="flex items-center gap-[8px] text-[14px]">
                 <AutoSubmit />
                 {Object.entries(params).flatMap(([k, v]) =>
-                  k === "sort" ? [] : (Array.isArray(v) ? v : v ? [v] : []).map((x) => <input key={`${k}-${x}`} type="hidden" name={k} value={x} />),
+                  k === "sort" || k === "page" ? [] : (Array.isArray(v) ? v : v ? [v] : []).map((x) => <input key={`${k}-${x}`} type="hidden" name={k} value={x} />),
                 )}
                 <label htmlFor="sort">Sort by</label>
                 <select id="sort" name="sort" defaultValue={f.sort} className="h-[36px] border border-line bg-white px-[8px] text-ink">
@@ -145,13 +158,43 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                 </Link>
               </div>
             ) : (
-              <ul className="mt-[36px] grid grid-cols-2 gap-x-[20px] gap-y-[48px] md:grid-cols-3 lg:gap-x-[34px]">
-                {products.map((p) => (
-                  <li key={p.slug}>
-                    <ProductCard product={toCard(p, money.format(p.price))} sizes="(min-width: 1024px) 270px, 50vw" />
-                  </li>
-                ))}
-              </ul>
+              <>
+                <ul className="mt-[36px] grid grid-cols-2 gap-x-[20px] gap-y-[48px] md:grid-cols-3 lg:gap-x-[34px]">
+                  {shown.map((p) => (
+                    <li key={p.slug}>
+                      <ProductCard product={toCard(p, money.format(p.price))} sizes="(min-width: 1024px) 270px, 50vw" />
+                    </li>
+                  ))}
+                </ul>
+                {pages > 1 && (
+                  <nav aria-label="Pages" className="mt-[50px] flex flex-wrap items-center justify-center gap-[8px] text-[15px]">
+                    {page > 1 && (
+                      <Link href={pageHref(params, page - 1)} className="inline-flex h-[40px] items-center border border-line px-[14px] text-ink hover:border-ink">
+                        Previous
+                      </Link>
+                    )}
+                    {Array.from({ length: pages }, (_, i) => i + 1)
+                      .filter((n) => n === 1 || n === pages || Math.abs(n - page) <= 2)
+                      .map((n, i, list) => (
+                        <span key={n} className="flex items-center gap-[8px]">
+                          {i > 0 && n - list[i - 1] > 1 && <span aria-hidden="true">…</span>}
+                          <Link
+                            href={pageHref(params, n)}
+                            aria-current={n === page ? "page" : undefined}
+                            className={`inline-flex size-[40px] items-center justify-center border ${n === page ? "border-royal bg-royal text-white" : "border-line text-ink hover:border-ink"}`}
+                          >
+                            {n}
+                          </Link>
+                        </span>
+                      ))}
+                    {page < pages && (
+                      <Link href={pageHref(params, page + 1)} className="inline-flex h-[40px] items-center border border-line px-[14px] text-ink hover:border-ink">
+                        Next
+                      </Link>
+                    )}
+                  </nav>
+                )}
+              </>
             )}
           </section>
         </div>
