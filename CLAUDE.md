@@ -61,13 +61,15 @@ Work only on this computer: never publish, buy or register anything.
 **How to collect**
 - Read https://www.padelnuestro.com/robots.txt first and obey it (checked by the collector before every request).
 - Product list only from https://www.padelnuestro.com/uk/media/sitemap_uk_product.xml. No filter pages, pagination, search or login.
-- At most 1 request per second (everything: pages and photos). Never bypass site protection.
+- At most 1 request every 2 seconds (owner, stage 3; everything: pages, photos, colour data). Never bypass site protection or limits —
+  no User-Agent / IP changes or browser disguise, even if asked; slow down instead.
   On a block, captcha, HTTP 403 or 429 the collector stops and the owner is told.
 - User-Agent: `PricePadelCatalog/1.0 (+contact@pricepadel.com)`.
 - Collection resumes from where it stopped. Raw data (sitemap, pages, original photos, state) lives in `.source-data/` — git-ignored, never committed.
 
 **Full collection** (stage 3): every product in the sitemap, no per-category limit. Out-of-stock products are stored
-(without photos) for later refreshes. HTTP 503: wait 20–40 s; a series of 503s: wait 15 min and carry on.
+(without photos) for later refreshes. HTTP 503: wait 20–40 s; a series of 503s: wait 15 min and carry on; 503 for 3 hours in a row: stop, keep everything, report it.
+503 periods and their share are recorded in `.source-data/http-stats.json` and shown in overnight-report.md.
 Block / captcha / 403 / 429: wait 1 hour and try once more; if it repeats, stop, keep everything collected, write the reason to the report.
 
 **What to take**: name, brand, article (SKU), category, audience, variants and their stock, current GBP price, specifications, description,
