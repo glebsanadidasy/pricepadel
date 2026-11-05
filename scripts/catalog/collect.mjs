@@ -3,7 +3,8 @@
 //   node scripts/catalog/collect.mjs --limit 0       everything in the sitemap (out-of-stock products are stored without photos)
 //   --minutes N                                      stop cleanly after N minutes (the overnight runner uses this)
 // Resumes from .source-data/state.json.
-// Exit codes: 0 = finished or time budget used (state.complete tells which), 2 = blocked (block, captcha, HTTP 403 / 429).
+// Exit codes: 0 = finished or time budget used (state.complete tells which), 2 = blocked (block, captcha, HTTP 403 / 429),
+//             4 = HTTP 503 for 3 hours in a row (stop for good).
 import fs from "node:fs";
 import path from "node:path";
 import { fetchImage, fetchJson, fetchPage, fetchText, loadRobots, ORIGIN, saveStop, stats, StopError } from "./lib/http.mjs";
@@ -274,7 +275,7 @@ main().catch((err) => {
   if (err instanceof StopError) {
     saveStop(err);
     console.error(`\nSTOPPED: ${err.message}\nProgress is saved; run the same command again later to continue.`);
-    process.exit(2);
+    process.exit(err.details?.sustained503 ? 4 : 2);
   }
   console.error(err);
   process.exit(1);

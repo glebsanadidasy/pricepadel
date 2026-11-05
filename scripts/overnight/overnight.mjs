@@ -172,6 +172,27 @@ async function commitAndPush(label) {
 
 // ---------- report ----------
 
+const fmt = (iso) => (iso ? iso.slice(0, 16).replace("T", " ") + " UTC" : "—");
+
+/** 503 periods (pages, photos, colour data) from .source-data/http-stats.json, written by the collector. */
+function report503() {
+  let st;
+  try {
+    st = JSON.parse(fs.readFileSync(path.join(ROOT, ".source-data", "http-stats.json"), "utf8"));
+  } catch {
+    return ["- Ответы 503: статистики ещё нет"];
+  }
+  const share = st.requests ? ((st.s503 / st.requests) * 100).toFixed(1) : "0";
+  const lines = [`- Ответы 503: ${st.s503} из ${st.requests} запросов (${share} %). Robots.txt и карта сайта не считаются.`];
+  const periods = [...(st.periods ?? []), ...(st.open ? [{ start: st.open.start, end: null, count: st.open.count, open: true, estimated: st.open.estimated }] : [])];
+  if (periods.length === 0) lines.push("  - периодов с 503 не было");
+  for (const p of periods.slice(-30)) {
+    const end = p.open ? `продолжается (последний 503: ${fmt(st.open.last)})` : fmt(p.end);
+    lines.push(`  - с ${fmt(p.start)} по ${end}: ${p.count} ответов 503${p.estimated ? " (начало периода восстановлено по логам)" : ""}`);
+  }
+  return lines;
+}
+
 function updateReport(extra = "") {
   const s = collectorState();
   const processed = Object.values(s.processed ?? {});
@@ -186,6 +207,8 @@ function updateReport(extra = "") {
     "<!-- overnight:start (written by scripts/overnight/overnight.mjs) -->",
     "## Ночной сбор — состояние (обновляется автоматически)",
     "",
+    `- Ночной сбор запущен: ${fmt(state.startedAt)}${state.finishedAt ? `; закончен: ${fmt(state.finishedAt)}` : ""}`,
+    `- Скорость: не больше 1 запроса в 2 секунды (с ${fmt(state.rateChangedAt)}; до этого 1 запрос в 1,1 с)`,
     `- Обновлено: ${new Date().toISOString()}`,
     `- Страниц обработано: ${processed.length}; в наличии с фото: ${count("accepted")}; без наличия (сохранены без фото): ${count("stored")}; пропущено: ${count("skipped")}`,
     `- Сбор завершён: ${s.complete ? "да" : "нет"}${state.stoppedReason ? ` — ОСТАНОВЛЕН: ${state.stoppedReason}` : ""}`,
@@ -194,7 +217,8 @@ function updateReport(extra = "") {
     `- Последний push: ${state.lastPushAt ?? "—"}${state.lastPushError ? `; последняя ошибка push: ${String(state.lastPushError).split("\n")[0]}` : ""}`,
     `- Размер .git: ${(gitSize() / 1024 ** 3).toFixed(2)} ГБ; фото в Git: ${state.photosInGit ? "да" : "нет (превышен лимит 8 ГБ)"}`,
     `- Блокировки: ${state.blocks.length ? state.blocks.map((b) => `${b.at} ${b.message}`).join("; ") : "нет"}`,
-    `- Паузы из-за ошибок 503: ${(s.pauses ?? []).length}`,
+    `- Паузы из-за ошибок 503 (по 15 минут): ${(s.pauses ?? []).length}`,
+    ...report503(),
     extra,
     "<!-- overnight:end -->",
   ].join("\n");
@@ -254,6 +278,24 @@ async function main() {
     save();
     const cs = collectorState();
 
+    if (code === 4) {
+      // HTTP 503 without a single good answer for 3 hours: stop for good, keep everything collected.
+      let message = "HTTP 503 for 3 hours in a row";
+      try {
+        message = JSON.parse(fs.readFileSync(path.join(ROOT, ".source-data", "last-stop.json"), "utf8")).message;
+      } catch {
+        /* keep default */
+      }
+      log(`STOP: ${message}`);
+      await run("node", ["scripts/catalog/import.mjs"], "import.log");
+      await commitAndPush("after 3 hours of HTTP 503");
+      state.stoppedReason = `${message} Everything collected so far is kept, imported and pushed.`;
+      state.finished = true;
+      state.finishedAt = new Date().toISOString();
+      updateReport();
+      save();
+      return 3;
+    }
     if (code === 2) {
       let message = "blocked";
       try {

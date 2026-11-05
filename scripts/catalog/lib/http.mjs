@@ -5,7 +5,9 @@ import { RAW_DIR, writeJson } from "./store.mjs";
 
 export const USER_AGENT = "PricePadelCatalog/1.0 (+contact@pricepadel.com)";
 export const ORIGIN = "https://www.padelnuestro.com";
-const MIN_GAP_MS = 1100; // "no more than 1 request per second", with a little margin
+const MIN_GAP_MS = 2000; // owner, stage 3: at most one request every 2 seconds
+const STATS_FILE = path.join(RAW_DIR, "http-stats.json");
+const MAX_503_HOURS = 3; // 503 without a single good answer for this long → stop the collection
 
 /** Thrown when collection must stop (block, captcha, 403/429, robots.txt). The owner has to be told. */
 export class StopError extends Error {
@@ -31,10 +33,43 @@ async function throttle() {
   requestCount++;
 }
 
-async function rawFetch(url, accept) {
-  await throttle();
+// ---------- 503 statistics (pages, photos and colour data; robots.txt and the sitemap are not counted) ----------
+//   .source-data/http-stats.json: { requests, s503, periods: [{ start, end, count }], open: { start, last, count } | null }
+
+export function readHttpStats() {
   try {
-    return await fetch(url, {
+    return JSON.parse(fs.readFileSync(STATS_FILE, "utf8"));
+  } catch {
+    return { requests: 0, s503: 0, periods: [], open: null };
+  }
+}
+
+function recordStatus(status) {
+  const st = readHttpStats();
+  const now = new Date().toISOString();
+  st.requests++;
+  if (status === 503) {
+    st.s503++;
+    st.open = st.open ? { ...st.open, last: now, count: st.open.count + 1 } : { start: now, last: now, count: 1 };
+  } else if (st.open) {
+    // A good answer ends the 503 period.
+    st.periods.push({ start: st.open.start, end: st.open.last, count: st.open.count, estimated: st.open.estimated, endedBy: `HTTP ${status} at ${now}` });
+    st.open = null;
+  }
+  writeJson(STATS_FILE, st);
+  if (st.open && Date.now() - Date.parse(st.open.start) >= MAX_503_HOURS * 3600 * 1000) {
+    throw new StopError(`HTTP 503 for ${MAX_503_HOURS} hours in a row (since ${st.open.start}, ${st.open.count} answers). Collection stopped.`, {
+      sustained503: true,
+      since: st.open.start,
+    });
+  }
+}
+
+async function rawFetch(url, accept, counted = true) {
+  await throttle();
+  let res;
+  try {
+    res = await fetch(url, {
       headers: { "User-Agent": USER_AGENT, Accept: accept, "Accept-Language": "en-GB,en;q=0.8" },
       redirect: "follow",
       signal: AbortSignal.timeout(30000),
@@ -42,6 +77,8 @@ async function rawFetch(url, accept) {
   } catch (e) {
     throw Object.assign(new Error(`Network error for ${url}: ${e.message}`), { network: true });
   }
+  if (counted) recordStatus(res.status);
+  return res;
 }
 
 // ---------- robots.txt ----------
@@ -94,7 +131,7 @@ export function robotsAllows(url) {
 
 /** Always read live at the start of a run; a copy is kept for the record. */
 export async function loadRobots() {
-  const res = await rawFetch(`${ORIGIN}/robots.txt`, "text/plain");
+  const res = await rawFetch(`${ORIGIN}/robots.txt`, "text/plain", false);
   checkStatus(res, "robots.txt");
   const text = await res.text();
   fs.writeFileSync(path.join(RAW_DIR, "robots.txt"), text);
@@ -165,7 +202,7 @@ export async function fetchJson(url) {
 
 export async function fetchText(url) {
   if (!robotsAllows(url)) throw new StopError(`robots.txt disallows ${url}`);
-  const res = await rawFetch(url, "application/xml,text/xml");
+  const res = await rawFetch(url, "application/xml,text/xml", false);
   checkStatus(res, url);
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   return res.text();
