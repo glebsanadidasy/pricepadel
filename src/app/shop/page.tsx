@@ -6,7 +6,7 @@ import { FilterToggle } from "@/components/shop/FilterToggle";
 import { ProductCard, toCard } from "@/components/shop/ProductCard";
 import { Icon } from "@/components/ui/Icon";
 import { formatPrice } from "@/config/currency";
-import { filterOptions, listProducts, parseFilters, PRICE_BANDS, SHOW_TEST_PRODUCTS, SORTS, type Filters } from "@/lib/catalog";
+import { filterOptions, listProducts, parseFilters, PRICE_BANDS, showingTestProducts, SORTS, type Filters } from "@/lib/catalog";
 import { AUDIENCE_LABELS, CATEGORY_LABELS, type Audience, type Category } from "@/lib/catalog-types";
 import { getCurrency } from "@/lib/currency";
 
@@ -38,6 +38,18 @@ function Check({ name, value, label, checked, count, type = "checkbox" }: { name
   );
 }
 
+const LETTER_SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+/** Letter sizes in wearing order, then numeric sizes (EU 40, UK 8 …) by number, then anything else. */
+function compareSizes(a: string, b: string) {
+  const la = LETTER_SIZES.indexOf(a.toUpperCase());
+  const lb = LETTER_SIZES.indexOf(b.toUpperCase());
+  if (la >= 0 || lb >= 0) return la < 0 ? 1 : lb < 0 ? -1 : la - lb;
+  const na = parseFloat(a.replace(/[^\d.]+/g, ""));
+  const nb = parseFloat(b.replace(/[^\d.]+/g, ""));
+  if (!isNaN(na) && !isNaN(nb) && na !== nb) return na - nb;
+  return a.localeCompare(b);
+}
+
 function activeChips(f: Filters) {
   const chips: { label: string; param: string; value: string }[] = [];
   f.category.forEach((c) => chips.push({ label: CATEGORY_LABELS[c], param: "category", value: c }));
@@ -64,13 +76,13 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const chips = activeChips(f);
   const title = f.category.length === 1 ? CATEGORY_LABELS[f.category[0]] : "Shop";
   const brands = [...opts.brand.keys()].sort();
-  const sizes = [...opts.size.keys()].sort((a, b) => parseFloat(a.replace(/\D+/g, "")) - parseFloat(b.replace(/\D+/g, "")));
+  const sizes = [...opts.size.keys()].sort(compareSizes);
 
   return (
     <>
       <PageHero title={title} crumbs={[{ href: "/shop", label: "Shop" }]} />
       <div className="mx-auto max-w-site px-[15px] pb-[90px] pt-[36px] lg:px-0">
-        {SHOW_TEST_PRODUCTS && (
+        {showingTestProducts() && (
           <p className="mb-[24px] border-l-4 border-lime bg-[#f7fbe5] px-[16px] py-[10px] text-[14px] text-body">
             Preview: these are sample products from the design mockup. They are not part of the live catalogue.
           </p>

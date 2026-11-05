@@ -5,16 +5,16 @@ import type { Product, Variant } from "@/lib/catalog-types";
  * Every entry is `isTest: true`, so the catalogue only shows them in preview mode (see lib/catalog.ts).
  * Sizes and colour swatches are placeholders to demonstrate variant selection; they are not real stock.
  */
-function variants(slug: string, colours: string[], sizes: string[]): Variant[] {
-  if (sizes.length === 0) return colours.map((colour) => ({ sku: `${slug}-${colour}`.toLowerCase().replace(/\s+/g, "-"), colour }));
-  return colours.flatMap((colour) => sizes.map((size) => ({ sku: `${slug}-${colour}-${size}`.toLowerCase().replace(/[\s.]+/g, "-"), colour, size })));
+function variants(slug: string, colours: string[], sizes: string[], price: number): Variant[] {
+  if (sizes.length === 0) return colours.map((colour) => ({ sku: `${slug}-${colour}`.toLowerCase().replace(/\s+/g, "-"), colour, price }));
+  return colours.flatMap((colour) => sizes.map((size) => ({ sku: `${slug}-${colour}-${size}`.toLowerCase().replace(/[\s.]+/g, "-"), colour, size, price })));
 }
 
 const SHOE_SIZES_MEN = ["UK 7", "UK 8", "UK 9", "UK 10", "UK 11"];
 const SHOE_SIZES_WOMEN = ["UK 4", "UK 5", "UK 6", "UK 7", "UK 8"];
 
 function product(p: Omit<Product, "variants" | "isTest">): Product {
-  return { ...p, variants: variants(p.slug, p.colours.map((c) => c.name), p.sizes), isTest: true };
+  return { ...p, variants: variants(p.slug, p.colours.map((c) => c.name), p.sizes, p.price), isTest: true };
 }
 
 export const TEST_PRODUCTS: Product[] = [

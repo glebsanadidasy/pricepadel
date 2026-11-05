@@ -41,7 +41,42 @@ Replacement for the old pricepadel.com, which was lost after the hosting was hac
 - Suppliers, source shops and source prices are visible **only in the admin panel**. They must never reach public pages, URLs, photo file names or customer-facing API responses.
 - Do not invent reviews, ratings, discounts, stock availability, trust badges or company history.
   Do not write "official" or "authorised dealer" without the owner's confirmation.
-- No shop scraping/parsing at this stage.
+
+## Catalogue import from Padel Nuestro (owner rules, stage 2)
+Work only on this computer: never publish, buy or register anything.
+
+**How to collect**
+- Read https://www.padelnuestro.com/robots.txt first and obey it (checked by the collector before every request).
+- Product list only from https://www.padelnuestro.com/uk/media/sitemap_uk_product.xml. No filter pages, pagination, search or login.
+- At most 1 request per second (everything: pages and photos). Never bypass site protection.
+  On a block, captcha, HTTP 403 or 429 the collector stops and the owner is told.
+- User-Agent: `PricePadelCatalog/1.0 (+contact@pricepadel.com)`.
+- Collection resumes from where it stopped. Raw data (sitemap, pages, original photos, state) lives in `.source-data/` — git-ignored, never committed.
+
+**What to take**: name, brand, article (SKU), category, audience, variants and their stock, current GBP price, specifications, description,
+up to 5 photos in the best quality. Categories: rackets, shoes, apparel, bags, balls, accessories.
+
+**What not to take**
+- Gift cards, Pickleball, Beach Tennis, Packs.
+- Reviews, ratings, blog articles, gifts, promotions.
+- Old prices, discounts, Bestseller / Outlet / Exclusive badges.
+- Delivery, return and warranty promises.
+- Mentions of Padel Nuestro: remove only that sentence from the description and list the product in the report.
+
+**Photos and descriptions**
+- Photos are downloaded into the project (no hot-links to the source). Public file names are neutral.
+- Do not remove watermarks or logos. Do not use photos with the Padel Nuestro logo, overlaid text or people.
+  If no other photo is left, hide the product and list it in the report.
+- Do not generate new descriptions until the owner turns on `rewriteApproved`.
+- Every product and photo keeps its source and collection date. Admin has a button that hides everything from a source at once.
+
+**Prices and stock**
+- Source price and source link are visible only in the admin panel.
+- Retail price = source price × 1.15. The markup can be changed per category and per brand.
+- Source prices already include VAT (final prices).
+- Delivery is shown to the customer as a separate line before payment: £12.95 under £85, £6.95 from £85 to £169.99, free from £170.
+  Our own delivery cost is kept in the admin panel.
+- Price and stock refresh command without re-downloading photos. Out-of-stock products and variants are hidden.
 
 ## Not to copy from the mockup as-is
 - Without owner confirmation do not show: best price guarantee, free delivery, fast delivery, in stock,
@@ -62,7 +97,16 @@ Replacement for the old pricepadel.com, which was lost after the hosting was hac
 - Screenshots for design checks: `node scripts/screenshots.mjs [outDir] [paths…]` (1920 and 390 wide, uses playwright-core).
 - Business data: `src/config/site.ts`. Currencies: `src/config/currency.ts` (GBP base; EUR/USD use PREVIEW placeholder rates).
 - Catalogue: `src/lib/catalog.ts` (filters, live + test products). Public product type `src/lib/catalog-types.ts` — never add supplier fields there.
-- Test products: `src/data/test-products.ts`, all `isTest: true`; shown only in `next dev` or with `SHOW_TEST_PRODUCTS=1`.
+- Test products: `src/data/test-products.ts`, all `isTest: true`; shown only in `next dev` or with `SHOW_TEST_PRODUCTS=1`, and only while the live catalogue is empty.
+- Catalogue pipeline (`scripts/catalog/`, rules in the section above):
+  `npm run catalog:collect -- --limit 60` (collect, resumable; `--limit 0` = whole sitemap) →
+  `npm run catalog:sheets` (contact sheets in `.source-data/review/`; decisions go to `data/catalog/photo-review.json`) →
+  `npm run catalog:import` (builds `data/catalog/products.json`, photos to `public/images/products/` — git-ignored, rebuilt from `.source-data`) →
+  `npm run catalog:refresh` (prices + stock only, no photos). Report for the owner: `data/catalog/import-report.md`.
+- `data/catalog/products.json` holds supplier fields; read it only through `src/lib/catalog-store.ts` (server-only).
+  `src/lib/catalog.ts` copies public fields one by one (`toPublic`) — never spread an imported record into a page.
+  Settings (markups, delivery, hidden sources, `rewriteApproved`): `data/catalog/settings.json`, edited in the admin panel.
+- Admin panel `/admin` (overview, products): local preview only (`next dev`) until admin sign-in exists; 404 in production.
 - Old-site redirects will be read from `data/redirects.json` by `next.config.ts` (list in `old-site/report.md`).
 - Taken from ~/orbex-chronogem (code only): stack/config choices, security headers + redirect loader in `next.config.ts`,
   `eslint.config.mjs`, the `AutoSubmit` filter helper. Nothing else (no data, texts, payment module, names).
@@ -71,6 +115,11 @@ Replacement for the old pricepadel.com, which was lost after the hosting was hac
 - Figma: View seat hit the MCP call limit — originals of some pictures are still temporary crops (see design/design-notes.md).
 - Hero background photo carries Vecteezy watermarks — needs a licence or replacement before launch.
 - Old site named HYPERION MOTION LTD (17358996) as the operator; new site uses PRICE PADEL LTD — owner to confirm.
+- Catalogue (stage 2): our own delivery cost per order is not set yet (admin → Delivery).
+  Apparel photos on the source are mostly worn by models → most apparel ends up hidden; owner to decide.
+  Colour-specific photos are not collected (the source loads them separately), so a multi-colour product shows one colour's photos.
+  Shoe sizes are EU sizes as on the source. Full-catalogue photo check needs a decision (manual review of ~10k photos).
 
 ## Stage log
 - Stage 1 (2026-11-05): Git, old-site research, design notes, home page, catalogue, product page, preview with test products.
+- Stage 2 (2026-11-05): catalogue collector for Padel Nuestro UK, 60-product sample imported, admin panel (sources, markups, delivery, products).

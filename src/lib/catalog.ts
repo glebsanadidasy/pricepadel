@@ -1,18 +1,55 @@
 import "server-only";
 import { TEST_PRODUCTS } from "@/data/test-products";
+import { markupFor, offSaleReason, readImported, readSettings, retailPrice, type ImportedProduct, type CatalogSettings } from "./catalog-store";
 import { CATEGORY_LABELS, AUDIENCE_LABELS, type Audience, type Category, type Product } from "./catalog-types";
 
 /**
- * Test products appear only in the local preview (`next dev`) or when SHOW_TEST_PRODUCTS=1 is set.
- * A production build never shows them.
+ * Test products (from the design mockup) appear only in the local preview (`next dev`) or when SHOW_TEST_PRODUCTS=1 is set,
+ * and only while nothing has been imported yet. A production build never shows them.
  */
-export const SHOW_TEST_PRODUCTS = process.env.NODE_ENV !== "production" || process.env.SHOW_TEST_PRODUCTS === "1";
+const TEST_ALLOWED = process.env.NODE_ENV !== "production" || process.env.SHOW_TEST_PRODUCTS === "1";
 
-/** Live catalogue — empty until products are imported in a later stage. */
-const LIVE_PRODUCTS: Product[] = [];
+/**
+ * Public shape of an imported product. Fields are copied one by one on purpose: source, source link,
+ * source price and source SKU must never reach a page, so nothing is spread from the imported record.
+ */
+function toPublic(p: ImportedProduct, s: CatalogSettings): Product {
+  const markup = markupFor(p, s);
+  const onSale = p.variants.filter((v) => v.inStock);
+  const variants = onSale.map((v) => ({ sku: v.sku, colour: v.colour, size: v.size ?? undefined, price: retailPrice(v.sourcePrice, markup) }));
+  const colours = [...new Map(onSale.filter((v) => v.colour).map((v) => [v.colour, { name: v.colour, swatch: v.colourHex }])).values()];
+  return {
+    slug: p.slug,
+    name: p.name,
+    brand: p.brand,
+    category: p.category,
+    audience: p.audience,
+    price: Math.min(...variants.map((v) => v.price)),
+    images: p.images.map((i) => ({ src: i.src, alt: i.alt })),
+    colours,
+    sizes: [...new Set(onSale.map((v) => v.size).filter((x): x is string => !!x))],
+    variants,
+    mpn: p.mpn ?? undefined,
+    specs: p.specs.map((x) => ({ label: x.label, value: x.value })),
+    description: p.description,
+    isTest: false,
+  };
+}
+
+function liveProducts(): Product[] {
+  const s = readSettings();
+  return readImported()
+    .filter((p) => offSaleReason(p, s) === null)
+    .map((p) => toPublic(p, s));
+}
+
+/** True while the shop is showing the mockup's sample products instead of a real catalogue. */
+export function showingTestProducts() {
+  return TEST_ALLOWED && readImported().length === 0;
+}
 
 function all(): Product[] {
-  return SHOW_TEST_PRODUCTS ? [...LIVE_PRODUCTS, ...TEST_PRODUCTS] : LIVE_PRODUCTS;
+  return showingTestProducts() ? TEST_PRODUCTS : liveProducts();
 }
 
 export const PRICE_BANDS = [
@@ -101,8 +138,9 @@ export function featuredProducts(limit = 8) {
 
 /** Real catalogue figures for the "about" counters. Test products never count, so nothing shows until real data exists. */
 export function catalogueStats() {
-  const rackets = LIVE_PRODUCTS.filter((p) => p.category === "rackets").length;
-  const brands = new Set(LIVE_PRODUCTS.map((p) => p.brand)).size;
+  const live = liveProducts();
+  const rackets = live.filter((p) => p.category === "rackets").length;
+  const brands = new Set(live.map((p) => p.brand)).size;
   return { rackets, brands };
 }
 

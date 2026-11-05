@@ -19,3 +19,8 @@ env.sh
 *.pem
 npm-debug.log*
 /test-results/
+
+# raw source data (catalogue collector) — never commit
+/.source-data/
+# product photos are generated from .source-data by the import step
+/public/images/products/

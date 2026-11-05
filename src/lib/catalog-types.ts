@@ -5,11 +5,17 @@
 export type Category = "rackets" | "shoes" | "bags" | "balls" | "apparel" | "accessories";
 export type Audience = "men" | "women" | "kids" | "unisex";
 
+/** One buyable option. Only in-stock variants ever reach a page. */
 export type Variant = {
   sku: string;
+  /** Empty when the product has no colour choice. */
   colour: string;
   size?: string;
+  /** Retail GBP price in pence. */
+  price: number;
 };
+
+export type DescriptionBlock = { type: "heading" | "paragraph"; text: string } | { type: "list"; items: string[] };
 
 export type Product = {
   slug: string;
@@ -17,13 +23,16 @@ export type Product = {
   brand: string;
   category: Category;
   audience: Audience;
-  /** GBP price in pence. */
+  /** Lowest retail GBP price in pence among the variants. */
   price: number;
   images: { src: string; alt: string }[];
   colours: { name: string; swatch: string }[];
   sizes: string[];
   variants: Variant[];
-  description?: string;
+  /** Manufacturer's product code, when the maker publishes one. */
+  mpn?: string;
+  specs?: { label: string; value: string }[];
+  description?: DescriptionBlock[];
   /** Sample product for the design preview. Never part of the live catalogue. */
   isTest: boolean;
 };
