@@ -1,0 +1,32 @@
+{
+  "markup": {
+    "default": 1.15,
+    "byCategory": {},
+    "byBrand": {}
+  },
+  "delivery": {
+    "customerPrice": 0,
+    "ourCostTiers": [
+      {
+        "below": 8500,
+        "price": 1295
+      },
+      {
+        "below": 17000,
+        "price": 695
+      },
+      {
+        "below": null,
+        "price": 0
+      }
+    ]
+  },
+  "rates": {
+    "EUR": 1.15,
+    "USD": 1.3
+  },
+  "rewriteApproved": false,
+  "hiddenSources": [],
+  "hiddenProducts": [],
+  "hiddenPhotos": []
+}
