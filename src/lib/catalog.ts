@@ -1,0 +1,113 @@
+import "server-only";
+import { TEST_PRODUCTS } from "@/data/test-products";
+import { CATEGORY_LABELS, AUDIENCE_LABELS, type Audience, type Category, type Product } from "./catalog-types";
+
+/**
+ * Test products appear only in the local preview (`next dev`) or when SHOW_TEST_PRODUCTS=1 is set.
+ * A production build never shows them.
+ */
+export const SHOW_TEST_PRODUCTS = process.env.NODE_ENV !== "production" || process.env.SHOW_TEST_PRODUCTS === "1";
+
+/** Live catalogue — empty until products are imported in a later stage. */
+const LIVE_PRODUCTS: Product[] = [];
+
+function all(): Product[] {
+  return SHOW_TEST_PRODUCTS ? [...LIVE_PRODUCTS, ...TEST_PRODUCTS] : LIVE_PRODUCTS;
+}
+
+export const PRICE_BANDS = [
+  { value: "0-50", label: "Under £50", min: 0, max: 5000 },
+  { value: "50-100", label: "£50 – £100", min: 5000, max: 10000 },
+  { value: "100-200", label: "£100 – £200", min: 10000, max: 20000 },
+  { value: "200-", label: "Over £200", min: 20000, max: Infinity },
+] as const;
+
+export const SORTS = [
+  { value: "featured", label: "Featured" },
+  { value: "price-asc", label: "Price: low to high" },
+  { value: "price-desc", label: "Price: high to low" },
+  { value: "name", label: "Name" },
+] as const;
+
+export type Filters = {
+  q?: string;
+  category: Category[];
+  audience: Audience[];
+  brand: string[];
+  price?: string;
+  size: string[];
+  sort: (typeof SORTS)[number]["value"];
+};
+
+export type RawParams = Record<string, string | string[] | undefined>;
+const list = (v: string | string[] | undefined) => (Array.isArray(v) ? v : v ? [v] : []).map((s) => s.trim()).filter(Boolean);
+const one = (v: string | string[] | undefined) => list(v)[0];
+
+export function parseFilters(p: RawParams): Filters {
+  return {
+    q: one(p.q)?.slice(0, 80),
+    category: list(p.category).filter((c): c is Category => c in CATEGORY_LABELS),
+    audience: list(p.for).filter((a): a is Audience => a in AUDIENCE_LABELS),
+    brand: list(p.brand),
+    price: PRICE_BANDS.find((b) => b.value === one(p.price))?.value,
+    size: list(p.size),
+    sort: SORTS.find((s) => s.value === one(p.sort))?.value ?? "featured",
+  };
+}
+
+function matches(p: Product, f: Filters, skip?: keyof Filters) {
+  const band = PRICE_BANDS.find((b) => b.value === f.price);
+  return (
+    (!f.q || `${p.name} ${p.brand}`.toLowerCase().includes(f.q.toLowerCase())) &&
+    (skip === "category" || f.category.length === 0 || f.category.includes(p.category)) &&
+    (skip === "audience" || f.audience.length === 0 || f.audience.includes(p.audience) || (p.audience === "unisex" && f.audience.some((a) => a === "men" || a === "women"))) &&
+    (skip === "brand" || f.brand.length === 0 || f.brand.includes(p.brand)) &&
+    (skip === "price" || !band || (p.price >= band.min && p.price < band.max)) &&
+    (skip === "size" || f.size.length === 0 || p.sizes.some((s) => f.size.includes(s)))
+  );
+}
+
+export function listProducts(f: Filters) {
+  const items = all().filter((p) => matches(p, f));
+  if (f.sort === "price-asc") items.sort((a, b) => a.price - b.price);
+  if (f.sort === "price-desc") items.sort((a, b) => b.price - a.price);
+  if (f.sort === "name") items.sort((a, b) => a.name.localeCompare(b.name));
+  return items;
+}
+
+/** Options for each filter group, counted against the other active filters. */
+export function filterOptions(f: Filters) {
+  const count = <T extends string>(skip: keyof Filters, key: (p: Product) => T[]) => {
+    const m = new Map<T, number>();
+    for (const p of all().filter((x) => matches(x, f, skip))) for (const k of key(p)) m.set(k, (m.get(k) ?? 0) + 1);
+    return m;
+  };
+  return {
+    category: count("category", (p) => [p.category]),
+    audience: count("audience", (p): Audience[] => (p.audience === "unisex" ? ["men", "women"] : [p.audience])),
+    brand: count("brand", (p) => [p.brand]),
+    size: count("size", (p) => p.sizes),
+    price: count("price", (p) => PRICE_BANDS.filter((b) => p.price >= b.min && p.price < b.max).map((b) => b.value)),
+  };
+}
+
+export function getProduct(slug: string) {
+  return all().find((p) => p.slug === slug);
+}
+
+export function featuredProducts(limit = 8) {
+  return all().slice(0, limit);
+}
+
+/** Real catalogue figures for the "about" counters. Test products never count, so nothing shows until real data exists. */
+export function catalogueStats() {
+  const rackets = LIVE_PRODUCTS.filter((p) => p.category === "rackets").length;
+  const brands = new Set(LIVE_PRODUCTS.map((p) => p.brand)).size;
+  return { rackets, brands };
+}
+
+export function relatedProducts(p: Product, limit = 4) {
+  return all()
+    .filter((x) => x.slug !== p.slug && x.category === p.category)
+    .slice(0, limit);
+}

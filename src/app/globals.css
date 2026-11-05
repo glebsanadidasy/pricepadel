@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+/* Tokens from the Figma mockup (Padel page). See design/design-notes.md. */
+@theme inline {
+  --color-lime: #ccff00; /* primary button */
+  --color-lime-ink: #a6c900; /* lime text on white (balance subtitles) */
+  --color-royal: #0055a4; /* button text, eyebrows, stats */
+  --color-hero: #1a5fa4; /* hero overlay at 90% */
+  --color-ink: #0c0c0c; /* headings */
+  --color-body: #555555; /* body text */
+  --color-slate: #2f3e46; /* footer, about heading */
+  --color-sky: #2a9ed9; /* blog labels and links */
+  --color-mist: #f2f2f2; /* product card buttons */
+  --color-steel: #a8bfcc; /* mid balance tile */
+  --color-graphite: #333333; /* low balance tile */
+  --color-line: #e8e8e8;
+
+  --font-sans: var(--font-lato), "Lato", system-ui, sans-serif;
+
+  --container-site: 1140px;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 6rem;
+}
+
+body {
+  background: #fff;
+  color: var(--color-body);
+  font-family: var(--font-sans);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-royal);
+  outline-offset: 2px;
+}
+
+.on-dark :focus-visible,
+.on-dark:focus-visible {
+  outline-color: var(--color-lime);
+}
+
+/* Soft separator used between home sections in the mockup. */
+.section-fade {
+  box-shadow: 0 -24px 40px -24px rgb(0 0 0 / 0.08);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
