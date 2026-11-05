@@ -18,6 +18,8 @@ export type Variant = {
 export type DescriptionBlock = { type: "heading" | "paragraph"; text: string } | { type: "list"; items: string[] };
 
 export type Product = {
+  /** Public product id (opaque), used for wishlists. */
+  id: string;
   slug: string;
   name: string;
   brand: string;
@@ -25,7 +27,8 @@ export type Product = {
   audience: Audience;
   /** Lowest retail GBP price in pence among the variants. */
   price: number;
-  images: { src: string; alt: string }[];
+  /** `colour` = photo of that colour; null = general photo. */
+  images: { src: string; alt: string; colour?: string | null }[];
   colours: { name: string; swatch: string }[];
   sizes: string[];
   variants: Variant[];

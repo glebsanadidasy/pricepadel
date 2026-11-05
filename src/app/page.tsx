@@ -8,12 +8,11 @@ import { AboutBlock } from "@/components/home/AboutBlock";
 import { BlogCards } from "@/components/home/BlogCards";
 import { toCard } from "@/components/shop/ProductCard";
 import { catalogueStats, featuredProducts } from "@/lib/catalog";
-import { getCurrency } from "@/lib/currency";
-import { formatPrice } from "@/config/currency";
+import { getMoney } from "@/lib/currency";
 
 export default async function HomePage() {
-  const currency = await getCurrency();
-  const products = featuredProducts(9).map((p) => toCard(p, formatPrice(p.price, currency)));
+  const money = await getMoney();
+  const products = featuredProducts(9).map((p) => toCard(p, money.format(p.price)));
   return (
     <>
       <HeroSlider />

@@ -3,24 +3,20 @@ import { notFound } from "next/navigation";
 import { PageHero } from "@/components/layout/PageHero";
 import { ProductCard, toCard } from "@/components/shop/ProductCard";
 import { VariantPicker } from "@/components/shop/VariantPicker";
-import { formatPrice } from "@/config/currency";
+import { currentUser } from "@/lib/auth";
 import { getProduct, relatedProducts } from "@/lib/catalog";
-import { readSettings, type DeliveryTier } from "@/lib/catalog-store";
+import { readSettings } from "@/lib/catalog-store";
+import { getMoney } from "@/lib/currency";
+import { db } from "@/lib/db";
 import { AUDIENCE_LABELS, CATEGORY_LABELS } from "@/lib/catalog-types";
-import { getCurrency } from "@/lib/currency";
 
 type Props = { params: Promise<{ slug: string }> };
 
-/** Delivery is always its own line before payment; here the customer sees the rates up front. */
-function DeliveryNote({ tiers, format }: { tiers: DeliveryTier[]; format: (pence: number) => string }) {
-  const parts = tiers.map((t, i) => {
-    const from = i === 0 ? null : tiers[i - 1].below;
-    const price = t.price === 0 ? "free" : format(t.price);
-    return from === null ? `${price} on orders under ${format(t.below ?? 0)}` : `${price} from ${format(from)}`;
-  });
+/** Delivery is always its own line before payment. It is currently free for the customer. */
+function DeliveryNote({ price }: { price: string | null }) {
   return (
     <p className="mt-[10px] text-[14px] leading-[21px] text-body">
-      <span className="font-bold text-ink">Delivery to the UK and Europe:</span> {parts.join(", ")}. Shown as a separate line before payment.
+      <span className="font-bold text-ink">{price ? `Delivery to the UK and Europe: ${price}` : "Free delivery to the UK and Europe."}</span> Shown as a separate line before payment.
     </p>
   );
 }
@@ -33,11 +29,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProductPage({ params }: Props) {
   const product = getProduct((await params).slug);
   if (!product) notFound();
-  const currency = await getCurrency();
+  const money = await getMoney();
   const related = relatedProducts(product);
-  const variants = product.variants.map((v) => ({ ...v, priceLabel: formatPrice(v.price, currency) }));
+  const variants = product.variants.map((v) => ({ ...v, priceLabel: money.format(v.price) }));
   const samePrice = product.variants.every((v) => v.price === product.price);
-  const tiers = readSettings().delivery.tiers;
+  const delivery = readSettings().delivery.customerPrice;
+  const user = await currentUser();
+  const saved = !!user && !!db().prepare("SELECT 1 FROM wishlist WHERE user_id = ? AND product_id = ?").get(user.id, product.id);
   const details = [
     { label: "Brand", value: product.brand },
     { label: "Category", value: CATEGORY_LABELS[product.category] },
@@ -62,14 +60,17 @@ export default async function ProductPage({ params }: Props) {
           </p>
         )}
         <VariantPicker
+          id={product.id}
+          slug={product.slug}
+          saved={saved}
           name={product.name}
           images={product.images}
           colours={product.colours}
           sizes={product.sizes}
           variants={variants}
-          priceLabel={`${samePrice ? "" : "From "}${formatPrice(product.price, currency)}`}
+          priceLabel={`${samePrice ? "" : "From "}${money.format(product.price)}`}
         >
-          <DeliveryNote tiers={tiers} format={(p) => formatPrice(p, currency)} />
+          <DeliveryNote price={delivery > 0 ? money.format(delivery) : null} />
         </VariantPicker>
         <div className="mt-[50px] grid gap-[40px] border-t border-line pt-[30px] lg:grid-cols-[minmax(0,560px)_1fr] lg:gap-[70px]">
           <section aria-labelledby="specs-title">
@@ -118,7 +119,7 @@ export default async function ProductPage({ params }: Props) {
             <ul className="mt-[40px] grid grid-cols-2 gap-x-[20px] gap-y-[40px] lg:grid-cols-4 lg:gap-x-[34px]">
               {related.map((p) => (
                 <li key={p.slug}>
-                  <ProductCard product={toCard(p, formatPrice(p.price, currency))} />
+                  <ProductCard product={toCard(p, money.format(p.price))} />
                 </li>
               ))}
             </ul>

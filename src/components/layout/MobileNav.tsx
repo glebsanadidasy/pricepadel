@@ -9,13 +9,13 @@ import { MenuDrawer } from "./MenuDrawer";
 const ITEM = "flex h-[68px] flex-1 flex-col items-center justify-center gap-[2px] pt-[2px] text-[13px] leading-[16px] text-[#222]";
 
 /** Bottom bar for phones (Figma 19:794): Home, Shop, Wishlist, More. */
-export function MobileNav() {
+export function MobileNav({ wishlistCount }: { wishlistCount: number }) {
   const pathname = usePathname();
   const [more, setMore] = useState(false);
   const items: { href: string; label: string; icon: AnyIcon; badge?: number }[] = [
     { href: "/", label: "Home", icon: "navHome" },
     { href: "/shop", label: "Shop", icon: "navShop" },
-    { href: "/wishlist", label: "Wishlist", icon: "navWishlist", badge: 0 },
+    { href: "/wishlist", label: "Wishlist", icon: "navWishlist", badge: wishlistCount },
   ];
   return (
     <>

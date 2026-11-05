@@ -5,10 +5,9 @@ import { AutoSubmit } from "@/components/shop/AutoSubmit";
 import { FilterToggle } from "@/components/shop/FilterToggle";
 import { ProductCard, toCard } from "@/components/shop/ProductCard";
 import { Icon } from "@/components/ui/Icon";
-import { formatPrice } from "@/config/currency";
 import { filterOptions, listProducts, parseFilters, PRICE_BANDS, showingTestProducts, SORTS, type Filters } from "@/lib/catalog";
 import { AUDIENCE_LABELS, CATEGORY_LABELS, type Audience, type Category } from "@/lib/catalog-types";
-import { getCurrency } from "@/lib/currency";
+import { getMoney } from "@/lib/currency";
 
 export const metadata: Metadata = {
   title: "Shop",
@@ -70,7 +69,7 @@ function withoutParam(params: Record<string, string | string[] | undefined>, par
 export default async function ShopPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const params = await searchParams;
   const f = parseFilters(params);
-  const currency = await getCurrency();
+  const money = await getMoney();
   const products = listProducts(f);
   const opts = filterOptions(f);
   const chips = activeChips(f);
@@ -149,7 +148,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
               <ul className="mt-[36px] grid grid-cols-2 gap-x-[20px] gap-y-[48px] md:grid-cols-3 lg:gap-x-[34px]">
                 {products.map((p) => (
                   <li key={p.slug}>
-                    <ProductCard product={toCard(p, formatPrice(p.price, currency))} sizes="(min-width: 1024px) 270px, 50vw" />
+                    <ProductCard product={toCard(p, money.format(p.price))} sizes="(min-width: 1024px) 270px, 50vw" />
                   </li>
                 ))}
               </ul>

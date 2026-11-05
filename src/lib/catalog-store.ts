@@ -4,23 +4,16 @@ import path from "node:path";
 import type { Audience, Category, DescriptionBlock } from "./catalog-types";
 
 /**
- * Imported catalogue and its settings, as written by scripts/catalog/import.mjs and the admin panel.
- * These records hold supplier data (source, source link, source price, source SKU): they are for the server
- * and the admin panel only. Public pages get products through lib/catalog.ts, which copies only public fields.
+ * Catalogue files written by scripts/catalog/import.mjs and the admin panel.
+ *   data/catalog/products.json   public product data (in Git)
+ *   data/catalog/settings.json   markups, exchange rates, delivery cost, hidden sources / products / photos (in Git)
+ *   sources/<id>/offers.json     supplier data: source link, source price, stock, source SKUs (never in Git)
+ * Supplier data is for the server and the admin panel only. Public pages get products through lib/catalog.ts,
+ * which copies only public fields.
  */
-export type ImportedVariant = {
-  sku: string;
-  colour: string;
-  colourHex: string;
-  size: string | null;
-  inStock: boolean;
-  /** Source price in GBP pence, VAT included. */
-  sourcePrice: number;
-  sourceSku: string | null;
-  sourceVariantId: string | null;
-};
+export type CatalogImage = { src: string; alt: string; width: number; height: number; colour: string | null };
 
-export type ImportedProduct = {
+export type CatalogProduct = {
   id: string;
   slug: string;
   name: string;
@@ -31,49 +24,64 @@ export type ImportedProduct = {
   specs: { label: string; value: string }[];
   description: DescriptionBlock[];
   descriptionRewritten: boolean;
-  images: { src: string; alt: string; width: number; height: number; source: string; sourceUrl: string; scrapedAt: string }[];
-  variants: ImportedVariant[];
+  images: CatalogImage[];
+  variants: { sku: string; colour: string; colourHex: string; size: string | null }[];
+  /** Hidden by the import (e.g. no usable photo). */
   hidden: boolean;
   hiddenReason: string | null;
   source: string;
+  collectedAt: string;
+};
+
+export type OfferVariant = { sourcePrice: number; inStock: boolean; sourceSku: string | null; sourceVariantId: string | null };
+export type Offer = {
   sourceUrl: string;
   sourceSku: string;
   scrapedAt: string;
   priceCheckedAt: string;
+  variants: Record<string, OfferVariant>;
+  photos: Record<string, { sourceUrl: string; scrapedAt: string }>;
 };
 
 export type DeliveryTier = { below: number | null; price: number };
+export type RateCode = "EUR" | "USD";
 
 export type CatalogSettings = {
   markup: { default: number; byCategory: Partial<Record<Category, number>>; byBrand: Record<string, number> };
-  delivery: { currency: "GBP"; tiers: DeliveryTier[]; ourCost: number | null; ourCostNote: string };
+  /** Customer delivery price (pence; 0 = free) and what delivery costs us by order value. */
+  delivery: { customerPrice: number; ourCostTiers: DeliveryTier[] };
+  /** 1 GBP in other currencies. */
+  rates: Record<RateCode, number>;
   rewriteApproved: boolean;
   hiddenSources: string[];
-  sources: Record<string, { name: string; url: string }>;
+  hiddenProducts: string[];
+  hiddenPhotos: string[];
 };
 
-const DIR = path.join(process.cwd(), "data", "catalog");
-const PRODUCTS_FILE = path.join(DIR, "products.json");
-const SETTINGS_FILE = path.join(DIR, "settings.json");
+const ROOT = process.cwd();
+const CATALOG_DIR = path.resolve(process.env.CATALOG_DIR || path.join(ROOT, "data", "catalog"));
+const SOURCES_DIR = path.resolve(process.env.SOURCES_DIR || path.join(ROOT, "sources"));
+const PRODUCTS_FILE = path.join(CATALOG_DIR, "products.json");
+const SETTINGS_FILE = path.join(CATALOG_DIR, "settings.json");
 
 export const DEFAULT_SETTINGS: CatalogSettings = {
   markup: { default: 1.15, byCategory: {}, byBrand: {} },
   delivery: {
-    currency: "GBP",
-    tiers: [
+    customerPrice: 0,
+    ourCostTiers: [
       { below: 8500, price: 1295 },
       { below: 17000, price: 695 },
       { below: null, price: 0 },
     ],
-    ourCost: null,
-    ourCostNote: "",
   },
+  rates: { EUR: 1.15, USD: 1.3 },
   rewriteApproved: false,
   hiddenSources: [],
-  sources: {},
+  hiddenProducts: [],
+  hiddenPhotos: [],
 };
 
-/** Re-read a JSON file only when it changes on disk (the import script and admin actions write it). */
+/** Re-read a JSON file only when it changes on disk (the import script and admin actions write these files). */
 const cache = new Map<string, { mtime: number; value: unknown }>();
 function readCached<T>(file: string, fallback: T): T {
   let mtime: number;
@@ -84,28 +92,59 @@ function readCached<T>(file: string, fallback: T): T {
   }
   const hit = cache.get(file);
   if (hit && hit.mtime === mtime) return hit.value as T;
-  const value = JSON.parse(fs.readFileSync(file, "utf8")) as T;
-  cache.set(file, { mtime, value });
-  return value;
+  try {
+    const value = JSON.parse(fs.readFileSync(file, "utf8")) as T;
+    cache.set(file, { mtime, value });
+    return value;
+  } catch {
+    // Being rewritten right now: keep serving the previous copy.
+    return (hit?.value as T) ?? fallback;
+  }
 }
 
-export function readImported(): ImportedProduct[] {
-  return readCached<ImportedProduct[]>(PRODUCTS_FILE, []);
+function writeJson(file: string, data: unknown) {
+  const tmp = `${file}.${process.pid}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2) + "\n");
+  fs.renameSync(tmp, file);
+}
+
+export function readCatalog(): CatalogProduct[] {
+  return readCached<CatalogProduct[]>(PRODUCTS_FILE, []);
+}
+
+/** All sources' offers, by product id. */
+export function readOffers(): Record<string, Offer> {
+  let dirs: string[] = [];
+  try {
+    dirs = fs.readdirSync(SOURCES_DIR, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name);
+  } catch {
+    return {};
+  }
+  if (dirs.length === 1) return readCached<Record<string, Offer>>(path.join(SOURCES_DIR, dirs[0], "offers.json"), {});
+  return Object.assign({}, ...dirs.map((d) => readCached<Record<string, Offer>>(path.join(SOURCES_DIR, d, "offers.json"), {})));
+}
+
+export function readSourceRegistry(): Record<string, { name: string; url: string }> {
+  return readCached(path.join(SOURCES_DIR, "sources.json"), {});
 }
 
 export function readSettings(): CatalogSettings {
   const s = readCached<Partial<CatalogSettings>>(SETTINGS_FILE, {});
-  return { ...DEFAULT_SETTINGS, ...s, markup: { ...DEFAULT_SETTINGS.markup, ...s.markup }, delivery: { ...DEFAULT_SETTINGS.delivery, ...s.delivery } };
+  return {
+    ...DEFAULT_SETTINGS,
+    ...s,
+    markup: { ...DEFAULT_SETTINGS.markup, ...s.markup },
+    delivery: { ...DEFAULT_SETTINGS.delivery, ...s.delivery },
+    rates: { ...DEFAULT_SETTINGS.rates, ...s.rates },
+  };
 }
 
 export function writeSettings(next: CatalogSettings) {
-  const tmp = `${SETTINGS_FILE}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(next, null, 2) + "\n");
-  fs.renameSync(tmp, SETTINGS_FILE);
+  writeJson(SETTINGS_FILE, next);
 }
 
 /** Brand markup wins over category markup, which wins over the default. */
-export function markupFor(p: Pick<ImportedProduct, "brand" | "category">, s: CatalogSettings) {
+export function markupFor(p: Pick<CatalogProduct, "brand" | "category">, s: CatalogSettings) {
   return s.markup.byBrand[p.brand] ?? s.markup.byCategory[p.category] ?? s.markup.default;
 }
 
@@ -114,11 +153,22 @@ export function retailPrice(sourcePence: number, markup: number) {
   return Math.round(sourcePence * markup);
 }
 
+/** What delivery of an order costs us (GBP pence), by the order's value at the source. */
+export function ourDeliveryCost(sourceSubtotal: number, tiers: DeliveryTier[]) {
+  return (tiers.find((t) => t.below === null || sourceSubtotal < t.below) ?? tiers[tiers.length - 1]).price;
+}
+
+export function visibleImages(p: CatalogProduct, s: CatalogSettings) {
+  return p.images.filter((i) => !s.hiddenPhotos.includes(i.src));
+}
+
 /** Why a product is not on sale, or null when it is. */
-export function offSaleReason(p: ImportedProduct, s: CatalogSettings): string | null {
+export function offSaleReason(p: CatalogProduct, offer: Offer | undefined, s: CatalogSettings): string | null {
   if (s.hiddenSources.includes(p.source)) return "source hidden";
+  if (s.hiddenProducts.includes(p.id)) return "hidden in admin";
   if (p.hidden) return p.hiddenReason ?? "hidden";
-  if (p.images.length === 0) return "no photo";
-  if (!p.variants.some((v) => v.inStock)) return "out of stock";
+  if (!offer) return "no price";
+  if (visibleImages(p, s).length === 0) return "no photo";
+  if (!p.variants.some((v) => offer.variants[v.sku]?.inStock)) return "out of stock";
   return null;
 }

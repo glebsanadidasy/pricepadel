@@ -33,3 +33,5 @@ npm-debug.log*
 /.next-test/
 /playwright-report/
 /.next-overnight/
+/.test-data/
+/test-results/

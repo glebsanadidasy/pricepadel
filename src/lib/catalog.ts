@@ -1,6 +1,6 @@
 import "server-only";
 import { TEST_PRODUCTS } from "@/data/test-products";
-import { markupFor, offSaleReason, readImported, readSettings, retailPrice, type ImportedProduct, type CatalogSettings } from "./catalog-store";
+import { markupFor, offSaleReason, readCatalog, readOffers, readSettings, retailPrice, visibleImages, type CatalogProduct, type CatalogSettings, type Offer } from "./catalog-store";
 import { CATEGORY_LABELS, AUDIENCE_LABELS, type Audience, type Category, type Product } from "./catalog-types";
 
 /**
@@ -10,22 +10,23 @@ import { CATEGORY_LABELS, AUDIENCE_LABELS, type Audience, type Category, type Pr
 const TEST_ALLOWED = process.env.NODE_ENV !== "production" || process.env.SHOW_TEST_PRODUCTS === "1";
 
 /**
- * Public shape of an imported product. Fields are copied one by one on purpose: source, source link,
- * source price and source SKU must never reach a page, so nothing is spread from the imported record.
+ * Public shape of a catalogue product. Fields are copied one by one on purpose: source, source link,
+ * source price and source SKU must never reach a page, so nothing is spread from the stored records.
  */
-function toPublic(p: ImportedProduct, s: CatalogSettings): Product {
+function toPublic(p: CatalogProduct, offer: Offer, s: CatalogSettings): Product {
   const markup = markupFor(p, s);
-  const onSale = p.variants.filter((v) => v.inStock);
-  const variants = onSale.map((v) => ({ sku: v.sku, colour: v.colour, size: v.size ?? undefined, price: retailPrice(v.sourcePrice, markup) }));
+  const onSale = p.variants.filter((v) => offer.variants[v.sku]?.inStock);
+  const variants = onSale.map((v) => ({ sku: v.sku, colour: v.colour, size: v.size ?? undefined, price: retailPrice(offer.variants[v.sku].sourcePrice, markup) }));
   const colours = [...new Map(onSale.filter((v) => v.colour).map((v) => [v.colour, { name: v.colour, swatch: v.colourHex }])).values()];
   return {
+    id: p.id,
     slug: p.slug,
     name: p.name,
     brand: p.brand,
     category: p.category,
     audience: p.audience,
     price: Math.min(...variants.map((v) => v.price)),
-    images: p.images.map((i) => ({ src: i.src, alt: i.alt })),
+    images: visibleImages(p, s).map((i) => ({ src: i.src, alt: i.alt, colour: i.colour })),
     colours,
     sizes: [...new Set(onSale.map((v) => v.size).filter((x): x is string => !!x))],
     variants,
@@ -36,20 +37,43 @@ function toPublic(p: ImportedProduct, s: CatalogSettings): Product {
   };
 }
 
+/** The public catalogue, rebuilt only when one of its files changed (readCached returns the same objects otherwise). */
+let memo: { catalog: unknown; offers: unknown; settings: CatalogSettings; list: Product[]; bySlug: Map<string, Product>; bySku: Map<string, { product: Product; variant: Product["variants"][number] }> } | null = null;
+function live() {
+  const catalog = readCatalog();
+  const offers = readOffers();
+  const settings = readSettings();
+  if (memo && memo.catalog === catalog && memo.offers === offers && JSON.stringify(memo.settings) === JSON.stringify(settings)) return memo;
+  const list = catalog.filter((p) => offSaleReason(p, offers[p.id], settings) === null).map((p) => toPublic(p, offers[p.id], settings));
+  const bySku = new Map(list.flatMap((product) => product.variants.map((variant) => [variant.sku, { product, variant }] as const)));
+  memo = { catalog, offers, settings, list, bySlug: new Map(list.map((p) => [p.slug, p])), bySku };
+  return memo;
+}
+
 function liveProducts(): Product[] {
-  const s = readSettings();
-  return readImported()
-    .filter((p) => offSaleReason(p, s) === null)
-    .map((p) => toPublic(p, s));
+  return live().list;
 }
 
 /** True while the shop is showing the mockup's sample products instead of a real catalogue. */
 export function showingTestProducts() {
-  return TEST_ALLOWED && readImported().length === 0;
+  return TEST_ALLOWED && readCatalog().length === 0;
 }
 
 function all(): Product[] {
   return showingTestProducts() ? TEST_PRODUCTS : liveProducts();
+}
+
+/** A buyable variant (on sale, in stock) with its current retail price — the server's source of truth for carts and orders. */
+export function findVariant(sku: string) {
+  if (showingTestProducts()) {
+    for (const product of TEST_PRODUCTS) for (const variant of product.variants) if (variant.sku === sku) return { product, variant };
+    return undefined;
+  }
+  return live().bySku.get(sku);
+}
+
+export function getProductById(id: string) {
+  return all().find((p) => p.id === id);
 }
 
 export const PRICE_BANDS = [
@@ -129,7 +153,7 @@ export function filterOptions(f: Filters) {
 }
 
 export function getProduct(slug: string) {
-  return all().find((p) => p.slug === slug);
+  return showingTestProducts() ? TEST_PRODUCTS.find((p) => p.slug === slug) : live().bySlug.get(slug);
 }
 
 export function featuredProducts(limit = 8) {

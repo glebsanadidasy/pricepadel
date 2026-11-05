@@ -8,19 +8,17 @@ export type CurrencyCode = keyof typeof CURRENCIES;
 export const DEFAULT_CURRENCY: CurrencyCode = "GBP";
 export const CURRENCY_COOKIE = "currency";
 
-/**
- * PREVIEW ONLY. Prices are kept in GBP; EUR and USD are shown with these fixed placeholder rates
- * until the owner decides how foreign-currency prices are set (fixed price lists or a daily rate).
- */
-export const PREVIEW_RATES: Record<CurrencyCode, number> = { GBP: 1, EUR: 1.15, USD: 1.3 };
-
 export function isCurrency(v: unknown): v is CurrencyCode {
   return typeof v === "string" && v in CURRENCIES;
 }
 
-/** `pence` is the GBP price in pence. */
-export function formatPrice(pence: number, currency: CurrencyCode) {
+/** Converts a GBP amount (pence) to the currency's minor units with the given rate (1 GBP = rate). */
+export function convert(pence: number, rate: number) {
+  return Math.round(pence * rate);
+}
+
+/** Formats an amount already in the currency's minor units. */
+export function formatMinor(minor: number, currency: CurrencyCode) {
   const c = CURRENCIES[currency];
-  const amount = Math.round(pence * PREVIEW_RATES[currency]) / 100;
-  return new Intl.NumberFormat(c.locale, { style: "currency", currency: c.code }).format(amount);
+  return new Intl.NumberFormat(c.locale, { style: "currency", currency: c.code }).format(minor / 100);
 }

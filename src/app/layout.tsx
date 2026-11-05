@@ -3,7 +3,10 @@ import { Lato } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { currentUser } from "@/lib/auth";
+import { cartCount } from "@/lib/cart";
 import { getCurrency } from "@/lib/currency";
+import { db } from "@/lib/db";
 import { BUSINESS } from "@/config/site";
 import "./globals.css";
 
@@ -24,18 +27,21 @@ export const viewport: Viewport = { themeColor: "#1a5fa4" };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const currency = await getCurrency();
+  const user = await currentUser();
+  const wishlistCount = user ? (db().prepare("SELECT COUNT(*) AS n FROM wishlist WHERE user_id = ?").get(user.id) as { n: number }).n : 0;
+  const inCart = await cartCount();
   return (
     <html lang="en-GB" className={`${lato.variable} antialiased`}>
       <body className="flex min-h-screen flex-col pb-[68px] lg:pb-0">
         <a href="#content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-white focus:px-4 focus:py-2 focus:text-ink">
           Skip to content
         </a>
-        <Header currency={currency} />
+        <Header currency={currency} cartCount={inCart} wishlistCount={wishlistCount} />
         <main id="content" className="flex-1">
           {children}
         </main>
         <Footer />
-        <MobileNav />
+        <MobileNav wishlistCount={wishlistCount} />
       </body>
     </html>
   );

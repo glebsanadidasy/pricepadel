@@ -2,11 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { toggleWishlist } from "@/app/account/actions";
+import { addToCart } from "@/app/cart/actions";
 import type { Product } from "@/lib/catalog-types";
 import { NoPhoto } from "./ProductCard";
 
-type Props = Pick<Product, "name" | "images" | "colours" | "sizes"> & {
+type Props = Pick<Product, "id" | "slug" | "name" | "images" | "colours" | "sizes"> & {
+  /** Whether the signed-in customer already saved this product. */
+  saved: boolean;
   variants: (Product["variants"][number] & { priceLabel: string })[];
   /** Shown until a variant is chosen, e.g. "£95.83" or "From £20.80". */
   priceLabel: string;
@@ -14,19 +18,38 @@ type Props = Pick<Product, "name" | "images" | "colours" | "sizes"> & {
   children?: React.ReactNode;
 };
 
-/** Gallery + colour and size selection (in-stock options only). Buying needs an account, so the button leads to sign-in for now. */
-export function VariantPicker({ name, images, colours, sizes, variants, priceLabel, children }: Props) {
+/** Photos of the chosen colour when the product has them, otherwise the general photos. */
+function galleryFor(images: Props["images"], colour: string) {
+  const own = colour ? images.filter((i) => i.colour === colour) : [];
+  if (own.length) return own;
+  const general = images.filter((i) => !i.colour);
+  return general.length ? general : images;
+}
+
+/** Gallery + colour and size selection (in-stock options only) + add to cart (no account needed) and wishlist. */
+export function VariantPicker({ id, slug, name, images, colours, sizes, variants, priceLabel, saved, children }: Props) {
   const [image, setImage] = useState(0);
   const [colour, setColour] = useState(colours.length === 1 ? colours[0].name : "");
   const [size, setSize] = useState("");
   const [tried, setTried] = useState(false);
+  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [pending, startTransition] = useTransition();
 
   const activeColour = colour || (colours.length <= 1 ? (colours[0]?.name ?? "") : "");
   const sizesForColour = new Set(variants.filter((v) => !activeColour || v.colour === activeColour).map((v) => v.size));
   const needColour = colours.length > 1 && !colour;
   const needSize = sizes.length > 0 && !size;
   const variant = needColour || needSize ? undefined : variants.find((v) => v.colour === activeColour && (sizes.length === 0 || v.size === size));
-  const main = images[image];
+  const gallery = galleryFor(images, activeColour);
+  const main = gallery[Math.min(image, gallery.length - 1)];
+
+  const add = () => {
+    if (!variant) return setTried(true);
+    startTransition(async () => {
+      const r = await addToCart(variant.sku, 1);
+      setMessage({ ok: r.ok, text: r.message });
+    });
+  };
 
   return (
     <div className="grid gap-[40px] lg:grid-cols-[minmax(0,560px)_1fr] lg:gap-[70px]">
@@ -34,9 +57,9 @@ export function VariantPicker({ name, images, colours, sizes, variants, priceLab
         <div className="relative aspect-square w-full bg-white">
           {main ? <Image src={main.src} alt={main.alt} fill preload sizes="(min-width: 1024px) 560px, 100vw" className="object-contain" /> : <NoPhoto className="absolute inset-0" />}
         </div>
-        {images.length > 1 && (
+        {gallery.length > 1 && (
           <ul className="mt-[14px] flex flex-wrap gap-[8px] lg:gap-[10px]" aria-label="Product photos">
-            {images.map((img, i) => (
+            {gallery.map((img, i) => (
               <li key={img.src}>
                 <button type="button" onClick={() => setImage(i)} aria-label={`Show photo ${i + 1}`} aria-pressed={i === image} className={`relative block size-[60px] border lg:size-[80px] ${i === image ? "border-royal" : "border-line"}`}>
                   <Image src={img.src} alt="" fill sizes="80px" className="object-contain" />
@@ -68,6 +91,7 @@ export function VariantPicker({ name, images, colours, sizes, variants, priceLab
                     checked={colour === c.name}
                     onChange={() => {
                       setColour(c.name);
+                      setImage(0);
                       if (size && !variants.some((v) => v.colour === c.name && v.size === size)) setSize("");
                     }}
                     className="peer sr-only"
@@ -106,20 +130,31 @@ export function VariantPicker({ name, images, colours, sizes, variants, priceLab
         )}
 
         <div className="mt-[34px] flex flex-wrap items-center gap-[14px]">
-          {needColour || needSize ? (
-            <button type="button" onClick={() => setTried(true)} className="inline-flex h-[50px] items-center bg-lime px-[38px] text-[15px] font-bold uppercase tracking-[1px] text-royal hover:bg-[#b8e600]">
-              Add to cart
+          <button
+            type="button"
+            onClick={add}
+            disabled={pending}
+            className="inline-flex h-[50px] items-center bg-lime px-[38px] text-[15px] font-bold uppercase tracking-[1px] text-royal hover:bg-[#b8e600] disabled:opacity-60"
+          >
+            {pending ? "Adding…" : "Add to cart"}
+          </button>
+          <form action={toggleWishlist.bind(null, id, `/product/${slug}`)}>
+            <button type="submit" aria-pressed={saved} className="inline-flex h-[50px] items-center border border-line px-[22px] text-[14px] uppercase tracking-[1px] text-ink hover:border-ink">
+              {saved ? "Saved to wishlist" : "Add to wishlist"}
             </button>
-          ) : (
-            <Link href={`/account?next=cart&sku=${encodeURIComponent(variant?.sku ?? "")}`} className="inline-flex h-[50px] items-center bg-lime px-[38px] text-[15px] font-bold uppercase tracking-[1px] text-royal hover:bg-[#b8e600]">
-              Add to cart
-            </Link>
-          )}
-          <Link href="/wishlist" className="inline-flex h-[50px] items-center border border-line px-[22px] text-[14px] uppercase tracking-[1px] text-ink hover:border-ink">
-            Add to wishlist
-          </Link>
+          </form>
         </div>
-        <p className="mt-[14px] text-[14px] leading-[21px] text-body">You’ll need an account to place an order. Card payment (Visa or Mastercard) is taken on the payment provider’s secure page.</p>
+        {message && (
+          <p role="status" className={`mt-[12px] text-[15px] ${message.ok ? "text-[#2e7d32]" : "text-[#c0392b]"}`}>
+            {message.text}{" "}
+            {message.ok && (
+              <Link href="/cart" className="font-bold text-royal underline">
+                View cart
+              </Link>
+            )}
+          </p>
+        )}
+        <p className="mt-[14px] text-[14px] leading-[21px] text-body">No account needed to fill your cart; you’ll sign in at checkout. Card payment (Visa or Mastercard) is taken on the payment provider’s secure page.</p>
         {children}
       </div>
     </div>

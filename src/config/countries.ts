@@ -1,0 +1,40 @@
+/** Countries we deliver to: the UK and Europe. */
+export const COUNTRIES = [
+  ["GB", "United Kingdom"],
+  ["AT", "Austria"],
+  ["BE", "Belgium"],
+  ["BG", "Bulgaria"],
+  ["HR", "Croatia"],
+  ["CY", "Cyprus"],
+  ["CZ", "Czechia"],
+  ["DK", "Denmark"],
+  ["EE", "Estonia"],
+  ["FI", "Finland"],
+  ["FR", "France"],
+  ["DE", "Germany"],
+  ["GR", "Greece"],
+  ["HU", "Hungary"],
+  ["IS", "Iceland"],
+  ["IE", "Ireland"],
+  ["IT", "Italy"],
+  ["LV", "Latvia"],
+  ["LI", "Liechtenstein"],
+  ["LT", "Lithuania"],
+  ["LU", "Luxembourg"],
+  ["MT", "Malta"],
+  ["MC", "Monaco"],
+  ["NL", "Netherlands"],
+  ["NO", "Norway"],
+  ["PL", "Poland"],
+  ["PT", "Portugal"],
+  ["RO", "Romania"],
+  ["SK", "Slovakia"],
+  ["SI", "Slovenia"],
+  ["ES", "Spain"],
+  ["SE", "Sweden"],
+  ["CH", "Switzerland"],
+] as const;
+
+export type CountryCode = (typeof COUNTRIES)[number][0];
+export const countryName = (code: string) => COUNTRIES.find(([c]) => c === code)?.[1] ?? code;
+export const isCountry = (code: string): code is CountryCode => COUNTRIES.some(([c]) => c === code);

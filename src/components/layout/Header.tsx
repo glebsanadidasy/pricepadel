@@ -34,7 +34,7 @@ function IconLink({ href, label, icon, count, size = 20 }: { href: string; label
  * Header from Figma 3:18 (desktop) and 19:719–19:727 (mobile). On the home page it sits over the hero;
  * elsewhere it gets the hero blue as a solid background.
  */
-export function Header({ currency }: { currency: CurrencyCode }) {
+export function Header({ currency, cartCount, wishlistCount }: { currency: CurrencyCode; cartCount: number; wishlistCount: number }) {
   const pathname = usePathname();
   const overHero = pathname === "/";
   const [menuOpen, setMenuOpen] = useState(false);
@@ -74,8 +74,8 @@ export function Header({ currency }: { currency: CurrencyCode }) {
               <IconLink href="/shop" label="Search" icon="search" size={18} />
               <IconLink href="/account" label="My account" icon="user" size={21} />
               <span className="mr-[16px] flex gap-[36px]">
-                <IconLink href="/wishlist" label="Wishlist" icon="heart" count={0} />
-                <IconLink href="/cart" label="Cart" icon="bag" count={0} />
+                <IconLink href="/wishlist" label="Wishlist" icon="heart" count={wishlistCount} />
+                <IconLink href="/cart" label="Cart" icon="bag" count={cartCount} />
               </span>
               <CurrencySwitcher value={currency} className="ml-[4px]" />
             </div>
@@ -95,7 +95,7 @@ export function Header({ currency }: { currency: CurrencyCode }) {
           </Link>
           <div className="ml-auto mt-[34px] flex items-center gap-[18px] pr-[16px]">
             <IconLink href="/account" label="My account" icon="user" size={22} />
-            <IconLink href="/cart" label="Cart" icon="bag" count={0} size={22} />
+            <IconLink href="/cart" label="Cart" icon="bag" count={cartCount} size={22} />
           </div>
         </div>
         <CurrencySwitcher value={currency} className="mt-[5px]" />
