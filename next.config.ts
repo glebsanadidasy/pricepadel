@@ -19,6 +19,8 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  // Separate build folders for test / overnight checks, so they never disturb the preview's .next.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   poweredByHeader: false,
   async redirects() {
     return oldAddressRedirects();

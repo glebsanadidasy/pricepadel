@@ -1,38 +1,46 @@
-// Builds the store catalogue (data/catalog/products.json) from collected records — no network.
+// Builds the store catalogue from collected records — no network.
 //   node scripts/catalog/import.mjs
-// - descriptions: drops sentences that mention the source shop or promise delivery / returns / warranty
-// - photos: rejected ones (data/catalog/photo-review.json) are left out; the rest are re-saved under neutral names
-//   in public/images/products (metadata stripped, never edited otherwise)
-// - a product with no usable photo, or whose photos have not been checked yet, is hidden
-// Writes data/catalog/import-report.md for the owner.
+// Writes
+//   data/catalog/products.json   public catalogue (in Git)
+//   sources/<id>/offers.json     source links, prices, stock, SKUs (admin only, never in Git)
+//   sources/import-report.md     report for the owner, sources/import-summary.json for the overnight report
+//   public/images/products/xx/   photos under neutral names, in hash sub-folders (metadata stripped, never edited)
+// Descriptions: sentences that mention the source shop or promise delivery / returns / warranty are removed.
+// Photos are checked automatically: broken or too small files, and local OCR for the source shop's name.
+import { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 import { titleCase } from "./lib/parse.mjs";
-import { CATALOG_FILE, CATALOG_DIR, PHOTO_REVIEW_FILE, PUBLIC_PHOTOS_DIR, RAW_DIR, readJson, recordFile, SETTINGS_FILE, SOURCE, STATE_FILE, writeJson } from "./lib/store.mjs";
+import {
+  CATALOG_FILE, IMPORT_REPORT_FILE, OCR_BIN, offersFile, PHOTO_CHECKS_FILE, PUBLIC_PHOTOS_DIR, publicPhotoPath, RAW_DIR, readJson, recordFile,
+  SETTINGS_FILE, SOURCE, SOURCE_REGISTRY_FILE, SOURCES_DIR, STATE_FILE, writeJson,
+} from "./lib/store.mjs";
 
 const SOURCE_NAME = /p[aáā]del\s*nuestro|padelnuestro/i;
 const PROMISE = /\b(deliver(y|ies|ed)?|shipping|shipped|dispatch(ed)?|free returns?|returns? policy|money[- ]back|warranty|guarantee(d)? (delivery|returns?))\b/i;
 const BADGE_ATTR = /outlet|exclusive|bestseller|best seller|novelty|new arrival|offer|discount|gift|promo|official/i;
 const DROP_ATTR = new Set(["brand", "product", "description", "user"]);
+const MIN_PHOTO_SIDE = 300; // px; smaller files are thumbnails, not product photos
 
 export const DEFAULT_SETTINGS = {
   markup: { default: 1.15, byCategory: {}, byBrand: {} },
+  // Customer delivery is free; this is what delivery costs us, by order value (pence).
   delivery: {
-    currency: "GBP",
-    // Customer price by order subtotal (pence): under £85 → £12.95; £85–£169.99 → £6.95; £170 and over → free.
-    tiers: [
+    customerPrice: 0,
+    ourCostTiers: [
       { below: 8500, price: 1295 },
       { below: 17000, price: 695 },
       { below: null, price: 0 },
     ],
-    ourCost: null,
-    ourCostNote: "",
   },
+  // GBP → other currencies. Prices are kept in GBP.
+  rates: { EUR: 1.15, USD: 1.3 },
   rewriteApproved: false,
   hiddenSources: [],
-  sources: { [SOURCE.id]: { name: SOURCE.name, url: "https://www.padelnuestro.com/uk/" } },
+  hiddenProducts: [],
+  hiddenPhotos: [],
 };
 
 const report = { mentions: [], promises: [], hidden: [], rejectedPhotos: [], badges: 0 };
@@ -51,7 +59,7 @@ function slugify(s) {
 const shortHash = (s) => crypto.createHash("sha1").update(s).digest("hex").slice(0, 8);
 
 /** Removes only the offending sentences; a block left empty disappears. */
-function cleanText(text, name, hits) {
+function cleanText(text, hits) {
   const sentences = text.match(/[^.!?]+(?:[.!?]+|$)/g) ?? [text];
   const kept = sentences.filter((s) => {
     if (SOURCE_NAME.test(s)) return hits.mentions.push(s.trim()), false;
@@ -66,13 +74,13 @@ function cleanDescription(blocks, name) {
   const out = [];
   for (const [i, b] of blocks.entries()) {
     if (b.type === "list") {
-      const items = b.items.map((t) => cleanText(t, name, hits)).filter(Boolean);
+      const items = b.items.map((t) => cleanText(t, hits)).filter(Boolean);
       if (items.length) out.push({ type: "list", items });
       continue;
     }
     // The first heading just repeats the product name.
     if (i === 0 && b.type === "heading" && b.text.toLowerCase().replace(/\W/g, "") === name.toLowerCase().replace(/\W/g, "")) continue;
-    const text = cleanText(b.text, name, hits);
+    const text = cleanText(b.text, hits);
     if (text && !(b.type === "heading" && text.length < 3)) out.push({ type: b.type, text });
   }
   // A heading with nothing after it is dropped.
@@ -110,41 +118,111 @@ function sizeLabel(size, category, kind) {
   return size;
 }
 
+// ---------- automatic photo checks ----------
+
+/** Runs local OCR on photos not checked yet (batches, so one slow file never blocks the rest). */
+function runOcr(files, checks) {
+  const todo = files.filter((f) => checks[f]?.ocr === undefined);
+  if (todo.length === 0) return;
+  if (!fs.existsSync(OCR_BIN)) {
+    const src = path.join(path.dirname(new URL(import.meta.url).pathname), "ocr", "ocr.swift");
+    fs.mkdirSync(path.dirname(OCR_BIN), { recursive: true });
+    const built = spawnSync("swiftc", ["-O", src, "-o", OCR_BIN], { encoding: "utf8" });
+    if (built.status !== 0) {
+      console.log("OCR not available:", built.stderr?.slice(0, 200));
+      return;
+    }
+  }
+  for (let i = 0; i < todo.length; i += 100) {
+    const batch = todo.slice(i, i + 100);
+    const res = spawnSync(OCR_BIN, batch.map((f) => path.join(RAW_DIR, f)), { encoding: "utf8", timeout: 600000, maxBuffer: 64 * 1024 * 1024 });
+    for (const line of (res.stdout ?? "").split("\n")) {
+      if (!line.trim()) continue;
+      try {
+        const { file, text } = JSON.parse(line);
+        const rel = path.relative(RAW_DIR, file);
+        checks[rel] = { ...checks[rel], ocr: text.slice(0, 500) };
+      } catch {
+        /* a broken line is retried next time */
+      }
+    }
+  }
+}
+
+async function checkPhoto(rel, checks) {
+  const c = (checks[rel] ??= {});
+  if (c.broken === undefined) {
+    try {
+      const m = await sharp(path.join(RAW_DIR, rel)).metadata();
+      c.width = m.width;
+      c.height = m.height;
+      c.broken = !m.width || !m.height;
+    } catch {
+      c.broken = true;
+    }
+  }
+  if (c.broken) return "broken or unreadable file";
+  if (Math.min(c.width, c.height) < MIN_PHOTO_SIDE) return `too small (${c.width}×${c.height})`;
+  if (c.ocr && SOURCE_NAME.test(c.ocr.replace(/\s+/g, " "))) return "source shop name found in the photo (OCR)";
+  return null;
+}
+
 async function savePhoto(srcAbs, outAbs) {
   if (fs.existsSync(outAbs) && fs.statSync(outAbs).mtimeMs >= fs.statSync(srcAbs).mtimeMs) {
     const m = await sharp(outAbs).metadata();
     return { width: m.width, height: m.height };
   }
+  fs.mkdirSync(path.dirname(outAbs), { recursive: true });
   // Re-encoded at high quality only to drop embedded metadata; size and content stay as the original.
   const info = await sharp(srcAbs).rotate().flatten({ background: "#ffffff" }).jpeg({ quality: 92, mozjpeg: true }).toFile(outAbs);
   return { width: info.width, height: info.height };
 }
 
+// ---------- main ----------
+
+function migrateSettings(s) {
+  const out = { ...DEFAULT_SETTINGS, ...s };
+  out.markup = { ...DEFAULT_SETTINGS.markup, ...s.markup };
+  out.delivery = { ...DEFAULT_SETTINGS.delivery, ...(s.delivery?.ourCostTiers ? s.delivery : {}) };
+  out.rates = { ...DEFAULT_SETTINGS.rates, ...s.rates };
+  delete out.sources; // source names live in sources/sources.json (not in Git)
+  return out;
+}
+
 async function main() {
   const state = readJson(STATE_FILE, { processed: {} });
-  const review = readJson(PHOTO_REVIEW_FILE, { reviewed: {}, rejected: {} });
-  if (!fs.existsSync(SETTINGS_FILE)) writeJson(SETTINGS_FILE, DEFAULT_SETTINGS);
-  const previous = new Map(readJson(CATALOG_FILE, []).map((p) => [p.id, p]));
+  writeJson(SETTINGS_FILE, migrateSettings(readJson(SETTINGS_FILE, {})));
+  writeJson(SOURCE_REGISTRY_FILE, { ...readJson(SOURCE_REGISTRY_FILE, {}), [SOURCE.id]: { name: SOURCE.name, url: SOURCE.url } });
+  const prevOffers = readJson(offersFile(SOURCE.id), {});
+  const checks = readJson(PHOTO_CHECKS_FILE, {});
   fs.mkdirSync(PUBLIC_PHOTOS_DIR, { recursive: true });
 
-  const accepted = Object.values(state.processed).filter((p) => p.status === "accepted");
+  const entries = Object.values(state.processed).filter((p) => p.status === "accepted" || p.status === "stored");
+  const records = entries.map((e) => readJson(recordFile(e.key), null)).filter(Boolean);
+  // OCR every collected photo first (cached; only new photos are read).
+  const allPhotos = records.flatMap((r) => [...(r.images ?? []), ...Object.values(r.colourImages ?? {}).flat()].map((i) => i.file).filter(Boolean));
+  runOcr([...new Set(allPhotos)], checks);
+  writeJson(PHOTO_CHECKS_FILE, checks);
+
   const slugs = new Set();
+  const seenIds = new Set();
   const items = [];
+  const offers = {};
   const usedPhotoFiles = new Set();
 
-  for (const entry of accepted) {
-    const rec = readJson(recordFile(entry.key), null);
-    if (!rec) continue;
+  for (const rec of records) {
+    const id = `p${shortHash(`${rec.source}:${rec.sourceSku}`)}`;
+    if (seenIds.has(id)) continue; // the same product under two URLs
+    seenIds.add(id);
     rec.name = rec.name.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
     // Some source titles are all capitals; shout less.
     const letters = rec.name.replace(/[^\p{L}]/gu, "");
     if (letters && letters.replace(/\p{Lu}/gu, "").length / letters.length < 0.2) rec.name = titleCase(rec.name).replace(/’S\b/g, "’s");
-    const id = `p${shortHash(`${rec.source}:${rec.sourceSku}`)}`;
     let slug = slugify(rec.name) || id;
     if (slugs.has(slug)) slug = `${slug}-${id.slice(1, 5)}`;
     slugs.add(slug);
 
-    const { blocks, hits } = cleanDescription(rec.description, rec.name);
+    const { blocks, hits } = cleanDescription(rec.description ?? [], rec.name);
     if (hits.mentions.length) report.mentions.push({ name: rec.name, removed: hits.mentions });
     if (hits.promises.length) report.promises.push({ name: rec.name, removed: hits.promises });
     if (rec.ignoredBadges?.length) report.badges++;
@@ -159,13 +237,12 @@ async function main() {
     const rawVariants = rec.variants ?? [{ sourceId: null, sourceSku: rec.sourceSku, colour: null, colourHex: null, size: null, sizeKind: null, price: rec.price, inStock: rec.inStock }];
     const variants = rawVariants
       .map((v) => {
-        const size = sizeLabel(v.size, rec.category, v.sizeKind);
         const colour = v.colour ?? colourAttr ?? "";
         return {
           sku: [skuBase, slugify(colour).slice(0, 12), slugify(v.size ?? "")].filter(Boolean).join("-").toUpperCase(),
           colour,
           colourHex: swatchFor(colour, v.colourHex),
-          size,
+          size: sizeLabel(v.size, rec.category, v.sizeKind),
           inStock: !!v.inStock,
           sourcePrice: Math.round((v.price ?? rec.price) * 100),
           sourceSku: v.sourceSku,
@@ -174,47 +251,52 @@ async function main() {
       })
       .sort((a, b) => a.colour.localeCompare(b.colour) || sizeSort(a.size?.replace(/^EU /, ""), b.size?.replace(/^EU /, "")));
 
-    // Photos: neutral public names, rejected ones left out.
+    // Photos: main gallery (colour null) + colour galleries; neutral public names; automatic checks.
     const images = [];
-    const reviewed = !!review.reviewed[entry.key];
-    for (const [i, img] of rec.images.entries()) {
-      const ref = `${entry.key}/${i + 1}`;
-      const rejected = review.rejected[ref];
-      if (rejected) {
-        report.rejectedPhotos.push({ name: rec.name, photo: i + 1, reason: rejected });
-        continue;
+    const photoSources = {};
+    const savedBySource = new Map();
+    const groups = [{ colour: null, list: rec.images ?? [] }, ...Object.entries(rec.colourImages ?? {}).map(([colour, list]) => ({ colour, list }))];
+    let n = 0;
+    for (const g of groups) {
+      for (const img of g.list) {
+        if (!img.file) continue;
+        const problem = await checkPhoto(img.file, checks);
+        if (problem) {
+          report.rejectedPhotos.push({ name: rec.name, photo: img.file.split("/").pop(), reason: problem });
+          continue;
+        }
+        let saved = savedBySource.get(img.url);
+        if (!saved) {
+          n++;
+          const p = publicPhotoPath(`${slug}-${n}.jpg`);
+          const dims = await savePhoto(path.join(RAW_DIR, img.file), p.abs);
+          saved = { src: p.src, ...dims };
+          savedBySource.set(img.url, saved);
+          usedPhotoFiles.add(p.rel);
+          photoSources[p.src] = { sourceUrl: img.url, scrapedAt: img.scrapedAt };
+        }
+        const alt = g.colour ? `${rec.name}, ${g.colour}` : images.length === 0 ? rec.name : `${rec.name}, view ${images.length + 1}`;
+        images.push({ src: saved.src, alt, width: saved.width, height: saved.height, colour: g.colour });
       }
-      const outName = `${slug}-${images.length + 1}.jpg`;
-      const dims = await savePhoto(path.join(RAW_DIR, img.file), path.join(PUBLIC_PHOTOS_DIR, outName));
-      usedPhotoFiles.add(outName);
-      images.push({
-        src: `/images/products/${outName}`,
-        alt: images.length === 0 ? rec.name : `${rec.name}, view ${images.length + 1}`,
-        width: dims.width,
-        height: dims.height,
-        source: rec.source,
-        sourceUrl: img.url,
-        scrapedAt: img.scrapedAt,
-      });
     }
 
+    const inStock = variants.some((v) => v.inStock);
     let hiddenReason = null;
-    if (!reviewed) hiddenReason = "photos not checked yet";
-    else if (images.length === 0) {
-      const why = [...new Set(rec.images.map((_, i) => review.rejected[`${entry.key}/${i + 1}`]).filter(Boolean))];
-      hiddenReason = `no usable photo (${why.join("; ") || "none collected"})`;
+    if (inStock && images.length === 0) {
+      const why = [...new Set(report.rejectedPhotos.filter((r) => r.name === rec.name).map((r) => r.reason))];
+      hiddenReason = `no usable photo${why.length ? ` (${why.join("; ")})` : ""}`;
+      report.hidden.push({ name: rec.name, reason: hiddenReason });
     }
-    if (hiddenReason) report.hidden.push({ name: rec.name, reason: hiddenReason });
 
     // A later price/stock refresh is newer than the collected page: keep its numbers.
-    const prev = previous.get(id);
+    const prev = prevOffers[id];
     if (prev && prev.priceCheckedAt > rec.scrapedAt) {
-      const fresh = new Map(prev.variants.map((v) => [v.sku, v]));
       for (const v of variants) {
-        const f = fresh.get(v.sku);
+        const f = prev.variants?.[v.sku];
         if (f) Object.assign(v, { inStock: f.inStock, sourcePrice: f.sourcePrice });
       }
     }
+
     items.push({
       id,
       slug,
@@ -227,55 +309,86 @@ async function main() {
       description: blocks,
       descriptionRewritten: false,
       images,
-      variants,
+      variants: variants.map((v) => ({ sku: v.sku, colour: v.colour, colourHex: v.colourHex, size: v.size })),
       hidden: !!hiddenReason,
       hiddenReason,
-      // Admin-only fields (never copied into the public product shape):
       source: rec.source,
+      collectedAt: rec.scrapedAt.slice(0, 10),
+    });
+    offers[id] = {
       sourceUrl: rec.sourceUrl,
       sourceSku: rec.sourceSku,
       scrapedAt: rec.scrapedAt,
       priceCheckedAt: prev?.priceCheckedAt && prev.priceCheckedAt > rec.scrapedAt ? prev.priceCheckedAt : rec.scrapedAt,
-    });
+      variants: Object.fromEntries(variants.map((v) => [v.sku, { sourcePrice: v.sourcePrice, inStock: v.inStock, sourceSku: v.sourceSku, sourceVariantId: v.sourceVariantId }])),
+      photos: photoSources,
+    };
   }
 
-  // Remove public photo files that no longer belong to any product.
-  for (const f of fs.readdirSync(PUBLIC_PHOTOS_DIR)) if (!usedPhotoFiles.has(f)) fs.rmSync(path.join(PUBLIC_PHOTOS_DIR, f));
+  // Remove public photo files no product uses any more (they are rebuilt from .source-data on every import).
+  for (const dir of fs.readdirSync(PUBLIC_PHOTOS_DIR, { withFileTypes: true })) {
+    const abs = path.join(PUBLIC_PHOTOS_DIR, dir.name);
+    if (dir.isFile()) fs.rmSync(abs);
+    else for (const f of fs.readdirSync(abs)) if (!usedPhotoFiles.has(`${dir.name}/${f}`)) fs.rmSync(path.join(abs, f));
+  }
 
+  writeJson(PHOTO_CHECKS_FILE, checks);
+  writeJson(offersFile(SOURCE.id), offers);
   writeJson(CATALOG_FILE, items);
-  writeReport(state, items);
-  const visible = items.filter((p) => !p.hidden && p.variants.some((v) => v.inStock));
-  console.log(`Imported ${items.length} products (${visible.length} visible), ${items.reduce((n, p) => n + p.images.length, 0)} photos.`);
+  const summary = writeReport(state, items, offers);
+  console.log(`Imported ${items.length} products (${summary.onSale} on sale), ${summary.photos} photos.`);
 }
 
-function writeReport(state, items) {
+function writeReport(state, items, offers) {
   const all = Object.entries(state.processed);
-  const by = (s) => all.filter(([, p]) => p.status === s);
   const reasons = {};
-  for (const [, p] of by("skipped")) reasons[p.reason] = (reasons[p.reason] ?? 0) + 1;
+  for (const [, p] of all) if (p.status !== "accepted") reasons[`${p.status}: ${p.reason}`] = (reasons[`${p.status}: ${p.reason}`] ?? 0) + 1;
   const cats = {};
   for (const p of items) cats[p.category] = (cats[p.category] ?? 0) + 1;
+  const inStock = (p) => Object.values(offers[p.id].variants).some((v) => v.inStock);
+  const onSale = items.filter((p) => !p.hidden && p.images.length && inStock(p)).length;
+  const photos = new Set(items.flatMap((p) => p.images.map((i) => i.src))).size;
+  const rejectedByReason = {};
+  for (const r of report.rejectedPhotos) {
+    const k = r.reason.replace(/\(.*\)/, "").trim();
+    rejectedByReason[k] = (rejectedByReason[k] ?? 0) + 1;
+  }
+  const summary = {
+    at: new Date().toISOString(),
+    pagesChecked: all.length,
+    products: items.length,
+    byCategory: cats,
+    inStock: items.filter(inStock).length,
+    onSale,
+    hidden: report.hidden.length,
+    photos,
+    rejectedPhotos: report.rejectedPhotos.length,
+    rejectedByReason,
+    mentionsRemoved: report.mentions.length,
+    promisesRemoved: report.promises.length,
+    skipped: reasons,
+  };
+  writeJson(path.join(SOURCES_DIR, "import-summary.json"), summary);
   const lines = [
-    "# Catalogue import report (admin only)",
+    "# Catalogue import report (admin only — not in Git)",
     "",
-    `Generated ${new Date().toISOString()}. Source: ${SOURCE.name}.`,
+    `Generated ${summary.at}. Source: ${SOURCE.name}.`,
     "",
     "## Totals",
     `- Source pages checked: ${all.length}`,
     `- Imported products: ${items.length} (${Object.entries(cats).map(([c, n]) => `${c} ${n}`).join(", ")})`,
-    `- Visible in the shop: ${items.filter((p) => !p.hidden && p.variants.some((v) => v.inStock)).length}`,
-    `- Photos used: ${items.reduce((n, p) => n + p.images.length, 0)}; photos rejected: ${report.rejectedPhotos.length}`,
-    `- Pages left for later (category sample already full): ${by("deferred").length}`,
+    `- In stock at the source: ${summary.inStock}; on sale in the shop: ${onSale}`,
+    `- Photos used: ${photos}; photos rejected by the automatic checks: ${report.rejectedPhotos.length}`,
     `- Products whose source badges (Bestseller, Outlet, discount % …) were ignored: ${report.badges}`,
     "",
-    "## Skipped pages",
+    "## Pages not imported as products for sale",
     ...Object.entries(reasons).sort((a, b) => b[1] - a[1]).map(([r, n]) => `- ${r}: ${n}`),
     "",
-    "## Hidden products",
+    "## Hidden products (in stock, but no usable photo)",
     ...(report.hidden.length ? report.hidden.map((h) => `- ${h.name} — ${h.reason}`) : ["- none"]),
     "",
     "## Rejected photos",
-    ...(report.rejectedPhotos.length ? report.rejectedPhotos.map((r) => `- ${r.name}, photo ${r.photo}: ${r.reason}`) : ["- none"]),
+    ...(report.rejectedPhotos.length ? report.rejectedPhotos.map((r) => `- ${r.name}, ${r.photo}: ${r.reason}`) : ["- none"]),
     "",
     "## Descriptions: sentences mentioning the source shop (removed)",
     ...(report.mentions.length ? report.mentions.map((m) => `- **${m.name}**: ${m.removed.map((s) => `“${s}”`).join(" ")}`) : ["- none"]),
@@ -284,7 +397,8 @@ function writeReport(state, items) {
     ...(report.promises.length ? report.promises.map((m) => `- **${m.name}**: ${m.removed.map((s) => `“${s}”`).join(" ")}`) : ["- none"]),
     "",
   ];
-  fs.writeFileSync(path.join(CATALOG_DIR, "import-report.md"), lines.join("\n"));
+  fs.writeFileSync(IMPORT_REPORT_FILE, lines.join("\n"));
+  return summary;
 }
 
 main().catch((e) => {

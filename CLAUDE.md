@@ -6,6 +6,19 @@ Replacement for the old pricepadel.com, which was lost after the hosting was hac
 - The site is in **English**. Talk to the owner in **Russian**, simply — the owner is not a programmer.
 - Make technical decisions yourself; ask only about business questions.
 - Do only the stage the owner asked for, then stop.
+- **Autonomous (overnight) mode**, when the owner says so: work to the end without confirmations and without questions.
+  Write every disputable decision into `overnight-report.md` and carry on.
+
+## Git and GitHub
+- Private repository `glebsanadidasy/pricepadel` (https://github.com/glebsanadidasy/pricepadel). Pushing work there is allowed.
+  Before every push check it is still private (`gh repo view --json isPrivate`); if not — push nothing and tell the owner.
+- Never force-push. Never use Git LFS.
+- Never in Git: `sources/` (supplier data), original photos, raw collection data (`.source-data/`), `.env`, customer data (`.data/`, `outbox/`).
+- Product photos (`public/images/products/`) are in Git, in hash sub-folders (< 3000 files per folder).
+  If `.git` grows past 8 GB, stop adding photos to Git and say so in the report.
+
+## Hard limits (always)
+- Do not publish the site, buy, register, change DNS or mail, write to people, or delete working data.
 
 ## Goal (final product)
 - Padel rackets, shoes, bags, balls, apparel and accessories for men, women and kids.
@@ -35,7 +48,7 @@ Replacement for the old pricepadel.com, which was lost after the hosting was hac
 - Details: `design/design-notes.md`.
 
 ## Rules
-- Work only on this computer. Do not publish, buy or register anything. Do not change DNS or domain mail.
+- Work only on this computer (plus pushes to the private GitHub repo). Do not publish, buy or register anything. Do not change DNS or domain mail.
 - `~/orbex-chronogem` is **read-only**. Never open `.env` or `env.sh` files (anywhere). Never ask the owner for passwords.
 - Secrets live only in `.env`, which is git-ignored.
 - Suppliers, source shops and source prices are visible **only in the admin panel**. They must never reach public pages, URLs, photo file names or customer-facing API responses.
@@ -53,6 +66,10 @@ Work only on this computer: never publish, buy or register anything.
 - User-Agent: `PricePadelCatalog/1.0 (+contact@pricepadel.com)`.
 - Collection resumes from where it stopped. Raw data (sitemap, pages, original photos, state) lives in `.source-data/` — git-ignored, never committed.
 
+**Full collection** (stage 3): every product in the sitemap, no per-category limit. Out-of-stock products are stored
+(without photos) for later refreshes. HTTP 503: wait 20–40 s; a series of 503s: wait 15 min and carry on.
+Block / captcha / 403 / 429: wait 1 hour and try once more; if it repeats, stop, keep everything collected, write the reason to the report.
+
 **What to take**: name, brand, article (SKU), category, audience, variants and their stock, current GBP price, specifications, description,
 up to 5 photos in the best quality. Categories: rackets, shoes, apparel, bags, balls, accessories.
 
@@ -65,8 +82,12 @@ up to 5 photos in the best quality. Categories: rackets, shoes, apparel, bags, b
 
 **Photos and descriptions**
 - Photos are downloaded into the project (no hot-links to the source). Public file names are neutral.
-- Do not remove watermarks or logos. Do not use photos with the Padel Nuestro logo, overlaid text or people.
+- Do not remove watermarks or logos. Do not use photos with the Padel Nuestro logo or overlaid text.
+  Photos with people are not allowed, **except apparel: photos on models are allowed** (owner, stage 3).
   If no other photo is left, hide the product and list it in the report.
+- Photos are not checked by eye any more: automatic checks only (broken / too small files, local OCR for "Padel Nuestro").
+- Photos of other colours are collected when the source serves them through ordinary public requests allowed by robots.txt;
+  the gallery switches with the chosen colour.
 - Do not generate new descriptions until the owner turns on `rewriteApproved`.
 - Every product and photo keeps its source and collection date. Admin has a button that hides everything from a source at once.
 
@@ -74,8 +95,8 @@ up to 5 photos in the best quality. Categories: rackets, shoes, apparel, bags, b
 - Source price and source link are visible only in the admin panel.
 - Retail price = source price × 1.15. The markup can be changed per category and per brand.
 - Source prices already include VAT (final prices).
-- Delivery is shown to the customer as a separate line before payment: £12.95 under £85, £6.95 from £85 to £169.99, free from £170.
-  Our own delivery cost is kept in the admin panel.
+- Delivery is **free for the customer**: checkout shows a "Free delivery" line at £0 before payment.
+  Our own delivery cost (what we pay) is kept in the admin panel: £12.95 under £85, £6.95 from £85 to £169.99, free from £170.
 - Price and stock refresh command without re-downloading photos. Out-of-stock products and variants are hidden.
 
 ## Not to copy from the mockup as-is

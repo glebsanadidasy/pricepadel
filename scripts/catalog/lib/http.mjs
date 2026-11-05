@@ -145,6 +145,24 @@ export async function fetchPage(url) {
   return { status: 200, url: res.url, html };
 }
 
+/**
+ * JSON from a public endpoint the source's own pages call (e.g. colour photos). One attempt only:
+ * returns null on 5xx so a slow optional endpoint never holds the collection up. Blocks still stop the run.
+ */
+export async function fetchJson(url) {
+  if (!robotsAllows(url)) return null;
+  const res = await rawFetch(url, "application/json");
+  checkStatus(res, url);
+  if (!res.ok) return null;
+  const body = await res.text();
+  if (CHALLENGE.test(body) && !body.trim().startsWith("{")) throw new StopError(`Protection page instead of data (${url}). Collection stopped.`, { url });
+  try {
+    return JSON.parse(body);
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchText(url) {
   if (!robotsAllows(url)) throw new StopError(`robots.txt disallows ${url}`);
   const res = await rawFetch(url, "application/xml,text/xml");

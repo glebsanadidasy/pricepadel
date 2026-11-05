@@ -22,5 +22,14 @@ npm-debug.log*
 
 # raw source data (catalogue collector) — never commit
 /.source-data/
-# product photos are generated from .source-data by the import step
-/public/images/products/
+# supplier data for the admin panel (source links, prices, SKUs, reports) — never commit
+/sources/
+# customer data: database, sessions, outgoing mail — never commit
+/.data/
+/outbox/
+# overnight runner state and logs
+/.overnight/
+# test runs
+/.next-test/
+/playwright-report/
+/.next-overnight/
