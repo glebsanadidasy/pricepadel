@@ -23,7 +23,10 @@ Replacement for the old pricepadel.com, which was lost after the hosting was hac
 ## Goal (final product)
 - Padel rackets, shoes, bags, balls, apparel and accessories for men, women and kids.
 - Sizes and colours are product **variants**.
-- Mandatory registration before purchase, customer account, wishlist, cart, admin panel, order e-mails.
+- **Guest checkout** (owner, stage 8) or an optional customer account; wishlist, cart, admin panel, order e-mails.
+  Guests give every field the payment provider needs (e-mail, first name + surname, phone with country code, UK address);
+  they get a private order link by e-mail (token stored only as SHA-256) and a cookie `pp_order_<number>` in the browser that ordered.
+  Accounts still need a confirmed e-mail.
 - Payment **only by Visa or Mastercard on the payment gateway's hosted page** (no card entry on our site).
 - Currencies: EUR, GBP, USD. Sales to the UK and Europe.
 

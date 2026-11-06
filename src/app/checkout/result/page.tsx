@@ -5,8 +5,8 @@ import { PageHero } from "@/components/layout/PageHero";
 import { AutoRefresh } from "@/components/shop/AutoRefresh";
 import { LimeButton } from "@/components/ui/Button";
 import { Notice, SubmitButton } from "@/components/ui/Form";
-import { requireUser } from "@/lib/auth";
-import { charged, expireStalePayments, getOrderForUser, lastPaymentStatus } from "@/lib/orders";
+import { orderPath, viewableOrder } from "@/lib/order-access";
+import { charged, expireStalePayments, lastPaymentStatus } from "@/lib/orders";
 import { payAgain } from "../actions";
 
 export const metadata: Metadata = { title: "Order status", robots: { index: false } };
@@ -14,15 +14,17 @@ export const metadata: Metadata = { title: "Order status", robots: { index: fals
 /** Where the gateway sends the customer back. The order status shown comes from our database, never from the URL. */
 export default async function ResultPage({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
   const number = (await searchParams).order ?? "";
-  const user = await requireUser(`/checkout/result?order=${encodeURIComponent(number)}`);
   expireStalePayments();
-  const o = getOrderForUser(number, user.id);
-  if (!o) notFound();
+  // The customer who placed it, or the guest browser holding its private token; anyone else: not found.
+  const access = await viewableOrder(number);
+  if (!access) notFound();
+  const o = access.order;
+  const view = orderPath(o.number, access.guest);
   const payment = lastPaymentStatus(o.id);
   const paid = o.status !== "Awaiting payment" && o.status !== "Expired";
   return (
     <>
-      <PageHero title={paid ? "Thank you" : payment === "created" ? "Checking your payment" : "Payment not completed"} crumbs={[{ href: "/account/orders", label: "Orders" }]} />
+      <PageHero title={paid ? "Thank you" : payment === "created" ? "Checking your payment" : "Payment not completed"} crumbs={[{ href: view, label: o.number }]} />
       <div className="mx-auto max-w-[680px] space-y-[18px] px-[15px] pb-[80px] pt-[40px]">
         {paid ? (
           <>
@@ -46,9 +48,9 @@ export default async function ResultPage({ searchParams }: { searchParams: Promi
             {payment === "created" ? (
               <AutoRefresh />
             ) : o.status === "Expired" ? (
-              <LimeButton href={`/account/orders/${o.number}`}>Order again</LimeButton>
+              <LimeButton href={view}>Order again</LimeButton>
             ) : (
-              <form action={payAgain.bind(null, o.number)}>
+              <form action={payAgain.bind(null, o.number, undefined)}>
                 <SubmitButton>Try paying again</SubmitButton>
               </form>
             )}
@@ -58,7 +60,7 @@ export default async function ResultPage({ searchParams }: { searchParams: Promi
           Order status: {o.status}
         </p>
         <div className="flex flex-wrap gap-[12px]">
-          <LimeButton href={`/account/orders/${o.number}`}>View order</LimeButton>
+          <LimeButton href={view}>View order</LimeButton>
           <Link href="/shop" className="inline-flex h-[44px] items-center px-[10px] text-royal underline">
             Continue shopping
           </Link>

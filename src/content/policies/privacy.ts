@@ -27,6 +27,7 @@ export const privacy = (f: Facts): Policy => ({
           table: [
             ["Data", "Where it comes from"],
             ["Account data: e-mail address, name (optional), password (stored only in scrambled, hashed form), whether your e-mail is confirmed", "You, when you register"],
+            ["Guest orders: e-mail address, name, phone number and delivery address; a secret code that lets you open your order with your private link (we store only a scrambled, hashed form of it)", "You, at checkout"],
             ["Addresses and phone number you save for delivery", "You"],
             ["Orders: products, prices, currency and exchange rate, delivery address, order history and status, the time you accepted our terms", "You and our systems"],
             ["Payment information: whether a payment succeeded, was declined or was cancelled, and the amount. **We never see or store your card number**", "Our payment provider"],
@@ -91,7 +92,7 @@ export const privacy = (f: Facts): Policy => ({
           table: [
             ["Data", "How long"],
             ["Account, addresses and wishlist", "Until you ask us to delete your account. An account with no activity for 3 years is deleted; we e-mail you 30 days before"],
-            ["Orders and payment records", "6 years after the end of the financial year in which the order was placed"],
+            ["Orders and payment records (including guest orders)", "6 years after the end of the financial year in which the order was placed"],
             ["Sign-in sessions", "Up to 30 days, or until you sign out"],
             ["Records of sign-in, registration and password reset attempts (with IP address)", "24 hours"],
             ["E-mail confirmation links", "48 hours; password reset links 1 hour (each works once)"],
@@ -139,7 +140,7 @@ export const privacy = (f: Facts): Policy => ({
       id: "required",
       title: "What happens if you don’t give us data",
       body: [
-        "You can browse the shop and use the cart without giving us any personal data. To create an account we need your e-mail address and a password. To deliver an order we need your name and a delivery address. A phone number and your name in the profile are optional.",
+        "You can browse the shop and use the cart without giving us any personal data. To place an order — as a guest or with an account — we need your e-mail address, your first name and surname, a phone number with the country code and a delivery address: our payment provider requires them, and the carrier needs them to deliver. To create an account we also need a password.",
         "If you don’t give us the data we need for an order, we cannot accept or deliver it.",
       ],
     },

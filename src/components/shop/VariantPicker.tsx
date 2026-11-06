@@ -154,7 +154,7 @@ export function VariantPicker({ id, slug, name, images, colours, sizes, variants
             )}
           </p>
         )}
-        <p className="mt-[14px] text-[14px] leading-[21px] text-body">No account needed to fill your cart; you’ll sign in at checkout. Card payment (Visa or Mastercard) is taken on the payment provider’s secure page.</p>
+        <p className="mt-[14px] text-[14px] leading-[21px] text-body">No account needed — check out as a guest or sign in. Card payment (Visa or Mastercard) is taken on the payment provider’s secure page.</p>
         {children}
       </div>
     </div>

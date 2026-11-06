@@ -27,6 +27,7 @@ export const cookies = (f: Facts): Policy => ({
             ["Name", "What it does", "How long it lasts", "Type"],
             ["pp_session", "Keeps you signed in to your account", "30 days, or until you sign out", "Strictly necessary"],
             ["pp_cart", "Remembers what is in your cart (product codes and quantities only)", "60 days", "Strictly necessary"],
+            ["pp_order_<order number>", "Lets the browser that placed a guest order open that order and pay for it", "90 days", "Strictly necessary"],
             ["currency", "Remembers the currency you chose (£, € or $)", "1 year", "Functional — set only when you choose a currency"],
             ["pp_consent", "Remembers your cookie choice (accept or reject)", "180 days", "Strictly necessary"],
             ["pp_admin", "Keeps our staff signed in to the shop’s admin area (never set for customers)", "12 hours", "Strictly necessary"],

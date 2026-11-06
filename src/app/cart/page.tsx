@@ -104,7 +104,7 @@ export default async function CartPage() {
               ) : (
                 <p className="mt-[18px] text-[14px] font-bold text-[#c0392b]">Remove unavailable items to continue.</p>
               )}
-              <p className="mt-[12px] text-[13px] leading-[19px] text-body">You’ll need an account with a confirmed e-mail to place an order.</p>
+              <p className="mt-[12px] text-[13px] leading-[19px] text-body">Check out as a guest, or sign in to your account.</p>
             </aside>
           </div>
         )}

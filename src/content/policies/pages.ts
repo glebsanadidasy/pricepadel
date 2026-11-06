@@ -13,7 +13,7 @@ export const faq = (f: Facts): Policy => ({
       id: "ordering",
       title: "Ordering and your account",
       body: [
-        "**Do I need an account to shop?** You can browse and fill your cart without one. To place an order you need an account with a confirmed e-mail address — we send you a confirmation link when you register.",
+        "**Do I need an account to shop?** No. You can check out as a guest: we ask for your e-mail, name, phone number (with the country code) and UK delivery address, and e-mail you a private link to your order. An account is optional and keeps your addresses, wishlist and orders in one place.",
         "**I didn’t get the confirmation e-mail.** Check your spam folder, then sign in and use “Send the link again” on your account page.",
         "**I forgot my password.** Use “Forgot your password?” on the sign-in page. The reset link works once and expires after 1 hour.",
         "**Can I change or cancel my order?** E-mail us as soon as possible with your order number. Before dispatch we can cancel it and refund you in full; after delivery you can use your 14-day right to cancel — see our [Return Policy](/policies/returns).",

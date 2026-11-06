@@ -1,4 +1,5 @@
 import "server-only";
+import crypto from "node:crypto";
 import { BUSINESS } from "@/config/site";
 import { countryName } from "@/config/countries";
 import { convert, formatMinor, type CurrencyCode } from "@/config/currency";
@@ -17,7 +18,8 @@ export type Address = { id?: number; full_name: string; line1: string; line2: st
 export type OrderRow = {
   id: number;
   number: string;
-  user_id: number;
+  user_id: number | null;
+  guest_token_hash: string | null;
   status: OrderStatus;
   currency: CurrencyCode;
   rate: number;
@@ -40,7 +42,7 @@ export const orderAddress = (o: OrderRow) => JSON.parse(o.address_json) as Addre
 export const charged = (o: OrderRow) => formatMinor(o.total_charged, o.currency);
 
 /** Creates the order (Awaiting payment) and a payment session for the gateway, in one transaction. */
-export function createOrder(input: { userId: number; email: string; cart: ResolvedCart; address: Address; currency: CurrencyCode; rate: number }) {
+export function createOrder(input: { userId: number | null; guestTokenHash?: string; email: string; cart: ResolvedCart; address: Address; currency: CurrencyCode; rate: number }) {
   const { cart } = input;
   const items: OrderItem[] = cart.lines.map((l) => ({
     productId: l.product!.id,
@@ -64,7 +66,7 @@ export function createOrder(input: { userId: number; email: string; cart: Resolv
       .run(input.userId, input.currency, input.rate, cart.subtotal, cart.delivery, cart.total, totalCharged, JSON.stringify(items), JSON.stringify(input.address), input.email, at, at, at);
     const id = Number(r.lastInsertRowid);
     const number = `PP${100000 + id}`;
-    db().prepare("UPDATE orders SET number = ? WHERE id = ?").run(number, id);
+    db().prepare("UPDATE orders SET number = ?, guest_token_hash = ? WHERE id = ?").run(number, input.guestTokenHash ?? null, id);
     db().prepare("INSERT INTO order_events (order_id, at, status, note, actor) VALUES (?, ?, 'Awaiting payment', 'Order placed', 'customer')").run(id, at);
     const paymentId = newPayment(id, totalCharged, input.currency);
     return { number, paymentId };
@@ -78,15 +80,23 @@ function newPayment(orderId: number, amount: number, currency: string) {
   return id;
 }
 
-/** A fresh payment attempt for an unpaid order of this customer (after a decline or a cancel). */
-export function retryPayment(number: string, userId: number) {
-  const o = getOrderForUser(number, userId);
+/** A fresh payment attempt for an unpaid order (after a decline or a cancel); `o` is already access-checked. */
+export function retryPayment(o: OrderRow | undefined) {
   if (!o || o.status !== "Awaiting payment") return null;
   return newPayment(o.id, o.total_charged, o.currency);
 }
 
 export function getOrderForUser(number: string, userId: number) {
   return db().prepare("SELECT * FROM orders WHERE number = ? AND user_id = ?").get(number, userId) as OrderRow | undefined;
+}
+
+/** A guest order, only with its secret token (compared as SHA-256, in constant time). */
+export function getOrderForGuest(number: string, token: string) {
+  const o = getOrder(number);
+  if (!o || o.user_id !== null || !o.guest_token_hash || !token) return undefined;
+  const a = Buffer.from(o.guest_token_hash, "hex");
+  const b = crypto.createHash("sha256").update(token).digest();
+  return a.length === b.length && crypto.timingSafeEqual(a, b) ? o : undefined;
 }
 
 export function getOrder(number: string) {
@@ -236,6 +246,23 @@ const STATUS_MAIL: Partial<Record<OrderStatus, { subject: string; text: string }
 };
 
 /** Tells the customer about a status change made in the admin panel (saved to outbox/ until mail is connected). */
+/** For guests: the private link to view and pay for their order (sent once, when the order is placed). */
+export function sendGuestOrderLink(o: OrderRow, link: string) {
+  sendMail({
+    to: o.email,
+    subject: `Your Price Padel order ${o.number}`,
+    text: [
+      `Thank you — we have received your order ${o.number} (${charged(o)}).`,
+      "",
+      "This is not a payment confirmation: we e-mail you again once your payment has been confirmed.",
+      "View your order, pay or try again at any time with this private link (keep it to yourself):",
+      link,
+      "",
+      `Questions? ${BUSINESS.email}, ${BUSINESS.phone} (${BUSINESS.hours}).`,
+    ].join("\n"),
+  });
+}
+
 export function sendStatusEmail(o: OrderRow, status: OrderStatus, note: string, tracking?: string | null) {
   const m = STATUS_MAIL[status];
   if (!m) return;

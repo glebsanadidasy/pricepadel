@@ -32,10 +32,11 @@ export const terms = (f: Facts): Policy => ({
     },
     {
       id: "account",
-      title: "Your account",
+      title: "Guest orders and your account",
       body: [
-        "You can browse the shop and fill your cart without an account. To place an order you need an account with a confirmed e-mail address: we send you a link when you register.",
-        "You must be at least 18 years old to create an account and place an order.",
+        "You can order as a guest, without an account. You give us your e-mail address, name, phone number and delivery address at checkout, and we e-mail you a private link to view and pay for your order. Please keep that link to yourself: anyone who has it can see the order.",
+        "You can also create an account. Accounts need a confirmed e-mail address: we send you a link when you register. An account keeps your addresses, wishlist and order history in one place.",
+        "You must be at least 18 years old to place an order or create an account.",
         "Please keep your password private and tell us straight away if you think someone else has used your account. You can change your password at any time with the “Forgot your password?” link.",
         "You can ask us to delete your account from the “Delete account” page in your account. We keep records of orders for as long as the law requires — see our [Privacy Policy](/policies/privacy).",
       ],
@@ -68,7 +69,7 @@ export const terms = (f: Facts): Policy => ({
         "Ordering works like this:",
         {
           steps: [
-            "You add products to your cart and go to checkout. You can review and change your cart, delivery address and currency at any time before you pay. If you notice a mistake, go back and correct it.",
+            "You add products to your cart and go to checkout, as a guest or signed in to your account. You can review and change your cart, contact details, delivery address and currency at any time before you pay. If you notice a mistake, go back and correct it.",
             "At checkout you see the full price, the delivery charge and the total, and you tick a box to accept these terms.",
             "You pay by card on our payment provider’s secure page. Your card is charged when you pay.",
             "We e-mail you to confirm that we have received your order and payment. **This e-mail is not yet our acceptance of your order.**",

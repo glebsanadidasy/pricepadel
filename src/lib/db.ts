@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS wishlist (
 CREATE TABLE IF NOT EXISTS orders (
   id INTEGER PRIMARY KEY,
   number TEXT NOT NULL UNIQUE,
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id INTEGER REFERENCES users(id),   -- NULL for guest orders
   status TEXT NOT NULL,
   currency TEXT NOT NULL,
   rate REAL NOT NULL,
@@ -131,6 +131,8 @@ export function db(): DatabaseSync {
       "ALTER TABLE payments ADD COLUMN gateway_status TEXT",
       "ALTER TABLE payments ADD COLUMN expires_at TEXT",
       // Payments that arrived after their order had expired or was closed: kept for a manual check, never auto-applied.
+      // Guest orders: only the SHA-256 of the secret access token is stored (the token is in the guest's link and cookie).
+      "ALTER TABLE orders ADD COLUMN guest_token_hash TEXT",
       "CREATE TABLE IF NOT EXISTS late_payments (id INTEGER PRIMARY KEY, at TEXT NOT NULL, payment_id TEXT NOT NULL, order_number TEXT NOT NULL, amount INTEGER NOT NULL, currency TEXT NOT NULL, order_status TEXT NOT NULL, reviewed_at TEXT)",
     ]) {
       try {
@@ -139,9 +141,35 @@ export function db(): DatabaseSync {
         /* already there */
       }
     }
+    allowGuestOrders(d);
     g.__ppDb = d;
   }
   return g.__ppDb;
+}
+
+/**
+ * Databases created before guest checkout have orders.user_id NOT NULL. SQLite cannot drop a NOT NULL constraint,
+ * so the table is rebuilt once with the same columns and data (foreign keys off during the copy, as SQLite recommends).
+ */
+function allowGuestOrders(d: DatabaseSync) {
+  const col = (d.prepare("PRAGMA table_info(orders)").all() as { name: string; notnull: number }[]).find((c) => c.name === "user_id");
+  if (!col?.notnull) return;
+  const sql = (d.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'orders'").get() as { sql: string }).sql;
+  const relaxed = sql.replace(/^CREATE TABLE "?orders"?/, "CREATE TABLE orders_new").replace(/user_id INTEGER NOT NULL REFERENCES users\(id\)/, "user_id INTEGER REFERENCES users(id)");
+  d.exec("PRAGMA foreign_keys = OFF");
+  try {
+    d.exec("BEGIN IMMEDIATE");
+    d.exec(relaxed);
+    d.exec("INSERT INTO orders_new SELECT * FROM orders");
+    d.exec("DROP TABLE orders");
+    d.exec("ALTER TABLE orders_new RENAME TO orders");
+    d.exec("COMMIT");
+  } catch (e) {
+    d.exec("ROLLBACK");
+    throw e;
+  } finally {
+    d.exec("PRAGMA foreign_keys = ON");
+  }
 }
 
 export const now = () => new Date().toISOString();

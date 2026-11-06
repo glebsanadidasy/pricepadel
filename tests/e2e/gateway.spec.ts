@@ -207,6 +207,23 @@ test("foreign checkout host and gateway errors: no redirect, a general message",
   await expect(page.getByText(/Card payment is temporarily unavailable/)).toBeVisible();
 });
 
+test("guest checkout sends the guest's details to the gateway", async ({ page }) => {
+  await addToCart(page, product.slug);
+  await page.goto("/checkout");
+  await page.getByLabel("E-mail").fill("guest-gw@example.test");
+  await page.getByLabel("Phone").fill("+44 7700 900456");
+  await page.getByLabel("Full name").fill("Grace Guest");
+  await page.getByLabel("Address line 1").fill("2 Guest Road");
+  await page.getByLabel("City").fill("Leeds");
+  await page.getByLabel("Postcode").fill("LS1 1AA");
+  await page.getByLabel(/I have read and accept/).check();
+  await page.getByRole("button", { name: "Pay by card" }).click();
+  await page.waitForURL(new RegExp(`localhost:${FAKE_PORT}/pay/`));
+  const c = created[created.length - 1];
+  expect(c.body.customer_details).toMatchObject({ name: "Grace", surname: "Guest", email: "guest-gw@example.test", phone: "+447700900456", country: "GB", address_line1: "2 Guest Road" });
+  expect(Math.round(c.body.amount * 100)).toBe(total);
+});
+
 test("a price changed in the browser is never sent to the gateway", async ({ page }) => {
   await registerAndVerify(page, uniqueEmail("gwtamper"));
   await addToCart(page, product.slug);

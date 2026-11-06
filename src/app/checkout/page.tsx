@@ -9,8 +9,9 @@ import { resendVerification } from "@/app/account/actions";
 import { userAddresses } from "@/lib/addresses";
 import { paymentDetailsProblem } from "@/lib/customer-details";
 import { deliveryBlock, readSettings } from "@/lib/catalog-store";
-import { requireUser } from "@/lib/auth";
-import { readCart, resolveCart } from "@/lib/cart";
+import { GuestCheckoutForm } from "@/components/checkout/GuestCheckoutForm";
+import { currentUser } from "@/lib/auth";
+import { readCart, resolveCart, type ResolvedCart } from "@/lib/cart";
 import { getMoney } from "@/lib/currency";
 import { placeOrder } from "./actions";
 
@@ -25,13 +26,68 @@ const ERRORS: Record<string, string> = {
   payments: "Card payment is temporarily unavailable. Please try again later — nothing has been charged.",
 };
 
+/** Items and totals — the same for customers and guests. */
+function OrderSummary({ cart, money }: { cart: ResolvedCart; money: Awaited<ReturnType<typeof getMoney>> }) {
+  return (
+    <>
+      <h2 className="text-[16px] font-bold uppercase tracking-[1px] text-ink">Your order</h2>
+      <ul className="mt-[16px] space-y-[8px] border-t border-line pt-[12px] text-[14px]">
+        {cart.lines.map((l) => (
+          <li key={l.sku} className="flex justify-between gap-[10px]">
+            <span>
+              {l.qty} × {l.product!.name}
+              <span className="block text-[#888]">{[l.variant!.colour, l.variant!.size].filter(Boolean).join(" · ")}</span>
+            </span>
+            <span className="whitespace-nowrap text-ink">{money.format(l.lineTotal)}</span>
+          </li>
+        ))}
+      </ul>
+      <dl className="mt-[14px] space-y-[6px] border-t border-line pt-[12px] text-[15px]">
+        <div className="flex justify-between">
+          <dt>Subtotal</dt>
+          <dd className="text-ink">{money.format(cart.subtotal)}</dd>
+        </div>
+        <div className="flex justify-between">
+          <dt>{cart.delivery === 0 ? "Free delivery" : "Delivery (UK)"}</dt>
+          <dd className="text-ink">{money.format(cart.delivery)}</dd>
+        </div>
+        <div className="flex justify-between">
+          <dt>Other fees</dt>
+          <dd className="text-ink">{money.format(0)}</dd>
+        </div>
+        <div className="flex justify-between border-t border-line pt-[10px] text-[18px] font-bold text-ink">
+          <dt>Total to pay</dt>
+          <dd data-testid="checkout-total">{money.format(cart.total)}</dd>
+        </div>
+      </dl>
+      <p className="mt-[8px] text-[13px] leading-[19px] text-[#888]" data-testid="delivery-terms">
+        Delivery to the UK: {money.format(cart.deliveryPrice)}, free on orders of {money.format(cart.freeFrom)} or more.
+        {cart.delivery > 0 && ` Add ${money.format(cart.freeFrom - cart.subtotal)} more for free delivery.`}
+      </p>
+      <p className="mt-[6px] text-[13px] text-[#888]">Charged in {money.currency}. No other charges on delivery.</p>
+    </>
+  );
+}
+
 export default async function CheckoutPage({ searchParams }: { searchParams: Promise<{ e?: string }> }) {
-  const user = await requireUser("/checkout");
+  const user = await currentUser();
   const cart = resolveCart(await readCart());
   if (cart.lines.length === 0 || !cart.ok) redirect("/cart");
   const money = await getMoney();
   const settings = readSettings();
   const deliverTo = settings.delivery.countries;
+
+  // No account: guest checkout with every field the payment provider needs.
+  if (!user) {
+    return (
+      <>
+        <PageHero title="Checkout" crumbs={[{ href: "/cart", label: "Cart" }]} />
+        <div className="mx-auto max-w-site px-[15px] pb-[80px] pt-[36px] lg:px-0">
+          <GuestCheckoutForm expected={`${money.currency}:${money.format(cart.total)}`} countries={deliverTo} summary={<OrderSummary cart={cart} money={money} />} />
+        </div>
+      </>
+    );
+  }
   // Saved addresses we can't deliver to (Channel Islands, Isle of Man, BFPO, PO box…) are not offered.
   const addresses = userAddresses(user.id).filter((a) => !deliveryBlock(a, settings));
   const error = ERRORS[(await searchParams).e ?? ""];
@@ -66,10 +122,7 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
                 </div>
               </section>
             </div>
-            <form action={placeOrder} className="self-start border border-line p-[22px] lg:order-none" aria-labelledby="summary-title">
-              <h2 id="summary-title" className="text-[16px] font-bold uppercase tracking-[1px] text-ink">
-                Your order
-              </h2>
+            <form action={placeOrder} className="self-start border border-line p-[22px] lg:order-none" aria-label="Your order">
               {addresses.length > 0 && (
                 <fieldset className="mt-[14px] space-y-[8px] text-[14px]">
                   <legend className="font-bold text-ink">Deliver to</legend>
@@ -84,40 +137,9 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
                   ))}
                 </fieldset>
               )}
-              <ul className="mt-[16px] space-y-[8px] border-t border-line pt-[12px] text-[14px]">
-                {cart.lines.map((l) => (
-                  <li key={l.sku} className="flex justify-between gap-[10px]">
-                    <span>
-                      {l.qty} × {l.product!.name}
-                      <span className="block text-[#888]">{[l.variant!.colour, l.variant!.size].filter(Boolean).join(" · ")}</span>
-                    </span>
-                    <span className="whitespace-nowrap text-ink">{money.format(l.lineTotal)}</span>
-                  </li>
-                ))}
-              </ul>
-              <dl className="mt-[14px] space-y-[6px] border-t border-line pt-[12px] text-[15px]">
-                <div className="flex justify-between">
-                  <dt>Subtotal</dt>
-                  <dd className="text-ink">{money.format(cart.subtotal)}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt>{cart.delivery === 0 ? "Free delivery" : "Delivery (UK)"}</dt>
-                  <dd className="text-ink">{money.format(cart.delivery)}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt>Other fees</dt>
-                  <dd className="text-ink">{money.format(0)}</dd>
-                </div>
-                <div className="flex justify-between border-t border-line pt-[10px] text-[18px] font-bold text-ink">
-                  <dt>Total to pay</dt>
-                  <dd data-testid="checkout-total">{money.format(cart.total)}</dd>
-                </div>
-              </dl>
-              <p className="mt-[8px] text-[13px] leading-[19px] text-[#888]" data-testid="delivery-terms">
-                Delivery to the UK: {money.format(cart.deliveryPrice)}, free on orders of {money.format(cart.freeFrom)} or more.
-                {cart.delivery > 0 && ` Add ${money.format(cart.freeFrom - cart.subtotal)} more for free delivery.`}
-              </p>
-              <p className="mt-[6px] text-[13px] text-[#888]">Charged in {money.currency}.</p>
+              <div className="mt-[16px]">
+                <OrderSummary cart={cart} money={money} />
+              </div>
               <input type="hidden" name="expected" value={`${money.currency}:${money.format(cart.total)}`} />
               <label className="mt-[16px] flex items-start gap-[10px] text-[14px] leading-[20px]">
                 <input type="checkbox" name="terms" value="yes" required className="mt-[3px] size-[16px] accent-royal" />
