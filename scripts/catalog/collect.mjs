@@ -22,7 +22,8 @@ const argValue = (name, def) => {
 };
 const LIMIT = Number(argValue("--limit", "60"));
 const PER_CATEGORY = LIMIT > 0 ? Math.ceil(LIMIT / CATEGORIES.length) : Infinity;
-const DEADLINE = Date.now() + Number(argValue("--minutes", "0")) * 60000 || Infinity;
+const minutes = Number(argValue("--minutes", "0"));
+const DEADLINE = minutes > 0 ? Date.now() + minutes * 60000 : Infinity;
 const ERROR_PAUSE_MS = 15 * 60000; // a series of server errors: wait 15 minutes, then carry on
 
 const state = readJson(STATE_FILE, { source: SOURCE.id, processed: {} });
