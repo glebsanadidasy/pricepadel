@@ -6507,5 +6507,52 @@
     "hiddenReason": null,
     "source": "pn-uk",
     "collectedAt": "2026-11-05"
+  },
+  {
+    "id": "p4d9e9918",
+    "slug": "white-dunlop-tour-pro-professional-overgrip",
+    "name": "White Dunlop Tour Pro professional Overgrip",
+    "brand": "Dunlop",
+    "mpn": null,
+    "category": "accessories",
+    "audience": "unisex",
+    "specs": [
+      {
+        "label": "Colour",
+        "value": "White"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "The white Dunlop Tour Pro overgrip is made of synthetic materials that are highly resistant to wear and tear. In addition, its high adherence makes it easy to apply. Its high-relief thickness and strategically placed perforations favour a very firm grip that is completely slip-proof."
+      },
+      {
+        "type": "paragraph",
+        "text": "It is matte white. In comes in a blister pack that includes three pieces."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/88/white-dunlop-tour-pro-professional-overgrip-1.jpg",
+        "alt": "White Dunlop Tour Pro professional Overgrip",
+        "width": 1000,
+        "height": 1000,
+        "colour": null
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-4D9E99-WHITE",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": null
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
   }
 ]
