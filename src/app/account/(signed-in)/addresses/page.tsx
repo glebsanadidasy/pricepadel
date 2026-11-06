@@ -4,6 +4,7 @@ import { SubmitButton } from "@/components/ui/Form";
 import { countryName } from "@/config/countries";
 import { requireUser } from "@/lib/auth";
 import { userAddresses } from "@/lib/addresses";
+import { readSettings } from "@/lib/catalog-store";
 import { deleteAddress } from "../../actions";
 
 export const metadata: Metadata = { title: "Addresses" };
@@ -38,9 +39,9 @@ export default async function AddressesPage() {
       </section>
       <section className="max-w-[640px]">
         <h2 className="text-[18px] font-bold text-ink">Add an address</h2>
-        <p className="mt-[4px] text-[14px]">We deliver to the UK and Europe.</p>
+        <p className="mt-[4px] text-[14px]">We currently deliver to the UK only.</p>
         <div className="mt-[12px]">
-          <AddressForm />
+          <AddressForm countries={readSettings().delivery.countries} />
         </div>
       </section>
     </div>

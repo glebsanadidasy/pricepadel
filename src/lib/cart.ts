@@ -1,7 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { findVariant } from "./catalog";
-import { readSettings } from "./catalog-store";
+import { customerDelivery, readSettings } from "./catalog-store";
 import type { Product, Variant } from "./catalog-types";
 
 /**
@@ -14,7 +14,17 @@ const MAX_LINES = 40;
 
 export type CartLine = { sku: string; qty: number };
 export type ResolvedLine = CartLine & { product?: Product; variant?: Variant; unitPrice: number; lineTotal: number; problem: string | null };
-export type ResolvedCart = { lines: ResolvedLine[]; count: number; subtotal: number; delivery: number; total: number; ok: boolean };
+export type ResolvedCart = {
+  lines: ResolvedLine[];
+  count: number;
+  subtotal: number;
+  delivery: number;
+  total: number;
+  ok: boolean;
+  /** Delivery terms, for the "free from" line. */
+  freeFrom: number;
+  deliveryPrice: number;
+};
 
 export async function readCart(): Promise<CartLine[]> {
   try {
@@ -43,7 +53,7 @@ export async function clearCart() {
   (await cookies()).delete(COOKIE);
 }
 
-/** Prices in GBP pence. Delivery is the customer delivery price from the admin settings (free). */
+/** Prices in GBP pence. Delivery follows the admin settings (£12.95 below £100, free from £100). */
 export function resolveCart(lines: CartLine[]): ResolvedCart {
   const resolved = lines.map((l): ResolvedLine => {
     const hit = findVariant(l.sku);
@@ -51,8 +61,11 @@ export function resolveCart(lines: CartLine[]): ResolvedCart {
     return { ...l, product: hit.product, variant: hit.variant, unitPrice: hit.variant.price, lineTotal: hit.variant.price * l.qty, problem: null };
   });
   const subtotal = resolved.reduce((n, l) => n + l.lineTotal, 0);
-  const delivery = resolved.some((l) => !l.problem) ? readSettings().delivery.customerPrice : 0;
+  const settings = readSettings();
+  const delivery = resolved.some((l) => !l.problem) ? customerDelivery(subtotal, settings) : 0;
   return {
+    freeFrom: settings.delivery.customer.freeFrom,
+    deliveryPrice: settings.delivery.customer.price,
     lines: resolved,
     count: lines.reduce((n, l) => n + l.qty, 0),
     subtotal,

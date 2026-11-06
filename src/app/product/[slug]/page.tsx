@@ -12,11 +12,14 @@ import { AUDIENCE_LABELS, CATEGORY_LABELS } from "@/lib/catalog-types";
 
 type Props = { params: Promise<{ slug: string }> };
 
-/** Delivery is always its own line before payment. It is currently free for the customer. */
-function DeliveryNote({ price }: { price: string | null }) {
+/** Delivery terms (no delivery-time promises). Delivery is always its own line before payment. */
+function DeliveryNote({ price, freeFrom }: { price: string; freeFrom: string }) {
   return (
     <p className="mt-[10px] text-[14px] leading-[21px] text-body">
-      <span className="font-bold text-ink">{price ? `Delivery to the UK and Europe: ${price}` : "Free delivery to the UK and Europe."}</span> Shown as a separate line before payment.
+      <span className="font-bold text-ink">
+        Delivery to the UK: {price}, free on orders of {freeFrom} or more.
+      </span>{" "}
+      Shown as a separate line before payment.
     </p>
   );
 }
@@ -33,7 +36,7 @@ export default async function ProductPage({ params }: Props) {
   const related = relatedProducts(product);
   const variants = product.variants.map((v) => ({ ...v, priceLabel: money.format(v.price) }));
   const samePrice = product.variants.every((v) => v.price === product.price);
-  const delivery = readSettings().delivery.customerPrice;
+  const delivery = readSettings().delivery.customer;
   const user = await currentUser();
   const saved = !!user && !!db().prepare("SELECT 1 FROM wishlist WHERE user_id = ? AND product_id = ?").get(user.id, product.id);
   const details = [
@@ -70,7 +73,7 @@ export default async function ProductPage({ params }: Props) {
           variants={variants}
           priceLabel={`${samePrice ? "" : "From "}${money.format(product.price)}`}
         >
-          <DeliveryNote price={delivery > 0 ? money.format(delivery) : null} />
+          <DeliveryNote price={money.format(delivery.price)} freeFrom={money.format(delivery.freeFrom)} />
         </VariantPicker>
         <div className="mt-[50px] grid gap-[40px] border-t border-line pt-[30px] lg:grid-cols-[minmax(0,560px)_1fr] lg:gap-[70px]">
           <section aria-labelledby="specs-title">

@@ -1,8 +1,6 @@
-import type { Metadata } from "next";
-import { StubPage } from "@/components/layout/StubPage";
+import { notFound } from "next/navigation";
 
-export const metadata: Metadata = { title: "Brand Ambassador" };
-
+/** Hidden until the brand ambassador exists (owner, stage 4). The page answers 404 and is not linked anywhere. */
 export default function Page() {
-  return <StubPage title="Brand Ambassador" crumbs={[{ href: "/brand-ambassador", label: "Brand Ambassador" }]}></StubPage>;
+  notFound();
 }

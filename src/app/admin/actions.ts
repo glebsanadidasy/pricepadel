@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { adminPasswordMatches, assertAdmin, attemptKey, recordAttempt, signInAdmin, signOutAdmin, tooManyAttempts } from "@/lib/auth";
+import { isCountry } from "@/config/countries";
 import { readSettings, writeSettings, type CatalogSettings } from "@/lib/catalog-store";
+import { refreshFromEcb } from "@/lib/fx";
 import { CATEGORY_LABELS, type Category } from "@/lib/catalog-types";
 import { getOrder, ORDER_STATUSES, setOrderStatus, type OrderStatus } from "@/lib/orders";
 
@@ -78,26 +80,47 @@ export async function saveMarkups(form: FormData) {
   });
 }
 
-export async function saveRates(form: FormData) {
+/** Margin over the ECB rate, and manual rates (empty = use ECB + margin). */
+export async function saveFx(form: FormData) {
   await save((s) => {
+    const m = parseFloat(String(form.get("marginPct") ?? "").replace(",", "."));
+    if (Number.isFinite(m) && m >= 0 && m <= 20) s.fx.marginPct = Math.round(m * 100) / 100;
     for (const code of ["EUR", "USD"] as const) {
-      const n = parseFloat(String(form.get(code) ?? "").replace(",", "."));
-      if (Number.isFinite(n) && n > 0.1 && n < 10) s.rates[code] = Math.round(n * 10000) / 10000;
+      const raw = String(form.get(`manual:${code}`) ?? "").replace(",", ".").trim();
+      const n = parseFloat(raw);
+      if (raw === "") s.fx[code] = { ...s.fx[code], manual: null, manualAt: null };
+      else if (Number.isFinite(n) && n > 0.1 && n < 10 && (n !== s.fx[code].manual || form.get(`renew:${code}`) === "yes"))
+        s.fx[code] = { ...s.fx[code], manual: Math.round(n * 10000) / 10000, manualAt: new Date().toISOString() };
     }
   });
 }
 
-export async function saveDeliveryCost(form: FormData) {
+export async function refreshRatesNow() {
+  await assertAdmin();
+  try {
+    await refreshFromEcb();
+  } catch {
+    /* the admin page shows lastError / stale rates */
+  }
+  revalidatePath("/", "layout");
+}
+
+export async function saveDelivery(form: FormData) {
   await save((s) => {
+    const price = parseMoney(form.get("customerPrice"));
+    const freeFrom = parseMoney(form.get("freeFrom"));
+    if (price !== undefined) s.delivery.customer.price = price;
+    if (freeFrom !== undefined) s.delivery.customer.freeFrom = freeFrom;
+    const countries = String(form.get("countries") ?? "")
+      .toUpperCase()
+      .split(/[\s,]+/)
+      .filter((c) => /^[A-Z]{2}$/.test(c) && isCountry(c));
+    if (countries.length) s.delivery.countries = [...new Set(countries)];
     const t = s.delivery.ourCostTiers;
-    const a = parseMoney(form.get("tier0"));
-    const b = parseMoney(form.get("tier1"));
-    const c = parseMoney(form.get("tier2"));
-    if (a !== undefined) t[0].price = a;
-    if (b !== undefined) t[1].price = b;
-    if (c !== undefined) t[2].price = c;
-    const customer = parseMoney(form.get("customerPrice"));
-    if (customer !== undefined) s.delivery.customerPrice = customer;
+    for (const i of [0, 1, 2]) {
+      const v = parseMoney(form.get(`tier${i}`));
+      if (v !== undefined && t[i]) t[i].price = v;
+    }
   });
 }
 

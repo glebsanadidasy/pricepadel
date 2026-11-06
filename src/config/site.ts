@@ -1,9 +1,11 @@
-/** Business data. Company number and address are still to be confirmed by the owner. */
+/** Business data (owner, stage 4): the shop is run by HYPERION MOTION LTD, trading as Price Padel. */
 export const BUSINESS = {
   name: "Price Padel",
-  legalName: "PRICE PADEL LTD",
-  companyNumber: null as string | null, // [TBC]
-  address: null as string | null, // [TBC]
+  legalName: "HYPERION MOTION LTD",
+  tradingAs: "HYPERION MOTION LTD, trading as Price Padel",
+  companyNumber: "17358996",
+  companyRegister: "Registered in England and Wales", // [TBC] owner to confirm (Bridgend is in Wales; register shown on Companies House)
+  address: "Academy House, 11 Dunraven Place, Bridgend, Mid Glamorgan, United Kingdom, CF31 1JF",
   email: "contact@pricepadel.com",
   partnersEmail: "partners@pricepadel.com",
   phone: "+44 7576 567089",
@@ -38,8 +40,6 @@ export const COMPANY_LINKS = [
   { href: "/about", label: "About Us" },
   { href: "/contact", label: "Contact" },
   { href: "/partnerships", label: "Partnerships" },
-  { href: "/affiliate-program", label: "Affiliate Program" },
-  { href: "/brand-ambassador", label: "Brand Ambassador" },
 ] as const;
 
 /** Instagram account is not confirmed yet — the icon links to the contact page until it is. */

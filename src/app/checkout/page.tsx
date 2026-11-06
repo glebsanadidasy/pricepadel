@@ -7,6 +7,7 @@ import { Notice, SubmitButton } from "@/components/ui/Form";
 import { countryName } from "@/config/countries";
 import { resendVerification } from "@/app/account/actions";
 import { userAddresses } from "@/lib/addresses";
+import { readSettings } from "@/lib/catalog-store";
 import { requireUser } from "@/lib/auth";
 import { readCart, resolveCart } from "@/lib/cart";
 import { getMoney } from "@/lib/currency";
@@ -26,7 +27,8 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
   const cart = resolveCart(await readCart());
   if (cart.lines.length === 0 || !cart.ok) redirect("/cart");
   const money = await getMoney();
-  const addresses = userAddresses(user.id);
+  const deliverTo = readSettings().delivery.countries;
+  const addresses = userAddresses(user.id).filter((a) => deliverTo.includes(a.country));
   const error = ERRORS[(await searchParams).e ?? ""];
 
   return (
@@ -54,7 +56,7 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
                 <div className="mt-[14px]">
                   <h3 className="text-[15px] font-bold text-ink">{addresses.length ? "Or add a new address" : "New address"}</h3>
                   <div className="mt-[10px]">
-                    <AddressForm back="/checkout" />
+                    <AddressForm back="/checkout" countries={deliverTo} />
                   </div>
                 </div>
               </section>
@@ -93,7 +95,7 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
                   <dd className="text-ink">{money.format(cart.subtotal)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt>{cart.delivery === 0 ? "Free delivery" : "Delivery"}</dt>
+                  <dt>{cart.delivery === 0 ? "Free delivery" : "Delivery (UK)"}</dt>
                   <dd className="text-ink">{money.format(cart.delivery)}</dd>
                 </div>
                 <div className="flex justify-between">
@@ -105,7 +107,11 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
                   <dd data-testid="checkout-total">{money.format(cart.total)}</dd>
                 </div>
               </dl>
-              <p className="mt-[6px] text-[13px] text-[#888]">Prices include VAT. Charged in {money.currency}.</p>
+              <p className="mt-[8px] text-[13px] leading-[19px] text-[#888]" data-testid="delivery-terms">
+                Delivery to the UK: {money.format(cart.deliveryPrice)}, free on orders of {money.format(cart.freeFrom)} or more.
+                {cart.delivery > 0 && ` Add ${money.format(cart.freeFrom - cart.subtotal)} more for free delivery.`}
+              </p>
+              <p className="mt-[6px] text-[13px] text-[#888]">Charged in {money.currency}.</p>
               <input type="hidden" name="expected" value={`${money.currency}:${money.format(cart.total)}`} />
               <label className="mt-[16px] flex items-start gap-[10px] text-[14px] leading-[20px]">
                 <input type="checkbox" name="terms" value="yes" required className="mt-[3px] size-[16px] accent-royal" />

@@ -17,13 +17,13 @@ export function Footer() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/brand/logo.svg" alt="Price Padel" width={124} height={58} className="h-[58px] w-[124px]" />
           </Link>
-          <p className="mt-[18px]">Your go-to destination for premium padel gear at fair prices. Rackets, shoes, bags and accessories for players across the UK and Europe.</p>
+          <p className="mt-[18px]">Your go-to destination for premium padel gear at fair prices. Rackets, shoes, bags and accessories for players across the UK.</p>
           <p className="mt-[40px]">
-            {BUSINESS.legalName}
+            {BUSINESS.tradingAs}
             <br />
-            Company number: {BUSINESS.companyNumber ?? "[TBC]"}
+            Company number: {BUSINESS.companyNumber}
             <br />
-            {BUSINESS.address ?? "[Address TBC]"}
+            Registered office: {BUSINESS.address}
             <br />
             Email:{" "}
             <a href={`mailto:${BUSINESS.email}`} className="hover:text-lime">

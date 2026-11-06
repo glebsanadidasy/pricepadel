@@ -11,7 +11,8 @@ function saveCurrency(code: CurrencyCode) {
 }
 
 /** Pill with flag, currency name and chevron (Figma 19:396 / 19:727). Choice is kept in a cookie for a year. */
-export function CurrencySwitcher({ value, className = "" }: { value: CurrencyCode; className?: string }) {
+/** `available`: currencies with a fresh exchange rate (GBP always); the others are not offered. */
+export function CurrencySwitcher({ value, available, className = "" }: { value: CurrencyCode; available: CurrencyCode[]; className?: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -56,7 +57,7 @@ export function CurrencySwitcher({ value, className = "" }: { value: CurrencyCod
       </button>
       {open && (
         <ul id={listId} role="listbox" aria-label="Choose currency" className="absolute left-0 top-[calc(100%+4px)] z-50 w-[158px] overflow-hidden rounded-[3px] border border-[#dedede] bg-white py-1 text-[12px] text-[#222] shadow-lg">
-          {(Object.keys(CURRENCIES) as CurrencyCode[]).map((code) => (
+          {available.map((code) => (
             <li key={code} role="option" aria-selected={code === value}>
               <button type="button" onClick={() => choose(code)} className={`flex w-full items-center gap-2 px-[7px] py-[7px] text-left hover:bg-[#f4f4f4] ${code === value ? "font-bold" : ""}`}>
                 <Flag code={CURRENCIES[code].flag} />

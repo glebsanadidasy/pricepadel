@@ -44,14 +44,18 @@ export type Offer = {
 };
 
 export type DeliveryTier = { below: number | null; price: number };
-export type RateCode = "EUR" | "USD";
+export type FxEntry = { ecb: number | null; ecbDate: string | null; manual: number | null; manualAt: string | null };
+/** Exchange rates (see lib/fx.ts): 1 GBP in EUR / USD. */
+export type FxSettings = { marginPct: number; fetchedAt?: string | null; lastError?: string | null; EUR: FxEntry; USD: FxEntry };
 
 export type CatalogSettings = {
   markup: { default: number; byCategory: Partial<Record<Category, number>>; byBrand: Record<string, number> };
-  /** Customer delivery price (pence; 0 = free) and what delivery costs us by order value. */
-  delivery: { customerPrice: number; ourCostTiers: DeliveryTier[] };
-  /** 1 GBP in other currencies. */
-  rates: Record<RateCode, number>;
+  /**
+   * Customer delivery: `price` (pence) for orders below `freeFrom` (pence), free from it; `countries` we deliver to.
+   * `ourCostTiers`: what delivery costs us, by the order's value at the source.
+   */
+  delivery: { customer: { price: number; freeFrom: number }; countries: string[]; ourCostTiers: DeliveryTier[] };
+  fx: FxSettings;
   rewriteApproved: boolean;
   hiddenSources: string[];
   hiddenProducts: string[];
@@ -67,14 +71,19 @@ const SETTINGS_FILE = path.join(CATALOG_DIR, "settings.json");
 export const DEFAULT_SETTINGS: CatalogSettings = {
   markup: { default: 1.15, byCategory: {}, byBrand: {} },
   delivery: {
-    customerPrice: 0,
+    customer: { price: 1295, freeFrom: 10000 },
+    countries: ["GB"],
     ourCostTiers: [
       { below: 8500, price: 1295 },
       { below: 17000, price: 695 },
       { below: null, price: 0 },
     ],
   },
-  rates: { EUR: 1.15, USD: 1.3 },
+  fx: {
+    marginPct: 2,
+    EUR: { ecb: null, ecbDate: null, manual: null, manualAt: null },
+    USD: { ecb: null, ecbDate: null, manual: null, manualAt: null },
+  },
   rewriteApproved: false,
   hiddenSources: [],
   hiddenProducts: [],
@@ -134,8 +143,8 @@ export function readSettings(): CatalogSettings {
     ...DEFAULT_SETTINGS,
     ...s,
     markup: { ...DEFAULT_SETTINGS.markup, ...s.markup },
-    delivery: { ...DEFAULT_SETTINGS.delivery, ...s.delivery },
-    rates: { ...DEFAULT_SETTINGS.rates, ...s.rates },
+    delivery: { ...DEFAULT_SETTINGS.delivery, ...s.delivery, customer: { ...DEFAULT_SETTINGS.delivery.customer, ...s.delivery?.customer } },
+    fx: { ...DEFAULT_SETTINGS.fx, ...s.fx, EUR: { ...DEFAULT_SETTINGS.fx.EUR, ...s.fx?.EUR }, USD: { ...DEFAULT_SETTINGS.fx.USD, ...s.fx?.USD } },
   };
 }
 
@@ -151,6 +160,11 @@ export function markupFor(p: Pick<CatalogProduct, "brand" | "category">, s: Cata
 /** Retail GBP pence = source price × markup, rounded to the penny. */
 export function retailPrice(sourcePence: number, markup: number) {
   return Math.round(sourcePence * markup);
+}
+
+/** What the customer pays for delivery of an order with this subtotal (GBP pence). */
+export function customerDelivery(subtotal: number, s: CatalogSettings) {
+  return subtotal >= s.delivery.customer.freeFrom ? 0 : s.delivery.customer.price;
 }
 
 /** What delivery of an order costs us (GBP pence), by the order's value at the source. */

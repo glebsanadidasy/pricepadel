@@ -4,6 +4,7 @@ import { adminButton, Card, dangerButton } from "@/components/admin/Card";
 import { requireAdmin } from "@/lib/auth";
 import { offSaleReason, readCatalog, readOffers, readSettings, readSourceRegistry } from "@/lib/catalog-store";
 import { db } from "@/lib/db";
+import { FX_CODES, rateInfo } from "@/lib/fx";
 import { setSourceHidden } from "../actions";
 
 export const metadata: Metadata = { title: "Overview" };
@@ -27,7 +28,18 @@ export default async function AdminOverview() {
     deletion_requested_at: string;
   }[];
 
+  const fxProblems = FX_CODES.map((c) => ({ c, r: rateInfo(c, s.fx) })).filter((x) => !x.r.enabled);
+
   return (
+    <>
+    {fxProblems.length > 0 && (
+      <p role="alert" className="mt-[20px] border-l-4 border-[#c0392b] bg-[#fdecea] px-[16px] py-[10px] text-[15px] text-ink">
+        Currency switched off: {fxProblems.map((x) => `${x.c} (${x.r.problem})`).join(", ")}. Customers see GBP only.{" "}
+        <Link href="/admin/settings" className="text-royal underline">
+          Exchange rates
+        </Link>
+      </p>
+    )}
     <div className="mt-[24px] grid gap-[20px] lg:grid-cols-2">
       <Card title="Catalogue">
         <p>{items.length} products imported.</p>
@@ -102,5 +114,6 @@ export default async function AdminOverview() {
         )}
       </Card>
     </div>
+    </>
   );
 }

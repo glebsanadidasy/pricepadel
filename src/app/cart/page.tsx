@@ -84,7 +84,7 @@ export default async function CartPage() {
                   <dd className="text-ink">{money.format(cart.subtotal)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt>{cart.delivery === 0 ? "Free delivery" : "Delivery"}</dt>
+                  <dt>{cart.delivery === 0 ? "Free delivery" : "Delivery (UK)"}</dt>
                   <dd className="text-ink">{money.format(cart.delivery)}</dd>
                 </div>
                 <div className="flex justify-between border-t border-line pt-[10px] text-[17px] font-bold text-ink">
@@ -92,7 +92,11 @@ export default async function CartPage() {
                   <dd>{money.format(cart.total)}</dd>
                 </div>
               </dl>
-              <p className="mt-[10px] text-[13px] leading-[19px] text-[#888]">Delivery to the UK and Europe. Prices and stock are checked again at checkout.</p>
+              <p className="mt-[8px] text-[13px] leading-[19px] text-[#888]" data-testid="delivery-terms">
+                Delivery to the UK: {money.format(cart.deliveryPrice)}, free on orders of {money.format(cart.freeFrom)} or more.
+                {cart.delivery > 0 && ` Add ${money.format(cart.freeFrom - cart.subtotal)} more for free delivery.`}
+              </p>
+              <p className="mt-[6px] text-[13px] leading-[19px] text-[#888]">Prices and stock are checked again at checkout.</p>
               {cart.ok ? (
                 <LimeButton href="/checkout" className="mt-[18px] w-full">
                   Checkout

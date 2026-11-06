@@ -22,28 +22,45 @@ const SOURCE_NAME = /p[aáā]del\s*nuestro|padelnuestro/i;
 const PROMISE = /\b(deliver(y|ies|ed)?|shipping|shipped|dispatch(ed)?|free returns?|returns? policy|money[- ]back|warranty|guarantee(d)? (delivery|returns?))\b/i;
 const BADGE_ATTR = /outlet|exclusive|bestseller|best seller|novelty|new arrival|offer|discount|gift|promo|official/i;
 const DROP_ATTR = new Set(["brand", "product", "description", "user"]);
-const MIN_PHOTO_SIDE = 300; // px; smaller files are thumbnails, not product photos
+const MIN_PHOTO_SIDE = 300;
+
+/**
+ * Not padel products (owner, stage 4): antiseptics, cosmetics, food supplements and medical / therapeutic goods are hidden.
+ * Checked against accessories only, so colour names ("Cream") or racket names ("Energy") never trigger it.
+ */
+const NON_PADEL = [
+  ["antiseptic", /hydro-?alcohol|hand sanitis|sanitiz|antisept|disinfect|antibacterial/i],
+  ["cosmetics", /cellulite|body gel|face cream|hand cream|\bcream\b|lotion|sunscreen|sun cream|\bspf\s?\d|lip balm|\bbalm\b|cosmetic|shampoo|shower gel|deodorant|\bsoap\b|perfume/i],
+  ["food supplement", /supplement|protein|vitamin|isotonic|electrolyte|magnesium|collagen|energy (gel|bar|drink)|caffeine|creatine|amino acid|sports drink/i],
+  ["medical / therapeutic", /fisioxtreme|face mask|\bmask\b|kinesio|bandage|(knee|elbow|ankle|back) (brace|support|strap|guard)|wrist (brace|support)|epicondyl|compression sleeve|physio|massage|arnica|pain relief|cold spray|ice pack|heat patch|plaster|ointment|first aid|orthop/i],
+];
+function nonPadelKind(rec) {
+  if (rec.category !== "accessories") return null;
+  const text = `${rec.name} ${rec.rawName} ${rec.sourceCategory}`;
+  return NON_PADEL.find(([, re]) => re.test(text))?.[0] ?? null;
+} // px; smaller files are thumbnails, not product photos
 
 export const DEFAULT_SETTINGS = {
   markup: { default: 1.15, byCategory: {}, byBrand: {} },
-  // Customer delivery is free; this is what delivery costs us, by order value (pence).
+  // Customer pays `price` below `freeFrom` (pence), UK only for now; ourCostTiers = what delivery costs us, by order value.
   delivery: {
-    customerPrice: 0,
+    customer: { price: 1295, freeFrom: 10000 },
+    countries: ["GB"],
     ourCostTiers: [
       { below: 8500, price: 1295 },
       { below: 17000, price: 695 },
       { below: null, price: 0 },
     ],
   },
-  // GBP → other currencies. Prices are kept in GBP.
-  rates: { EUR: 1.15, USD: 1.3 },
+  // GBP → other currencies (prices are kept in GBP): daily ECB reference rate + margin, or a manual rate from the admin panel.
+  fx: { marginPct: 2, EUR: { ecb: null, ecbDate: null, manual: null, manualAt: null }, USD: { ecb: null, ecbDate: null, manual: null, manualAt: null } },
   rewriteApproved: false,
   hiddenSources: [],
   hiddenProducts: [],
   hiddenPhotos: [],
 };
 
-const report = { mentions: [], promises: [], hidden: [], rejectedPhotos: [], badges: 0 };
+const report = { mentions: [], promises: [], hidden: [], rejectedPhotos: [], badges: 0, nonPadel: [] };
 
 function slugify(s) {
   return String(s ?? "")
@@ -184,14 +201,20 @@ function migrateSettings(s) {
   const out = { ...DEFAULT_SETTINGS, ...s };
   out.markup = { ...DEFAULT_SETTINGS.markup, ...s.markup };
   out.delivery = { ...DEFAULT_SETTINGS.delivery, ...(s.delivery?.ourCostTiers ? s.delivery : {}) };
-  out.rates = { ...DEFAULT_SETTINGS.rates, ...s.rates };
+  out.delivery.customer = { ...DEFAULT_SETTINGS.delivery.customer, ...s.delivery?.customer };
+  delete out.delivery.customerPrice; // replaced by delivery.customer (owner, stage 4)
+  out.fx = { ...DEFAULT_SETTINGS.fx, ...s.fx, EUR: { ...DEFAULT_SETTINGS.fx.EUR, ...s.fx?.EUR }, USD: { ...DEFAULT_SETTINGS.fx.USD, ...s.fx?.USD } };
+  delete out.rates; // old fixed preview rates, replaced by fx (owner, stage 4)
   delete out.sources; // source names live in sources/sources.json (not in Git)
   return out;
 }
 
 async function main() {
   const state = readJson(STATE_FILE, { processed: {} });
-  writeJson(SETTINGS_FILE, migrateSettings(readJson(SETTINGS_FILE, {})));
+  // Rewrite settings only when something is missing, so admin changes made meanwhile are never overwritten.
+  const current = readJson(SETTINGS_FILE, {});
+  const migrated = migrateSettings(current);
+  if (JSON.stringify(migrated) !== JSON.stringify(current)) writeJson(SETTINGS_FILE, migrated);
   writeJson(SOURCE_REGISTRY_FILE, { ...readJson(SOURCE_REGISTRY_FILE, {}), [SOURCE.id]: { name: SOURCE.name, url: SOURCE.url } });
   const prevOffers = readJson(offersFile(SOURCE.id), {});
   const checks = readJson(PHOTO_CHECKS_FILE, {});
@@ -252,11 +275,15 @@ async function main() {
       })
       .sort((a, b) => a.colour.localeCompare(b.colour) || sizeSort(a.size?.replace(/^EU /, ""), b.size?.replace(/^EU /, "")));
 
+    const notPadel = nonPadelKind(rec);
+    if (notPadel) report.nonPadel.push({ name: rec.name, kind: notPadel });
+
     // Photos: main gallery (colour null) + colour galleries; neutral public names; automatic checks.
+    // Products that are not padel products get no public photos at all.
     const images = [];
     const photoSources = {};
     const savedBySource = new Map();
-    const groups = [{ colour: null, list: rec.images ?? [] }, ...Object.entries(rec.colourImages ?? {}).map(([colour, list]) => ({ colour, list }))];
+    const groups = notPadel ? [] : [{ colour: null, list: rec.images ?? [] }, ...Object.entries(rec.colourImages ?? {}).map(([colour, list]) => ({ colour, list }))];
     let n = 0;
     for (const g of groups) {
       for (const img of g.list) {
@@ -283,7 +310,8 @@ async function main() {
 
     const inStock = variants.some((v) => v.inStock);
     let hiddenReason = null;
-    if (inStock && images.length === 0) {
+    if (notPadel) hiddenReason = `not a padel product (${notPadel})`;
+    else if (inStock && images.length === 0) {
       const why = [...new Set(report.rejectedPhotos.filter((r) => r.name === rec.name).map((r) => r.reason))];
       hiddenReason = `no usable photo${why.length ? ` (${why.join("; ")})` : ""}`;
       report.hidden.push({ name: rec.name, reason: hiddenReason });
@@ -362,6 +390,7 @@ function writeReport(state, items, offers) {
     inStock: items.filter(inStock).length,
     onSale,
     hidden: report.hidden.length,
+    nonPadel: report.nonPadel,
     photos,
     rejectedPhotos: report.rejectedPhotos.length,
     rejectedByReason,
@@ -387,6 +416,9 @@ function writeReport(state, items, offers) {
     "",
     "## Hidden products (in stock, but no usable photo)",
     ...(report.hidden.length ? report.hidden.map((h) => `- ${h.name} — ${h.reason}`) : ["- none"]),
+    "",
+    "## Hidden: not padel products (antiseptics, cosmetics, supplements, medical)",
+    ...(report.nonPadel.length ? report.nonPadel.map((n) => `- ${n.name} — ${n.kind}`) : ["- none"]),
     "",
     "## Rejected photos",
     ...(report.rejectedPhotos.length ? report.rejectedPhotos.map((r) => `- ${r.name}, ${r.photo}: ${r.reason}`) : ["- none"]),

@@ -62,7 +62,8 @@ export function ProfileForm({ name }: { name: string }) {
   );
 }
 
-export function AddressForm({ back }: { back?: string }) {
+/** `countries`: codes we deliver to now (from the admin settings). */
+export function AddressForm({ back, countries }: { back?: string; countries: string[] }) {
   const [state, action] = useActionState(addAddress, undefined);
   return (
     <form action={action} className="grid gap-[12px] sm:grid-cols-2" aria-label="New address">
@@ -81,7 +82,7 @@ export function AddressForm({ back }: { back?: string }) {
           Country<span className="text-[#c0392b]"> *</span>
         </span>
         <select name="country" defaultValue="GB" autoComplete="country" className={`${inputClass} mt-[6px]`}>
-          {COUNTRIES.map(([code, name]) => (
+          {COUNTRIES.filter(([code]) => countries.includes(code)).map(([code, name]) => (
             <option key={code} value={code}>
               {name}
             </option>
