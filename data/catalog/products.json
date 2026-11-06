@@ -5824,6 +5824,84 @@
     "collectedAt": "2026-11-06"
   },
   {
+    "id": "p4020b7b3",
+    "slug": "3-ball-lok-fresh-jar",
+    "name": "3 Ball Lok Fresh Jar",
+    "brand": "Lok",
+    "mpn": null,
+    "category": "balls",
+    "audience": "unisex",
+    "specs": [
+      {
+        "label": "Format",
+        "value": "Tube"
+      },
+      {
+        "label": "Colour",
+        "value": "Yellow"
+      }
+    ],
+    "description": [
+      {
+        "type": "heading",
+        "text": "Can of 3 Lok Fresh Balls"
+      },
+      {
+        "type": "paragraph",
+        "text": "The balls Lok Fresh have been manufactured with high-quality materials that ensure maximum durability and wear resistance, so they last more matches than you might expect."
+      },
+      {
+        "type": "paragraph",
+        "text": "They adapt to any level of play and will allow you to reach your best level on the field."
+      },
+      {
+        "type": "heading",
+        "text": "Product Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Made with lightweight and flexible felt with 50% wool.",
+          "Soft, high-response natural rubber core.",
+          "Good bounce, smooth playability, and superior control ."
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "Can of 3 balls Fresh from Lok with a soft touch."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/82/3-ball-lok-fresh-jar-1.jpg",
+        "alt": "3 Ball Lok Fresh Jar",
+        "width": 1000,
+        "height": 1000,
+        "colour": null
+      },
+      {
+        "src": "/images/products/cd/3-ball-lok-fresh-jar-2.jpg",
+        "alt": "3 Ball Lok Fresh Jar, view 2",
+        "width": 1000,
+        "height": 1000,
+        "colour": null
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-4020B7-YELLOW",
+        "colour": "Yellow",
+        "colourHex": "#f2d600",
+        "size": null
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
     "id": "p334825fd",
     "slug": "shoe-bag-black-crown-duster",
     "name": "Shoe Bag Black Crown Duster",
@@ -367408,6 +367486,2268 @@
         "colour": "White",
         "colourHex": "#ffffff",
         "size": "XXL"
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "pfb77ae14",
+    "slug": "skirt-endless-allure-women",
+    "name": "Skirt Endless Allure Women",
+    "brand": "Endless",
+    "mpn": null,
+    "category": "apparel",
+    "audience": "women",
+    "specs": [
+      {
+        "label": "Clothing",
+        "value": "Skirts"
+      }
+    ],
+    "description": [
+      {
+        "type": "heading",
+        "text": "Skirt Endless Allure Woman"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Skirt Endless Allure Woman is the ideal choice for those looking to feel confident and comfortable with every move on the court. Its design combines functionality and a contemporary style, offering a garment designed for intense play and daily training."
+      },
+      {
+        "type": "heading",
+        "text": "Design and Comfort"
+      },
+      {
+        "type": "paragraph",
+        "text": "The high waist provides a stable and comfortable fit, while its flared cut enhances mobility and adds lightness during movements. The high-quality stretch fabric adapts smoothly to the body, ensuring freedom of action and a pleasant feel even during extended sessions."
+      },
+      {
+        "type": "heading",
+        "text": "Durability"
+      },
+      {
+        "type": "paragraph",
+        "text": "Additionally, its Premium construction ensures resistance and durability for frequent use."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Stretch fabric with official Lycra® certification.",
+          "High waist for a comfortable and secure fit.",
+          "Flared cut that enhances mobility.",
+          "UPF 50 sun protection in covered areas."
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "Designed for you to play with confidence and give your all on the court."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/12/skirt-endless-allure-women-1.jpg",
+        "alt": "Skirt Endless Allure Women",
+        "width": 1200,
+        "height": 1200,
+        "colour": null
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-FB77AE-BLACK-XS",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-FB77AE-BLACK-S",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "S"
+      },
+      {
+        "sku": "PP-FB77AE-BLACK-M",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "M"
+      },
+      {
+        "sku": "PP-FB77AE-BLACK-L",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "L"
+      },
+      {
+        "sku": "PP-FB77AE-BLACK-XL",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-FB77AE-BLACK-XXL",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-FB77AE-FALSE-XS",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-FB77AE-FALSE-XS",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-FB77AE-FALSE-S",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "S"
+      },
+      {
+        "sku": "PP-FB77AE-FALSE-S",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "S"
+      },
+      {
+        "sku": "PP-FB77AE-FALSE-M",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "M"
+      },
+      {
+        "sku": "PP-FB77AE-FALSE-M",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "M"
+      },
+      {
+        "sku": "PP-FB77AE-FALSE-L",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "L"
+      },
+      {
+        "sku": "PP-FB77AE-FALSE-L",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "L"
+      },
+      {
+        "sku": "PP-FB77AE-FALSE-XL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-FB77AE-FALSE-XL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-FB77AE-FALSE-XXL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-FB77AE-FALSE-XXL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-FB77AE-WHITE-XS",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-FB77AE-WHITE-S",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "S"
+      },
+      {
+        "sku": "PP-FB77AE-WHITE-M",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "M"
+      },
+      {
+        "sku": "PP-FB77AE-WHITE-L",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "L"
+      },
+      {
+        "sku": "PP-FB77AE-WHITE-XL",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-FB77AE-WHITE-XXL",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "XXL"
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "p8fe8a3cb",
+    "slug": "skirt-endless-bloom-woman",
+    "name": "Skirt Endless Bloom Woman",
+    "brand": "Endless",
+    "mpn": null,
+    "category": "apparel",
+    "audience": "women",
+    "specs": [
+      {
+        "label": "Clothing",
+        "value": "Skirts"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "The Skirt Endless Bloom Woman has been designed to offer maximum freedom of movement and comfort on the court. Its sporty design allows you to move freely at every point, helping your game flow naturally."
+      },
+      {
+        "type": "paragraph",
+        "text": "Made with high-quality technical fabrics, it stands out for its elasticity and lightness , adapting to the body without restricting movements. The extra-soft touch provides a pleasant feeling throughout the match, while its quick-drying capability makes it a practical garment for frequent training and competitions. Additionally, it maintains its shape and performance intact wash after wash, ensuring durability and continuous performance."
+      },
+      {
+        "type": "heading",
+        "text": "Key features:"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Extra-elastic technical fabric with LycraSport® certification.",
+          "UPF 50+ sun protection in covered areas.",
+          "Flare at the back for greater freedom of movement.",
+          "Integrated inner mesh for added comfort and support.",
+          "Designed to enhance your performance at every point."
+        ]
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [],
+    "variants": [
+      {
+        "sku": "PP-8FE8A3",
+        "colour": "",
+        "colourHex": "#d9d9d9",
+        "size": null
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "p0f2fa410",
+    "slug": "skirt-endless-club-collection-women",
+    "name": "Skirt Endless Club Collection Women",
+    "brand": "Endless",
+    "mpn": null,
+    "category": "apparel",
+    "audience": "women",
+    "specs": [
+      {
+        "label": "Clothing",
+        "value": "Skirts"
+      }
+    ],
+    "description": [
+      {
+        "type": "heading",
+        "text": "Skirt Endless Club Collection Woman"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Skirt Endless® Club Collection combines the charm of classic style with the technical innovation of modern sports fabrics. Its design with a slight flare and ergonomic high waist offers a flattering silhouette and optimal support during play."
+      },
+      {
+        "type": "paragraph",
+        "text": "Made with a European 6.6 polyamide ribbed stretch fabric, it provides comfort , breathability , and total freedom of movement at every point. Ideal for players seeking to combine elegance and functionality with a distinctive touch inspired by the essence of racket sports."
+      },
+      {
+        "type": "heading",
+        "text": "Key Advantages:"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Bi-directional stretch to move without limits.",
+          "Inner shorts with space for balls.",
+          "Quick-drying and breathable fabric.",
+          "UPF 50 sun protection for added safety.",
+          "Ergonomic flat seams that prevent chafing.",
+          "High durability : maintains its shape and color wash after wash."
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "Endless® Club Collection embroidery with Premium finish. An elegant garment designed for the most demanding players."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/c1/skirt-endless-club-collection-women-1.jpg",
+        "alt": "Skirt Endless Club Collection Women",
+        "width": 1200,
+        "height": 1200,
+        "colour": null
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-0F2FA4-BLACK-XS",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-0F2FA4-BLACK-S",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "S"
+      },
+      {
+        "sku": "PP-0F2FA4-BLACK-M",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "M"
+      },
+      {
+        "sku": "PP-0F2FA4-BLACK-L",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "L"
+      },
+      {
+        "sku": "PP-0F2FA4-BLACK-XL",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-0F2FA4-WHITE-XS",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-0F2FA4-WHITE-S",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "S"
+      },
+      {
+        "sku": "PP-0F2FA4-WHITE-M",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "M"
+      },
+      {
+        "sku": "PP-0F2FA4-WHITE-L",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "L"
+      },
+      {
+        "sku": "PP-0F2FA4-WHITE-XL",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "XL"
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "p21d74ddb",
+    "slug": "skirt-endless-elite-s-legacy-woman",
+    "name": "Skirt Endless Elite S. Legacy Woman",
+    "brand": "Endless",
+    "mpn": null,
+    "category": "apparel",
+    "audience": "women",
+    "specs": [
+      {
+        "label": "Clothing",
+        "value": "Skirts"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "The Skirt Endless® Elite Legacy is a high-performance garment made from top-quality recycled fabric originating from northern Italy. With European polyamide 6.6 and a gauge of 44, it offers unique softness and breathability in the market."
+      },
+      {
+        "type": "paragraph",
+        "text": "The bi-directional elasticity of the Skirt allows you to move with complete freedom, while its ultra-fast drying and pilling resistance ensure durability. Additionally, the UPF 50 sun protection factor in covered areas protects you from solar radiation during outdoor activities."
+      },
+      {
+        "type": "heading",
+        "text": "Key Features:"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Ultra-soft touch for maximum comfort.",
+          "Gold Lurex® details on the front and back for an elegant touch.",
+          "Micro-perforated panel on the neckline and back for increased ventilation.",
+          "Inner lining at the front for more comfort.",
+          "Short included for added support.",
+          "High waist offering support and Confort.",
+          "Ultra-fast drying and wear resistance.",
+          "Ergonomic flat seams to prevent chafing.",
+          "UPF 50 sun protection in covered areas.",
+          "OEKOTEX Standard 100 certification to ensure safety and quality."
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Composition:"
+      },
+      {
+        "type": "paragraph",
+        "text": "82% Recycled Polyamide – 18% LycraSport®."
+      },
+      {
+        "type": "paragraph",
+        "text": "An elegant and functional garment."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/4f/skirt-endless-elite-s-legacy-woman-1.jpg",
+        "alt": "Skirt Endless Elite S. Legacy Woman",
+        "width": 1200,
+        "height": 1200,
+        "colour": null
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-21D74D-BLACK-XS",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-21D74D-BLACK-S",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "S"
+      },
+      {
+        "sku": "PP-21D74D-BLACK-M",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "M"
+      },
+      {
+        "sku": "PP-21D74D-BLACK-L",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "L"
+      },
+      {
+        "sku": "PP-21D74D-BLACK-XL",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-21D74D-WHITE-XS",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-21D74D-WHITE-S",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "S"
+      },
+      {
+        "sku": "PP-21D74D-WHITE-M",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "M"
+      },
+      {
+        "sku": "PP-21D74D-WHITE-L",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "L"
+      },
+      {
+        "sku": "PP-21D74D-WHITE-XL",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "XL"
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "pd6dd1ae6",
+    "slug": "skirt-endless-lace-woman",
+    "name": "Skirt Endless Lace Woman",
+    "brand": "Endless",
+    "mpn": null,
+    "category": "apparel",
+    "audience": "women",
+    "specs": [
+      {
+        "label": "Clothing",
+        "value": "Skirts"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "The Endless Lace combines innovation, clothing, Confort , and style to help you perform at your best on the court. Its Premium fabric with LycraSport and multifilament structure offers breathability and superior elasticity that accompanies every movement without losing shape or freshness."
+      },
+      {
+        "type": "paragraph",
+        "text": "The high-waisted ergonomic design provides firm and flattering support, offering stability and security in every move. Its light flare adds extra comfort and freedom, while the integrated inner Short , made of ultra-soft polyamide 6.6, ensures coverage, Confort , and extra protection thanks to its anatomical pattern. Additionally, it incorporates UPF 50 sun protection, ideal for outdoor training and competitions. The ergonomic flat seams prevent chafing and enhance the feeling of well-being with every use."
+      },
+      {
+        "type": "paragraph",
+        "text": "A technical garment that elevates your performance and confidence."
+      },
+      {
+        "type": "heading",
+        "text": "Key details"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Extra-elastic fabric with LycraSport",
+          "Quick sweat absorption and drying",
+          "High-waisted ergonomic design for great support",
+          "Ultra-soft polyamide 6.6 inner Short",
+          "Anti-chafing flat seams",
+          "UPF 50 sun protection",
+          "High color resistance and durability"
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Composition"
+      },
+      {
+        "type": "paragraph",
+        "text": "80% Polyamide – 20% Lycra"
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/a7/skirt-endless-lace-woman-1.jpg",
+        "alt": "Skirt Endless Lace Woman",
+        "width": 1200,
+        "height": 1200,
+        "colour": null
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-D6DD1A-FALSE-XS",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-D6DD1A-FALSE-S",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "S"
+      },
+      {
+        "sku": "PP-D6DD1A-FALSE-M",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "M"
+      },
+      {
+        "sku": "PP-D6DD1A-FALSE-L",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "L"
+      },
+      {
+        "sku": "PP-D6DD1A-FALSE-XL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-D6DD1A-FALSE-XXL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-D6DD1A-GREY-XS",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-D6DD1A-GREY-S",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "S"
+      },
+      {
+        "sku": "PP-D6DD1A-GREY-M",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "M"
+      },
+      {
+        "sku": "PP-D6DD1A-GREY-L",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "L"
+      },
+      {
+        "sku": "PP-D6DD1A-GREY-XL",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-D6DD1A-GREY-XXL",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "XXL"
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "pac87c824",
+    "slug": "skirt-endless-lux-ii-women",
+    "name": "Skirt Endless Lux Ii Women",
+    "brand": "Endless",
+    "mpn": null,
+    "category": "apparel",
+    "audience": "women",
+    "specs": [
+      {
+        "label": "Clothing",
+        "value": "Skirts"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "The Skirt Endless Lux II for women offers a perfect combination of fit , freedom , and support . Its high ergonomic waist enhances the figure and provides a firm feeling without constriction, while its slight flare ensures total comfort with every movement."
+      },
+      {
+        "type": "paragraph",
+        "text": "It includes inner shorts, practical for storing balls and maintaining greater security and confidence during play. Ideal for players seeking performance and elegance on and off the court."
+      },
+      {
+        "type": "heading",
+        "text": "Main Features:"
+      },
+      {
+        "type": "list",
+        "items": [
+          "High ergonomic waist that improves support.",
+          "Stretch fabric for maximum freedom of movement.",
+          "Integrated inner shorts with space for balls."
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Composition:"
+      },
+      {
+        "type": "paragraph",
+        "text": "80% polyester and 20% elastane. Design with a slight flare that provides comfort and style."
+      },
+      {
+        "type": "paragraph",
+        "text": "Make a style statement on the court!"
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/00/skirt-endless-lux-ii-women-1.jpg",
+        "alt": "Skirt Endless Lux Ii Women",
+        "width": 1200,
+        "height": 1200,
+        "colour": null
+      },
+      {
+        "src": "/images/products/b5/skirt-endless-lux-ii-women-2.jpg",
+        "alt": "Skirt Endless Lux Ii Women, Red",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Red"
+      },
+      {
+        "src": "/images/products/66/skirt-endless-lux-ii-women-3.jpg",
+        "alt": "Skirt Endless Lux Ii Women, Red",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Red"
+      },
+      {
+        "src": "/images/products/fa/skirt-endless-lux-ii-women-4.jpg",
+        "alt": "Skirt Endless Lux Ii Women, Red",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Red"
+      },
+      {
+        "src": "/images/products/38/skirt-endless-lux-ii-women-5.jpg",
+        "alt": "Skirt Endless Lux Ii Women, Red",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Red"
+      },
+      {
+        "src": "/images/products/f7/skirt-endless-lux-ii-women-6.jpg",
+        "alt": "Skirt Endless Lux Ii Women, Grey",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Grey"
+      },
+      {
+        "src": "/images/products/f6/skirt-endless-lux-ii-women-7.jpg",
+        "alt": "Skirt Endless Lux Ii Women, Grey",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Grey"
+      },
+      {
+        "src": "/images/products/26/skirt-endless-lux-ii-women-8.jpg",
+        "alt": "Skirt Endless Lux Ii Women, Grey",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Grey"
+      },
+      {
+        "src": "/images/products/0d/skirt-endless-lux-ii-women-9.jpg",
+        "alt": "Skirt Endless Lux Ii Women, Grey",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Grey"
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-AC87C8-BLACK-XS",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-AC87C8-BLACK-S",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "S"
+      },
+      {
+        "sku": "PP-AC87C8-BLACK-M",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "M"
+      },
+      {
+        "sku": "PP-AC87C8-BLACK-L",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "L"
+      },
+      {
+        "sku": "PP-AC87C8-BLACK-XL",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-AC87C8-BLUE-XS",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-AC87C8-BLUE-S",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "S"
+      },
+      {
+        "sku": "PP-AC87C8-BLUE-M",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "M"
+      },
+      {
+        "sku": "PP-AC87C8-BLUE-L",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "L"
+      },
+      {
+        "sku": "PP-AC87C8-BLUE-XL",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-AC87C8-CORAL-XS",
+        "colour": "Coral",
+        "colourHex": "#ff7f50",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-AC87C8-CORAL-S",
+        "colour": "Coral",
+        "colourHex": "#ff7f50",
+        "size": "S"
+      },
+      {
+        "sku": "PP-AC87C8-CORAL-M",
+        "colour": "Coral",
+        "colourHex": "#ff7f50",
+        "size": "M"
+      },
+      {
+        "sku": "PP-AC87C8-CORAL-L",
+        "colour": "Coral",
+        "colourHex": "#ff7f50",
+        "size": "L"
+      },
+      {
+        "sku": "PP-AC87C8-CORAL-XL",
+        "colour": "Coral",
+        "colourHex": "#ff7f50",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-AC87C8-FALSE-XS",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-AC87C8-FALSE-S",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "S"
+      },
+      {
+        "sku": "PP-AC87C8-FALSE-M",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "M"
+      },
+      {
+        "sku": "PP-AC87C8-FALSE-L",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "L"
+      },
+      {
+        "sku": "PP-AC87C8-FALSE-XL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-AC87C8-GREY-XS",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-AC87C8-GREY-S",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "S"
+      },
+      {
+        "sku": "PP-AC87C8-GREY-M",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "M"
+      },
+      {
+        "sku": "PP-AC87C8-GREY-L",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "L"
+      },
+      {
+        "sku": "PP-AC87C8-GREY-XL",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-AC87C8-GREY-XXL",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-AC87C8-LIGHT-GREEN-XS",
+        "colour": "Light green",
+        "colourHex": "#90ee90",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-AC87C8-LIGHT-GREEN-S",
+        "colour": "Light green",
+        "colourHex": "#90ee90",
+        "size": "S"
+      },
+      {
+        "sku": "PP-AC87C8-LIGHT-GREEN-M",
+        "colour": "Light green",
+        "colourHex": "#90ee90",
+        "size": "M"
+      },
+      {
+        "sku": "PP-AC87C8-LIGHT-GREEN-L",
+        "colour": "Light green",
+        "colourHex": "#90ee90",
+        "size": "L"
+      },
+      {
+        "sku": "PP-AC87C8-LIGHT-GREEN-XL",
+        "colour": "Light green",
+        "colourHex": "#90ee90",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-AC87C8-LILA-XS",
+        "colour": "Lila",
+        "colourHex": "#c8a2c8",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-AC87C8-LILA-S",
+        "colour": "Lila",
+        "colourHex": "#c8a2c8",
+        "size": "S"
+      },
+      {
+        "sku": "PP-AC87C8-LILA-M",
+        "colour": "Lila",
+        "colourHex": "#c8a2c8",
+        "size": "M"
+      },
+      {
+        "sku": "PP-AC87C8-LILA-L",
+        "colour": "Lila",
+        "colourHex": "#c8a2c8",
+        "size": "L"
+      },
+      {
+        "sku": "PP-AC87C8-LILA-XL",
+        "colour": "Lila",
+        "colourHex": "#c8a2c8",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-AC87C8-LILA-XXL",
+        "colour": "Lila",
+        "colourHex": "#c8a2c8",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-AC87C8-PINK-XS",
+        "colour": "Pink",
+        "colourHex": "#ffc0cb",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-AC87C8-PINK-S",
+        "colour": "Pink",
+        "colourHex": "#ffc0cb",
+        "size": "S"
+      },
+      {
+        "sku": "PP-AC87C8-PINK-M",
+        "colour": "Pink",
+        "colourHex": "#ffc0cb",
+        "size": "M"
+      },
+      {
+        "sku": "PP-AC87C8-PINK-L",
+        "colour": "Pink",
+        "colourHex": "#ffc0cb",
+        "size": "L"
+      },
+      {
+        "sku": "PP-AC87C8-PINK-XL",
+        "colour": "Pink",
+        "colourHex": "#ffc0cb",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-AC87C8-RED-XS",
+        "colour": "Red",
+        "colourHex": "#ff0000",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-AC87C8-RED-S",
+        "colour": "Red",
+        "colourHex": "#ff0000",
+        "size": "S"
+      },
+      {
+        "sku": "PP-AC87C8-RED-M",
+        "colour": "Red",
+        "colourHex": "#ff0000",
+        "size": "M"
+      },
+      {
+        "sku": "PP-AC87C8-RED-L",
+        "colour": "Red",
+        "colourHex": "#ff0000",
+        "size": "L"
+      },
+      {
+        "sku": "PP-AC87C8-RED-XL",
+        "colour": "Red",
+        "colourHex": "#ff0000",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-AC87C8-RED-XXL",
+        "colour": "Red",
+        "colourHex": "#ff0000",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-AC87C8-TURQUOISE-BL-XS",
+        "colour": "Turquoise blue",
+        "colourHex": "#40e0d0",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-AC87C8-TURQUOISE-BL-S",
+        "colour": "Turquoise blue",
+        "colourHex": "#40e0d0",
+        "size": "S"
+      },
+      {
+        "sku": "PP-AC87C8-TURQUOISE-BL-M",
+        "colour": "Turquoise blue",
+        "colourHex": "#40e0d0",
+        "size": "M"
+      },
+      {
+        "sku": "PP-AC87C8-TURQUOISE-BL-L",
+        "colour": "Turquoise blue",
+        "colourHex": "#40e0d0",
+        "size": "L"
+      },
+      {
+        "sku": "PP-AC87C8-TURQUOISE-BL-XL",
+        "colour": "Turquoise blue",
+        "colourHex": "#40e0d0",
+        "size": "XL"
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "pa853b2bd",
+    "slug": "skirt-endless-minimal-woman",
+    "name": "Skirt Endless Minimal Woman",
+    "brand": "Endless",
+    "mpn": null,
+    "category": "apparel",
+    "audience": "women",
+    "specs": [
+      {
+        "label": "Clothing",
+        "value": "Skirts"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "The Skirt Endless® Minimal Woman is designed to offer you total freedom of movement and maximum Confort on the court. Its high-quality extra-elastic fabric, officially certified by LycraSport®, adapts perfectly to your body, allowing you to play without restrictions."
+      },
+      {
+        "type": "paragraph",
+        "text": "Thanks to its multifilament technology, it absorbs sweat and wicks it away quickly, keeping you dry and comfortable throughout the match. Additionally, it incorporates UPF 50+ sun protection in covered areas, ideal for outdoor training."
+      },
+      {
+        "type": "heading",
+        "text": "Key advantages:"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Ergonomic high waist that slims and provides support",
+          "Ribbed fabric with micro-relief for greater elasticity",
+          "Anatomical inner Short with space for a ball",
+          "Flat seams that prevent chafing",
+          "Extra-soft touch and quick-drying",
+          "Guaranteed durability, does not lose color or shape"
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "A Skirt that combines technical performance, functional design, and sporty style, perfect for active players."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/ad/skirt-endless-minimal-woman-1.jpg",
+        "alt": "Skirt Endless Minimal Woman",
+        "width": 1200,
+        "height": 1200,
+        "colour": null
+      },
+      {
+        "src": "/images/products/9b/skirt-endless-minimal-woman-2.jpg",
+        "alt": "Skirt Endless Minimal Woman, Black",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Black"
+      },
+      {
+        "src": "/images/products/da/skirt-endless-minimal-woman-3.jpg",
+        "alt": "Skirt Endless Minimal Woman, Black",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Black"
+      },
+      {
+        "src": "/images/products/e0/skirt-endless-minimal-woman-4.jpg",
+        "alt": "Skirt Endless Minimal Woman, Black",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Black"
+      },
+      {
+        "src": "/images/products/72/skirt-endless-minimal-woman-5.jpg",
+        "alt": "Skirt Endless Minimal Woman, Grey",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Grey"
+      },
+      {
+        "src": "/images/products/f2/skirt-endless-minimal-woman-6.jpg",
+        "alt": "Skirt Endless Minimal Woman, Grey",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Grey"
+      },
+      {
+        "src": "/images/products/f7/skirt-endless-minimal-woman-7.jpg",
+        "alt": "Skirt Endless Minimal Woman, Grey",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Grey"
+      },
+      {
+        "src": "/images/products/7f/skirt-endless-minimal-woman-8.jpg",
+        "alt": "Skirt Endless Minimal Woman, Blue aqua",
+        "width": 1000,
+        "height": 1000,
+        "colour": "Blue aqua"
+      },
+      {
+        "src": "/images/products/a6/skirt-endless-minimal-woman-9.jpg",
+        "alt": "Skirt Endless Minimal Woman, Blue aqua",
+        "width": 1000,
+        "height": 1000,
+        "colour": "Blue aqua"
+      },
+      {
+        "src": "/images/products/f6/skirt-endless-minimal-woman-10.jpg",
+        "alt": "Skirt Endless Minimal Woman, Blue aqua",
+        "width": 1000,
+        "height": 1000,
+        "colour": "Blue aqua"
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-A853B2-BLACK-XS",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-A853B2-BLACK-S",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "S"
+      },
+      {
+        "sku": "PP-A853B2-BLACK-M",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "M"
+      },
+      {
+        "sku": "PP-A853B2-BLACK-L",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "L"
+      },
+      {
+        "sku": "PP-A853B2-BLACK-XL",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-A853B2-BLACK-XXL",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-A853B2-BLUE-XS",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-A853B2-BLUE-S",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "S"
+      },
+      {
+        "sku": "PP-A853B2-BLUE-M",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "M"
+      },
+      {
+        "sku": "PP-A853B2-BLUE-L",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "L"
+      },
+      {
+        "sku": "PP-A853B2-BLUE-XL",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-A853B2-BLUE-AQUA-XS",
+        "colour": "Blue aqua",
+        "colourHex": "#00ffff",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-A853B2-BLUE-AQUA-S",
+        "colour": "Blue aqua",
+        "colourHex": "#00ffff",
+        "size": "S"
+      },
+      {
+        "sku": "PP-A853B2-BLUE-AQUA-M",
+        "colour": "Blue aqua",
+        "colourHex": "#00ffff",
+        "size": "M"
+      },
+      {
+        "sku": "PP-A853B2-BLUE-AQUA-L",
+        "colour": "Blue aqua",
+        "colourHex": "#00ffff",
+        "size": "L"
+      },
+      {
+        "sku": "PP-A853B2-BLUE-AQUA-XL",
+        "colour": "Blue aqua",
+        "colourHex": "#00ffff",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-A853B2-BLUE-AQUA-XXL",
+        "colour": "Blue aqua",
+        "colourHex": "#00ffff",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-A853B2-FALSE-XS",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-A853B2-FALSE-XS",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-A853B2-FALSE-S",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "S"
+      },
+      {
+        "sku": "PP-A853B2-FALSE-S",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "S"
+      },
+      {
+        "sku": "PP-A853B2-FALSE-M",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "M"
+      },
+      {
+        "sku": "PP-A853B2-FALSE-M",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "M"
+      },
+      {
+        "sku": "PP-A853B2-FALSE-L",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "L"
+      },
+      {
+        "sku": "PP-A853B2-FALSE-L",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "L"
+      },
+      {
+        "sku": "PP-A853B2-FALSE-XL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-A853B2-FALSE-XL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-A853B2-FALSE-XXL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-A853B2-FUCHSIA-XS",
+        "colour": "Fuchsia",
+        "colourHex": "#ff00ff",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-A853B2-FUCHSIA-S",
+        "colour": "Fuchsia",
+        "colourHex": "#ff00ff",
+        "size": "S"
+      },
+      {
+        "sku": "PP-A853B2-FUCHSIA-M",
+        "colour": "Fuchsia",
+        "colourHex": "#ff00ff",
+        "size": "M"
+      },
+      {
+        "sku": "PP-A853B2-FUCHSIA-L",
+        "colour": "Fuchsia",
+        "colourHex": "#ff00ff",
+        "size": "L"
+      },
+      {
+        "sku": "PP-A853B2-FUCHSIA-XL",
+        "colour": "Fuchsia",
+        "colourHex": "#ff00ff",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-A853B2-GREY-XS",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-A853B2-GREY-S",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "S"
+      },
+      {
+        "sku": "PP-A853B2-GREY-M",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "M"
+      },
+      {
+        "sku": "PP-A853B2-GREY-L",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "L"
+      },
+      {
+        "sku": "PP-A853B2-GREY-XL",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-A853B2-GREY-XXL",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-A853B2-LILA-XS",
+        "colour": "Lila",
+        "colourHex": "#c8a2c8",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-A853B2-LILA-S",
+        "colour": "Lila",
+        "colourHex": "#c8a2c8",
+        "size": "S"
+      },
+      {
+        "sku": "PP-A853B2-LILA-M",
+        "colour": "Lila",
+        "colourHex": "#c8a2c8",
+        "size": "M"
+      },
+      {
+        "sku": "PP-A853B2-LILA-L",
+        "colour": "Lila",
+        "colourHex": "#c8a2c8",
+        "size": "L"
+      },
+      {
+        "sku": "PP-A853B2-LILA-XL",
+        "colour": "Lila",
+        "colourHex": "#c8a2c8",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-A853B2-NAVY-XS",
+        "colour": "Navy",
+        "colourHex": "#000080",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-A853B2-NAVY-S",
+        "colour": "Navy",
+        "colourHex": "#000080",
+        "size": "S"
+      },
+      {
+        "sku": "PP-A853B2-NAVY-M",
+        "colour": "Navy",
+        "colourHex": "#000080",
+        "size": "M"
+      },
+      {
+        "sku": "PP-A853B2-NAVY-L",
+        "colour": "Navy",
+        "colourHex": "#000080",
+        "size": "L"
+      },
+      {
+        "sku": "PP-A853B2-NAVY-XL",
+        "colour": "Navy",
+        "colourHex": "#000080",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-A853B2-PURPLE-XS",
+        "colour": "Purple",
+        "colourHex": "#800080",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-A853B2-PURPLE-S",
+        "colour": "Purple",
+        "colourHex": "#800080",
+        "size": "S"
+      },
+      {
+        "sku": "PP-A853B2-PURPLE-M",
+        "colour": "Purple",
+        "colourHex": "#800080",
+        "size": "M"
+      },
+      {
+        "sku": "PP-A853B2-PURPLE-L",
+        "colour": "Purple",
+        "colourHex": "#800080",
+        "size": "L"
+      },
+      {
+        "sku": "PP-A853B2-PURPLE-XL",
+        "colour": "Purple",
+        "colourHex": "#800080",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-A853B2-SILVER-XS",
+        "colour": "Silver",
+        "colourHex": "#c0c0c0",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-A853B2-SILVER-S",
+        "colour": "Silver",
+        "colourHex": "#c0c0c0",
+        "size": "S"
+      },
+      {
+        "sku": "PP-A853B2-SILVER-M",
+        "colour": "Silver",
+        "colourHex": "#c0c0c0",
+        "size": "M"
+      },
+      {
+        "sku": "PP-A853B2-SILVER-L",
+        "colour": "Silver",
+        "colourHex": "#c0c0c0",
+        "size": "L"
+      },
+      {
+        "sku": "PP-A853B2-SILVER-XL",
+        "colour": "Silver",
+        "colourHex": "#c0c0c0",
+        "size": "XL"
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "pe4fafa77",
+    "slug": "skirt-endless-slam-woman",
+    "name": "Skirt Endless Slam Woman",
+    "brand": "Endless",
+    "mpn": null,
+    "category": "apparel",
+    "audience": "women",
+    "specs": [
+      {
+        "label": "Clothing",
+        "value": "Skirts"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "The Skirt Endless Slam for women has been designed for paddle and tennis players seeking technical performance without sacrificing style. Its official Lycra® certified construction ensures advanced elasticity that adapts to the body and accompanies every movement with total naturalness."
+      },
+      {
+        "type": "paragraph",
+        "text": "Lightweight, flexible, and ultra-soft to the touch, it offers a constant feeling of Confort even during the most demanding matches. The high waist provides optimal support and precise fit for safe and comfortable movements throughout the match."
+      },
+      {
+        "type": "paragraph",
+        "text": "Thanks to its efficient sweat-wicking system, the Skirt promotes quick drying, helping to keep the skin dry and fresh at all times. Additionally, it incorporates UPF 50+ sun protection, ideal for outdoor training and competitions."
+      },
+      {
+        "type": "heading",
+        "text": "Main features"
+      },
+      {
+        "type": "list",
+        "items": [
+          "High elasticity and ergonomic fit",
+          "Quick drying and moisture control",
+          "Lightweight and soft touch",
+          "UPF 50+ sun protection",
+          "Elegant and functional design",
+          "High waist for a firm fit"
+        ]
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [],
+    "variants": [
+      {
+        "sku": "PP-E4FAFA",
+        "colour": "",
+        "colourHex": "#d9d9d9",
+        "size": null
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "p214d5c8e",
+    "slug": "mesh-endless-lift-women",
+    "name": "Mesh Endless Lift Women",
+    "brand": "Endless",
+    "mpn": null,
+    "category": "apparel",
+    "audience": "women",
+    "specs": [
+      {
+        "label": "Clothing",
+        "value": "Sport Leggins"
+      }
+    ],
+    "description": [
+      {
+        "type": "heading",
+        "text": "Endless Lift Women's Leggings"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Endless® Lift Women's Leggings are made with Pro-Dynamic compressive fabric , designed to offer you maximum comfort, support, and freedom of movement. Its lightweight and extra-soft touch structure adapts perfectly to the body, allowing you to train with total confidence. Thanks to its multifilament technology, sweat is quickly absorbed and expelled, keeping you dry and comfortable throughout the activity. Additionally, it incorporates UPF 50+ sun protection in covered areas, ideal for outdoor training."
+      },
+      {
+        "type": "heading",
+        "text": "Highlighted advantages:"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Elastic side pocket for ball, keys, or phone",
+          "Push-Up effect that shapes and enhances the buttocks",
+          "Wide elastic waistband for firm and comfortable support",
+          "Elastic mesh panels that improve breathability",
+          "Ergonomic flat seams that prevent chafing",
+          "Guaranteed durability, does not lose shape or color"
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Technical composition:"
+      },
+      {
+        "type": "paragraph",
+        "text": "75% Polyamide and 25% LycraSport®"
+      },
+      {
+        "type": "paragraph",
+        "text": "A garment that combines technical performance, functional design, and sporty style, perfect for active players."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/3b/mesh-endless-lift-women-1.jpg",
+        "alt": "Mesh Endless Lift Women",
+        "width": 1200,
+        "height": 1200,
+        "colour": null
+      },
+      {
+        "src": "/images/products/69/mesh-endless-lift-women-2.jpg",
+        "alt": "Mesh Endless Lift Women, Navy",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Navy"
+      },
+      {
+        "src": "/images/products/f0/mesh-endless-lift-women-3.jpg",
+        "alt": "Mesh Endless Lift Women, Navy",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Navy"
+      },
+      {
+        "src": "/images/products/27/mesh-endless-lift-women-4.jpg",
+        "alt": "Mesh Endless Lift Women, Navy",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Navy"
+      },
+      {
+        "src": "/images/products/68/mesh-endless-lift-women-5.jpg",
+        "alt": "Mesh Endless Lift Women, Navy",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Navy"
+      },
+      {
+        "src": "/images/products/ea/mesh-endless-lift-women-6.jpg",
+        "alt": "Mesh Endless Lift Women, Light green",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Light green"
+      },
+      {
+        "src": "/images/products/c0/mesh-endless-lift-women-7.jpg",
+        "alt": "Mesh Endless Lift Women, Light green",
+        "width": 1200,
+        "height": 1200,
+        "colour": "Light green"
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-214D5C-BLUE-XS",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-214D5C-BLUE-S",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "S"
+      },
+      {
+        "sku": "PP-214D5C-BLUE-M",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "M"
+      },
+      {
+        "sku": "PP-214D5C-BLUE-L",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "L"
+      },
+      {
+        "sku": "PP-214D5C-BLUE-XL",
+        "colour": "Blue",
+        "colourHex": "#0000ff",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-XS",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-XS",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-XS",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-S",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "S"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-S",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "S"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-S",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "S"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-M",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "M"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-M",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "M"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-M",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "M"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-L",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "L"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-L",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "L"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-L",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "L"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-XL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-XL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-XL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-XXL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-XXL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-214D5C-FALSE-XXL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-214D5C-LIGHT-GREEN-XS",
+        "colour": "Light green",
+        "colourHex": "#90ee90",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-214D5C-LIGHT-GREEN-S",
+        "colour": "Light green",
+        "colourHex": "#90ee90",
+        "size": "S"
+      },
+      {
+        "sku": "PP-214D5C-LIGHT-GREEN-M",
+        "colour": "Light green",
+        "colourHex": "#90ee90",
+        "size": "M"
+      },
+      {
+        "sku": "PP-214D5C-LIGHT-GREEN-L",
+        "colour": "Light green",
+        "colourHex": "#90ee90",
+        "size": "L"
+      },
+      {
+        "sku": "PP-214D5C-LIGHT-GREEN-XL",
+        "colour": "Light green",
+        "colourHex": "#90ee90",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-214D5C-NAVY-XS",
+        "colour": "Navy",
+        "colourHex": "#000080",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-214D5C-NAVY-S",
+        "colour": "Navy",
+        "colourHex": "#000080",
+        "size": "S"
+      },
+      {
+        "sku": "PP-214D5C-NAVY-M",
+        "colour": "Navy",
+        "colourHex": "#000080",
+        "size": "M"
+      },
+      {
+        "sku": "PP-214D5C-NAVY-L",
+        "colour": "Navy",
+        "colourHex": "#000080",
+        "size": "L"
+      },
+      {
+        "sku": "PP-214D5C-NAVY-XL",
+        "colour": "Navy",
+        "colourHex": "#000080",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-214D5C-NAVY-XXL",
+        "colour": "Navy",
+        "colourHex": "#000080",
+        "size": "XXL"
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "p9b11ea36",
+    "slug": "mesh-endless-line-pocket-hw-7-8-women",
+    "name": "Mesh Endless Line Pocket Hw 7/8 Women",
+    "brand": "Endless",
+    "mpn": null,
+    "category": "apparel",
+    "audience": "women",
+    "specs": [
+      {
+        "label": "Clothing",
+        "value": "Sport Leggins"
+      }
+    ],
+    "description": [
+      {
+        "type": "heading",
+        "text": "Endless Endless Line Pocket HW 7/8 Women's Tights"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Endless Endless Line Pocket HW 7/8 Women's Tights are designed to offer support , comfort , and functionality in every training session or match. Their seven-eighths cut provides a modern and versatile fit, ideal for moving with agility on the court. Thanks to their high-waisted design, they provide a firm and comfortable hold throughout the game. The compressive Pro-Dynamic fabric adapts precisely to the body, promoting muscle stability without sacrificing freedom of movement. Additionally, their extra-soft finish ensures a pleasant contact with the skin even during intense sessions. These tights stand out for their durability , maintaining their shape and performance wash after wash, and for their quick-drying feature , perfect for the pace of daily sports activities."
+      },
+      {
+        "type": "heading",
+        "text": "Main features:"
+      },
+      {
+        "type": "list",
+        "items": [
+          "7/8 cut with high waist.",
+          "Compressive Pro-Dynamic fabric with LycraSport® certification.",
+          "Integrated elastic pocket for storing the ball.",
+          "Extra-soft touch and quick-drying.",
+          "Designed to perform today and always on the court."
+        ]
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [],
+    "variants": [
+      {
+        "sku": "PP-9B11EA",
+        "colour": "",
+        "colourHex": "#d9d9d9",
+        "size": null
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "p9eb66d23",
+    "slug": "polo-endless-glam-mujer",
+    "name": "Polo Endless Glam Mujer",
+    "brand": "Endless",
+    "mpn": null,
+    "category": "apparel",
+    "audience": "women",
+    "specs": [
+      {
+        "label": "Clothing",
+        "value": "Polos"
+      }
+    ],
+    "description": [
+      {
+        "type": "heading",
+        "text": "Polo Endless Glam Women"
+      },
+      {
+        "type": "paragraph",
+        "text": "The Polo Endless® Glam for women is the perfect choice for those seeking style and performance . This sleeveless Polo is super lightweight and naturally adapts to all your movements, offering you a sense of freedom. With an elegant collar and invisible zipper, it adds a touch of sophistication to your look while maintaining optimal performance. Its lightweight and breathable fabric ensures quick drying and maximum Confort during exercise."
+      },
+      {
+        "type": "heading",
+        "text": "Key Advantages and Features:"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Elegant collar with invisible zipper for a flawless look.",
+          "Micro-perforated panels on the back to enhance breathability.",
+          "Bi-directional stretch for unrestricted movement.",
+          "Lightweight and breathable fabric to keep you cool.",
+          "Quick-drying and extra-soft touch for greater comfort.",
+          "Wash-resistant, maintaining its color and shape.",
+          "Ergonomic flat seams to prevent chafing.",
+          "UPF 50 sun protection to shield you from solar radiation."
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "Composition:"
+      },
+      {
+        "type": "paragraph",
+        "text": "80% European Polyamide 6.6 and 20% Elastane. A garment designed for the most elegant players."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/f9/polo-endless-glam-mujer-1.jpg",
+        "alt": "Polo Endless Glam Mujer",
+        "width": 1200,
+        "height": 1200,
+        "colour": null
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-9EB66D-BLACK-XS",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-9EB66D-BLACK-S",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "S"
+      },
+      {
+        "sku": "PP-9EB66D-BLACK-M",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "M"
+      },
+      {
+        "sku": "PP-9EB66D-BLACK-L",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "L"
+      },
+      {
+        "sku": "PP-9EB66D-BLACK-XL",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-9EB66D-BLACK-XXL",
+        "colour": "Black",
+        "colourHex": "#000000",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-9EB66D-FALSE-XS",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-9EB66D-FALSE-S",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "S"
+      },
+      {
+        "sku": "PP-9EB66D-FALSE-M",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "M"
+      },
+      {
+        "sku": "PP-9EB66D-FALSE-L",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "L"
+      },
+      {
+        "sku": "PP-9EB66D-FALSE-XL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-9EB66D-FALSE-XXL",
+        "colour": "false",
+        "colourHex": "#d9d9d9",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-9EB66D-GREY-XS",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-9EB66D-GREY-S",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "S"
+      },
+      {
+        "sku": "PP-9EB66D-GREY-M",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "M"
+      },
+      {
+        "sku": "PP-9EB66D-GREY-L",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "L"
+      },
+      {
+        "sku": "PP-9EB66D-GREY-XL",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-9EB66D-GREY-XXL",
+        "colour": "Grey",
+        "colourHex": "#808080",
+        "size": "XXL"
+      },
+      {
+        "sku": "PP-9EB66D-WHITE-XS",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "XS"
+      },
+      {
+        "sku": "PP-9EB66D-WHITE-S",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "S"
+      },
+      {
+        "sku": "PP-9EB66D-WHITE-M",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "M"
+      },
+      {
+        "sku": "PP-9EB66D-WHITE-L",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "L"
+      },
+      {
+        "sku": "PP-9EB66D-WHITE-XL",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "XL"
+      },
+      {
+        "sku": "PP-9EB66D-WHITE-XXL",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": "XXL"
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "p7d9c0733",
+    "slug": "short-endless-chill-ii-women",
+    "name": "Short Endless Chill Ii Women",
+    "brand": "Endless",
+    "mpn": null,
+    "category": "apparel",
+    "audience": "women",
+    "specs": [
+      {
+        "label": "Clothing",
+        "value": "Shorts"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "The Short Endless Chill II Women is the perfect choice for high-intensity workouts. Designed to offer a firm and flattering fit, it incorporates technical stretch fabric with light compression that shapes and provides support without sacrificing comfort."
+      },
+      {
+        "type": "paragraph",
+        "text": "Its lightweight and flexible structure allows you to move naturally in every exercise, from strength sessions to cardiovascular work. The material facilitates quick moisture evaporation, helping to keep the skin dry and comfortable throughout the activity."
+      },
+      {
+        "type": "paragraph",
+        "text": "Additionally, it features UPF 50 sun protection , ideal for training outdoors with greater peace of mind and safety."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [],
+    "variants": [
+      {
+        "sku": "PP-7D9C07",
+        "colour": "",
+        "colourHex": "#d9d9d9",
+        "size": null
       }
     ],
     "hidden": false,
