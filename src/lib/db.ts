@@ -128,6 +128,10 @@ export function db(): DatabaseSync {
       "ALTER TABLE payments ADD COLUMN provider TEXT NOT NULL DEFAULT 'mock'",
       "ALTER TABLE payments ADD COLUMN gateway_order_id TEXT",
       "CREATE UNIQUE INDEX IF NOT EXISTS payments_gateway_order ON payments(gateway_order_id)",
+      "ALTER TABLE payments ADD COLUMN gateway_status TEXT",
+      "ALTER TABLE payments ADD COLUMN expires_at TEXT",
+      // Payments that arrived after their order had expired or was closed: kept for a manual check, never auto-applied.
+      "CREATE TABLE IF NOT EXISTS late_payments (id INTEGER PRIMARY KEY, at TEXT NOT NULL, payment_id TEXT NOT NULL, order_number TEXT NOT NULL, amount INTEGER NOT NULL, currency TEXT NOT NULL, order_status TEXT NOT NULL, reviewed_at TEXT)",
     ]) {
       try {
         d.exec(sql);

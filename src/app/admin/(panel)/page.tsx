@@ -5,7 +5,8 @@ import { requireAdmin } from "@/lib/auth";
 import { offSaleReason, readCatalog, readOffers, readSettings, readSourceRegistry } from "@/lib/catalog-store";
 import { db } from "@/lib/db";
 import { FX_CODES, rateInfo } from "@/lib/fx";
-import { setSourceHidden } from "../actions";
+import { openLatePayments } from "@/lib/orders";
+import { markLatePaymentReviewed, setSourceHidden } from "../actions";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -28,11 +29,34 @@ export default async function AdminOverview() {
     deletion_requested_at: string;
   }[];
 
+  const late = openLatePayments();
   const openComplaints = (db().prepare("SELECT COUNT(*) AS n FROM data_complaints WHERE status = 'open'").get() as { n: number }).n;
   const fxProblems = FX_CODES.map((c) => ({ c, r: rateInfo(c, s.fx) })).filter((x) => !x.r.enabled);
 
   return (
     <>
+    {late.length > 0 && (
+      <div role="alert" className="mt-[20px] border-l-4 border-[#c0392b] bg-[#fdecea] px-[16px] py-[10px] text-[15px] text-ink">
+        <p className="font-bold">Payment received for an order that had expired or was closed — check manually (refund or fulfil):</p>
+        <ul className="mt-[6px] space-y-[4px]">
+          {late.map((l) => (
+            <li key={l.id} className="flex flex-wrap items-center gap-[10px]">
+              <Link href={`/admin/orders/${l.order_number}`} className="text-royal underline">
+                {l.order_number}
+              </Link>
+              <span>
+                {(l.amount / 100).toFixed(2)} {l.currency}, order was {l.order_status}, {l.at.slice(0, 16).replace("T", " ")}
+              </span>
+              <form action={markLatePaymentReviewed.bind(null, l.id)}>
+                <button type="submit" className="text-[13px] text-royal underline">
+                  Mark as checked
+                </button>
+              </form>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
     {openComplaints > 0 && (
       <p role="alert" className="mt-[20px] border-l-4 border-[#c0392b] bg-[#fdecea] px-[16px] py-[10px] text-[15px] text-ink">
         {openComplaints} open data protection complaint(s).{" "}

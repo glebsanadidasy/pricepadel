@@ -2,13 +2,15 @@
 
 import { redirect } from "next/navigation";
 import { userAddress } from "@/lib/addresses";
+import { paymentDetailsProblem } from "@/lib/customer-details";
 import { deliveryBlock, readSettings } from "@/lib/catalog-store";
 import { requireUser, siteUrl } from "@/lib/auth";
 import { gateway, startCardPayment } from "@/lib/gateway";
 import { mockGatewayEnabled } from "@/lib/payments";
-import { clearCart, readCart, resolveCart } from "@/lib/cart";
+import { clearCart, MAX_QTY, readCart, resolveCart, writeCart } from "@/lib/cart";
 import { getMoney } from "@/lib/currency";
-import { createOrder, getOrder, retryPayment } from "@/lib/orders";
+import { findVariant } from "@/lib/catalog";
+import { createOrder, getOrder, getOrderForUser, orderItems, retryPayment } from "@/lib/orders";
 
 /** Sends the customer to the payment page: the card gateway if configured, the local simulation in development / tests. */
 async function goToPayment(number: string, paymentId: string): Promise<never> {
@@ -33,6 +35,7 @@ export async function placeOrder(form: FormData) {
   if (form.get("terms") !== "yes") redirect("/checkout?e=terms");
   const address = userAddress(user.id, Number(form.get("address")));
   if (!address || deliveryBlock(address, readSettings())) redirect("/checkout?e=address");
+  if (paymentDetailsProblem(address)) redirect("/checkout?e=details");
 
   const cart = resolveCart(await readCart());
   if (!cart.ok) redirect("/cart");
@@ -44,6 +47,22 @@ export async function placeOrder(form: FormData) {
   const { number, paymentId } = createOrder({ userId: user.id, email: user.email, cart, address, currency: money.currency, rate: money.rate });
   await clearCart();
   await goToPayment(number, paymentId);
+}
+
+/** "Order again" for the customer's own expired order: puts the items that are still available back in the cart. */
+export async function orderAgain(number: string) {
+  const user = await requireUser(`/account/orders/${number}`);
+  const o = getOrderForUser(number, user.id);
+  if (!o) redirect("/account/orders");
+  const lines = await readCart();
+  for (const i of orderItems(o)) {
+    if (!findVariant(i.sku)) continue;
+    const l = lines.find((x) => x.sku === i.sku);
+    if (l) l.qty = Math.min(MAX_QTY, l.qty + i.qty);
+    else lines.push({ sku: i.sku, qty: Math.min(MAX_QTY, i.qty) });
+  }
+  await writeCart(lines);
+  redirect("/cart");
 }
 
 /** New payment attempt for the customer's own unpaid order (after a decline or a cancel). */

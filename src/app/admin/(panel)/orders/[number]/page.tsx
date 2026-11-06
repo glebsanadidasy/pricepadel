@@ -20,7 +20,9 @@ export default async function AdminOrder({ params }: { params: Promise<{ number:
   const sourceTotal = items.reduce((n, i) => n + (offers[i.productId]?.variants[i.sku]?.sourcePrice ?? 0) * i.qty, 0);
   const deliveryCost = ourDeliveryCost(sourceTotal, readSettings().delivery.ourCostTiers);
   // Paid / Awaiting payment come only from the payment flow; an unpaid order can only be cancelled.
-  const allowed = o.status === "Awaiting payment" ? (["Cancelled"] as const) : ORDER_STATUSES.filter((s) => s !== "Paid" && s !== "Awaiting payment");
+  // Paid, Awaiting payment and Expired come only from the payment flow; unpaid or expired orders can only be cancelled.
+  const allowed =
+    o.status === "Awaiting payment" || o.status === "Expired" ? (["Cancelled"] as const) : ORDER_STATUSES.filter((s) => s !== "Paid" && s !== "Awaiting payment" && s !== "Expired");
 
   return (
     <div className="mt-[24px] grid gap-[20px] lg:grid-cols-[1fr_380px]">

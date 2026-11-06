@@ -76,8 +76,8 @@ export function AddressForm({ back, countries }: { back?: string; countries: str
         <Message state={state} />
       </div>
       {back && <input type="hidden" name="back" value={back} />}
-      <Field label="Full name" name="full_name" autoComplete="name" required />
-      <Field label="Phone" name="phone" type="tel" autoComplete="tel" />
+      <Field label="Full name" name="full_name" autoComplete="name" required hint="First name and surname." />
+      <Field label="Phone" name="phone" type="tel" autoComplete="tel" required placeholder="+44 7700 900123" hint="With the country code, e.g. +44." />
       <Field label="Address line 1" name="line1" autoComplete="address-line1" required />
       <Field label="Address line 2" name="line2" autoComplete="address-line2" />
       <Field label="City" name="city" autoComplete="address-level2" required />

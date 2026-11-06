@@ -14,16 +14,32 @@ test("addresses in the Channel Islands, Isle of Man, BFPO and PO boxes are refus
   for (const c of cases) {
     await page.goto("/account/addresses");
     await page.getByLabel("Full name").fill("Test Customer");
+    await page.getByLabel("Phone").fill("+44 7700 900123");
     await page.getByLabel("Address line 1").fill(c.line1);
     await page.getByLabel("City").fill("Town");
     await page.getByLabel("Postcode").fill(c.postcode);
     await page.getByRole("button", { name: "Save address" }).click();
     await expect(page.getByText(c.message)).toBeVisible();
   }
+  // The payment provider needs a surname and a phone number with the country code.
+  for (const [name, phone] of [
+    ["Cher", "+44 7700 900123"],
+    ["Test Customer", "07700 900123"],
+  ]) {
+    await page.goto("/account/addresses");
+    await page.getByLabel("Full name").fill(name);
+    await page.getByLabel("Phone").fill(phone);
+    await page.getByLabel("Address line 1").fill("1 High Street");
+    await page.getByLabel("City").fill("Town");
+    await page.getByLabel("Postcode").fill("SW1A 1AA");
+    await page.getByRole("button", { name: "Save address" }).click();
+    await expect(page.getByText(/first name and surname, and a phone number with the country code/)).toBeVisible();
+  }
   // Northern Ireland and the Scottish islands are fine.
   for (const postcode of ["BT1 1AA", "HS1 2AB"]) {
     await page.goto("/account/addresses");
     await page.getByLabel("Full name").fill("Test Customer");
+    await page.getByLabel("Phone").fill("+44 7700 900123");
     await page.getByLabel("Address line 1").fill("1 High Street");
     await page.getByLabel("City").fill("Town");
     await page.getByLabel("Postcode").fill(postcode);

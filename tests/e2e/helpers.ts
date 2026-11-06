@@ -4,7 +4,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 const DATA = process.env.TEST_DATA_DIR!;
-const OUTBOX = path.join(DATA, "outbox");
+// Each test server has its own outbox (order numbers start at PP100001 in each database).
+let OUTBOX = path.join(DATA, "outbox");
+export function useOutbox(name: "outbox" | "outbox-gw") {
+  OUTBOX = path.join(DATA, name);
+}
 
 type Mail = { to: string; subject: string; text: string; at: string };
 
@@ -76,6 +80,7 @@ export async function checkoutToGateway(page: Page) {
   await page.goto("/checkout");
   if (await page.getByRole("radio", { name: /Test Street/ }).count() === 0) {
     await page.getByLabel("Full name").fill("Test Customer");
+    await page.getByLabel("Phone").fill("+44 7700 900123");
     await page.getByLabel("Address line 1").fill("1 Test Street");
     await page.getByLabel("City").fill("London");
     await page.getByLabel("Postcode").fill("SW1A 1AA");

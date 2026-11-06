@@ -175,6 +175,15 @@ up to 5 photos in the best quality. Categories: rackets, shoes, apparel, bags, b
   Paid only with a valid HMAC(public_order_id + amount), known order, matching amount + currency, order awaiting payment; repeats and
   later failures never change Paid; returning to the shop proves nothing. Logs: order number + short reason only.
   Local simulation `/mock-gateway` + `/api/payments/webhook` (secret MOCK_PAYMENT_SECRET) stays for tests and the preview.
+  Gateway documentation (stage 7): API base with or without `/api` (never `/api/api`), POST `/orders` → 201 { public_order_id, status,
+  expires_at, checkout_url }; amounts and prices as numbers with 2 decimals, items add up to the amount (delivery as its own line);
+  customer needs name, surname, e-mail, phone with country code, country, address_line1 (checked at address entry and checkout).
+  Redirect only to HTTPS `checkout_url` on a host in PAYMENT_CHECKOUT_HOSTS (provider domains live only in `.env`, not in Git).
+  Notification: event order.paid + status success, amount as a string, HMAC over the exact amount string, signature in the body
+  (X-Webhook-Signature header as fallback). Statuses pending/success/failed/expired; after expires_at the order becomes Expired
+  (customer can order again); a payment arriving later is stored and shown to the admin for a manual check, never auto-applied.
+  `GET /pay/{id}/webhook-status` is NOT used to confirm payments (no access rules in the docs).
+  **Never use or store live keys on this computer**; live keys only on the production server.
 - Admin `/admin` (login with `ADMIN_PASSWORD` from `.env`; never print it): orders, products (hide product / photo), markups, rates, delivery cost.
 - Secrets in `.env`: `ADMIN_PASSWORD`, `MOCK_PAYMENT_SECRET`, `PAYMENT_*` (owner fills in), `SMTP_*` (owner fills in `SMTP_PASS`).
 - Tests: `npx playwright test` (own server on :3200 with a copy of the data in `.test-data/` and test-only secrets); `SCREENS=1` adds screenshots.

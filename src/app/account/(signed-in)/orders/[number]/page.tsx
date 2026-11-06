@@ -5,8 +5,8 @@ import { Notice, SubmitButton } from "@/components/ui/Form";
 import { countryName } from "@/config/countries";
 import { formatMinor } from "@/config/currency";
 import { requireUser } from "@/lib/auth";
-import { charged, getOrderForUser, orderAddress, orderEvents, orderItems } from "@/lib/orders";
-import { payAgain } from "@/app/checkout/actions";
+import { charged, expireStalePayments, getOrderForUser, orderAddress, orderEvents, orderItems } from "@/lib/orders";
+import { orderAgain, payAgain } from "@/app/checkout/actions";
 
 export const metadata: Metadata = { title: "Order" };
 
@@ -15,6 +15,7 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
   const { number } = await params;
   const payUnavailable = (await searchParams).pay === "unavailable";
   const user = await requireUser(`/account/orders/${number}`);
+  expireStalePayments();
   const o = getOrderForUser(number, user.id);
   if (!o) notFound();
   const a = orderAddress(o);
@@ -33,6 +34,14 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
         <p className="text-[15px]">
           Tracking number: <b className="text-ink">{o.tracking_number}</b>
         </p>
+      )}
+      {o.status === "Expired" && (
+        <div className="space-y-[10px]">
+          <Notice>The time to pay for this order ran out and you have not been charged. You can order the same items again.</Notice>
+          <form action={orderAgain.bind(null, o.number)}>
+            <SubmitButton>Order again</SubmitButton>
+          </form>
+        </div>
       )}
       {o.status === "Awaiting payment" && (
         <form action={payAgain.bind(null, o.number)}>

@@ -53,7 +53,7 @@ const common = {
   FX_AUTO: "0",
   SMTP_PASS: "", // tests never send real mail: everything goes to the test outbox
 };
-const noGateway = { PAYMENT_API_BASE_URL: "", PAYMENT_API_TOKEN: "", PAYMENT_WEBHOOK_SECRET: "", PAYMENT_ACCOUNT_ID: "", PAYMENT_MODE: "test", PAYMENT_LIVE_ENABLED: "false" };
+const noGateway = { PAYMENT_CHECKOUT_HOSTS: "", PAYMENT_API_BASE_URL: "", PAYMENT_API_TOKEN: "", PAYMENT_WEBHOOK_SECRET: "", PAYMENT_ACCOUNT_ID: "", PAYMENT_MODE: "test", PAYMENT_LIVE_ENABLED: "false" };
 process.env.TEST_DATA_DIR = DATA;
 
 export default defineConfig({
@@ -83,9 +83,12 @@ export default defineConfig({
       env: {
         ...common,
         NEXT_DIST_DIR: ".next-test-gw",
+        OUTBOX_DIR: path.join(DATA, "outbox-gw"),
         STORE_DB: path.join(DATA, "store-gw.db"),
         MOCK_PAYMENTS: "0",
-        PAYMENT_API_BASE_URL: `http://localhost:${FAKE_GATEWAY_PORT}`,
+        // With a trailing /api on purpose: the shop must not call /api/api.
+        PAYMENT_API_BASE_URL: `http://localhost:${FAKE_GATEWAY_PORT}/api/`,
+        PAYMENT_CHECKOUT_HOSTS: "localhost",
         PAYMENT_API_TOKEN: "test-token-not-real",
         PAYMENT_WEBHOOK_SECRET: secrets.gateway,
         PAYMENT_ACCOUNT_ID: "test-account",

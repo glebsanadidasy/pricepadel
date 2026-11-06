@@ -69,7 +69,7 @@ export default async function SettingsPage() {
               <>
                 <p>
                   Hosted payment page (redirect). Keys are set only in <code>.env</code>: PAYMENT_API_BASE_URL, PAYMENT_API_TOKEN, PAYMENT_WEBHOOK_SECRET,
-                  PAYMENT_ACCOUNT_ID, PAYMENT_MODE, PAYMENT_LIVE_ENABLED. Notification address: <code>/api/payments/notify</code>.
+                  PAYMENT_CHECKOUT_HOSTS, PAYMENT_MODE, PAYMENT_LIVE_ENABLED. Notification address: <code>/api/payments/notify</code>.
                 </p>
                 <p className={`mt-[8px] font-bold ${g.ok ? "text-[#2e7d32]" : "text-[#c0392b]"}`}>
                   {g.ok ? `On — ${g.mode} mode` : `Off — ${g.reason}`}

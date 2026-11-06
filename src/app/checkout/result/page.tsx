@@ -6,7 +6,7 @@ import { AutoRefresh } from "@/components/shop/AutoRefresh";
 import { LimeButton } from "@/components/ui/Button";
 import { Notice, SubmitButton } from "@/components/ui/Form";
 import { requireUser } from "@/lib/auth";
-import { charged, getOrderForUser, lastPaymentStatus } from "@/lib/orders";
+import { charged, expireStalePayments, getOrderForUser, lastPaymentStatus } from "@/lib/orders";
 import { payAgain } from "../actions";
 
 export const metadata: Metadata = { title: "Order status", robots: { index: false } };
@@ -15,10 +15,11 @@ export const metadata: Metadata = { title: "Order status", robots: { index: fals
 export default async function ResultPage({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
   const number = (await searchParams).order ?? "";
   const user = await requireUser(`/checkout/result?order=${encodeURIComponent(number)}`);
+  expireStalePayments();
   const o = getOrderForUser(number, user.id);
   if (!o) notFound();
   const payment = lastPaymentStatus(o.id);
-  const paid = o.status !== "Awaiting payment";
+  const paid = o.status !== "Awaiting payment" && o.status !== "Expired";
   return (
     <>
       <PageHero title={paid ? "Thank you" : payment === "created" ? "Checking your payment" : "Payment not completed"} crumbs={[{ href: "/account/orders", label: "Orders" }]} />
@@ -33,7 +34,9 @@ export default async function ResultPage({ searchParams }: { searchParams: Promi
         ) : (
           <>
             <Notice kind="error">
-              {payment === "declined"
+              {payment === "expired"
+                ? "The time to pay ran out."
+                : payment === "declined"
                 ? "Your card was declined."
                 : payment === "cancelled"
                   ? "The payment was cancelled."
@@ -42,6 +45,8 @@ export default async function ResultPage({ searchParams }: { searchParams: Promi
             </Notice>
             {payment === "created" ? (
               <AutoRefresh />
+            ) : o.status === "Expired" ? (
+              <LimeButton href={`/account/orders/${o.number}`}>Order again</LimeButton>
             ) : (
               <form action={payAgain.bind(null, o.number)}>
                 <SubmitButton>Try paying again</SubmitButton>

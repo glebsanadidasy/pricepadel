@@ -141,6 +141,12 @@ export async function checkGatewayConnection(): Promise<{ connected: boolean; de
   return testConnection();
 }
 
+export async function markLatePaymentReviewed(id: number) {
+  await assertAdmin();
+  db().prepare("UPDATE late_payments SET reviewed_at = ? WHERE id = ?").run(new Date().toISOString(), id);
+  revalidatePath("/admin", "layout");
+}
+
 export async function setComplaintAnswered(id: number, answered: boolean) {
   await assertAdmin();
   db().prepare("UPDATE data_complaints SET status = ?, answered_at = ? WHERE id = ?").run(answered ? "answered" : "open", answered ? new Date().toISOString() : null, id);
@@ -153,7 +159,7 @@ export async function changeOrderStatus(number: string, form: FormData) {
   const status = String(form.get("status")) as OrderStatus;
   if (!o || !ORDER_STATUSES.includes(status)) return;
   // "Paid" comes only from a verified payment notification, never from a click.
-  if (status === "Paid" || status === "Awaiting payment" || (o.status === "Awaiting payment" && status !== "Cancelled")) return;
+  if (status === "Paid" || status === "Awaiting payment" || status === "Expired" || ((o.status === "Awaiting payment" || o.status === "Expired") && status !== "Cancelled")) return;
   const note = String(form.get("note") ?? "").slice(0, 300);
   const tracking = String(form.get("tracking") ?? "").trim().slice(0, 60) || o.tracking_number;
   if (tracking !== o.tracking_number) db().prepare("UPDATE orders SET tracking_number = ? WHERE id = ?").run(tracking, o.id);

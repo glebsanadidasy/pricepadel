@@ -8,6 +8,7 @@ import {
   attemptKey, currentUser, hashPassword, randomToken, recordAttempt, requireUser, sha256, signInCustomer, signOutCustomer, siteUrl, tooManyAttempts, verifyPassword,
 } from "@/lib/auth";
 import { getProductById } from "@/lib/catalog";
+import { normalizePhone, paymentDetailsProblem } from "@/lib/customer-details";
 import { deliveryBlock, readSettings } from "@/lib/catalog-store";
 import { db, now } from "@/lib/db";
 import { sendMail } from "@/lib/mail";
@@ -141,6 +142,10 @@ export async function addAddress(_: FormState, form: FormData): Promise<FormStat
     phone: str(form, "phone", 30),
   };
   if (!a.full_name || !a.line1 || !a.city || !a.postcode) return { error: "Please fill in name, address, city and postcode." };
+  // Needed by the payment provider and the carrier: first name + surname, phone with country code.
+  const detailsProblem = paymentDetailsProblem(a);
+  if (detailsProblem) return { error: detailsProblem };
+  a.phone = normalizePhone(a.phone)!;
   if (!isCountry(a.country)) return { error: "We currently deliver to the UK only — please choose a country from the list." };
   const blocked = deliveryBlock(a, readSettings());
   if (blocked) return { error: blocked };

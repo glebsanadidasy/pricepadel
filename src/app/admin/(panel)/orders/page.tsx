@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
-import { charged, listOrders, orderItems } from "@/lib/orders";
+import { charged, expireStalePayments, listOrders, orderItems } from "@/lib/orders";
 
 export const metadata: Metadata = { title: "Orders" };
 
 export default async function AdminOrders() {
   await requireAdmin();
+  expireStalePayments();
   const orders = listOrders(500);
   return (
     <div className="mt-[24px] overflow-x-auto">

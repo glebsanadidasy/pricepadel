@@ -1,26 +1,39 @@
 import "server-only";
 import crypto from "node:crypto";
 import { convert } from "@/config/currency";
-import { gatewayConfig } from "./gateway-config";
-import { orderAddress, orderItems, setGatewayOrderId, type OrderRow } from "./orders";
+import { normalizePhone, splitName } from "./customer-details";
+import { checkoutUrlAllowed, gatewayConfig } from "./gateway-config";
+import { orderAddress, orderItems, setGatewayOrder, type OrderRow } from "./orders";
 
 /**
  * Card gateway — hosted payment page, redirect flow only (no card fields, no embedded or host-to-host variants).
- * The provider is never named in code, pages or e-mails; only the redirect to its payment page shows its address.
+ * The provider is never named in code, pages or e-mails; its addresses live only in .env.
  *
- *   create:  POST {base}/api/orders  (Bearer token)  → { checkout_url, public_order_id }
- *   notify:  POST /api/payments/notify  { public_order_id, amount, currency, status, signature? }
- *            signature = hex HMAC-SHA256(PAYMENT_WEBHOOK_SECRET, public_order_id + amount), header X-Webhook-Signature
- *   check:   POST {base}/api/merchants/test-connection  (Bearer token)
+ *   create:  POST {api}/orders (Bearer token) → 201 { public_order_id, status, expires_at, checkout_url }
+ *   notify:  POST /api/payments/notify  { event: "order.paid", status: "success", public_order_id, amount: "12.50",
+ *            currency, timestamp, signature }  — signature = hex HMAC-SHA256(secret, public_order_id + amount) over the
+ *            exact amount string from the request; header X-Webhook-Signature is accepted as a fallback.
+ *   check:   POST {api}/merchants/test-connection (Bearer token)
  * TLS certificates are always verified (Node's default). Logs never contain secrets, signatures, request bodies or
- * customer details — only the order number and a short reason.
+ * customer details — only the order number, an HTTP status and a short reason.
  */
 export const gateway = () => gatewayConfig(process.env);
 
 export const log = (msg: string) => console.log(`[card-gateway] ${msg}`);
 
-/** Amount in major units as the gateway expects it (2 decimals), computed only from the stored order. */
-const major = (minor: number) => Math.round(minor) / 100;
+/** Money with exactly 2 decimals as a JSON number (12.50, not 12.5). */
+const MONEY = "__money__";
+const money = (minor: number) => `${MONEY}${(Math.round(minor) / 100).toFixed(2)}${MONEY}`;
+const toJson = (v: unknown) => JSON.stringify(v).replace(new RegExp(`"${MONEY}([0-9.]+)${MONEY}"`, "g"), "$1");
+
+/** Items in the charged currency; their total always equals the amount (a rounding penny goes to the last line). */
+export function gatewayItems(order: OrderRow) {
+  const lines = orderItems(order).map((i) => ({ name: i.name, minor: convert(i.unitPrice * i.qty, order.rate), quantity: i.qty }));
+  if (order.delivery_gbp > 0) lines.push({ name: "Delivery", minor: convert(order.delivery_gbp, order.rate), quantity: 1 });
+  const diff = order.total_charged - lines.reduce((n, l) => n + l.minor, 0);
+  if (diff !== 0 && lines.length) lines[lines.length - 1].minor += diff;
+  return lines;
+}
 
 export type CreateResult = { ok: true; checkoutUrl: string } | { ok: false };
 
@@ -32,75 +45,88 @@ export async function startCardPayment(order: OrderRow, paymentId: string, siteU
     return { ok: false };
   }
   const a = orderAddress(order);
-  const [name, ...rest] = a.full_name.trim().split(/\s+/);
-  const items = orderItems(order).map((i) => ({ name: i.name, price: major(convert(i.unitPrice * i.qty, order.rate)), quantity: i.qty }));
-  if (order.delivery_gbp > 0) items.push({ name: "Delivery", price: major(convert(order.delivery_gbp, order.rate)), quantity: 1 });
-  const payload = {
-    amount: major(order.total_charged),
-    currency: order.currency,
+  const who = splitName(a.full_name);
+  const phone = normalizePhone(a.phone);
+  if (!who || !phone) {
+    log(`not started for ${order.number}: customer details incomplete`);
+    return { ok: false };
+  }
+  const items = gatewayItems(order);
+  const body = toJson({
+    amount: money(order.total_charged),
+    currency: order.currency.toUpperCase(),
     redirect_url: `${siteUrl}/checkout/result?order=${encodeURIComponent(order.number)}`,
     webhook_url: `${siteUrl}/api/payments/notify`,
     customer_details: {
-      name: name ?? "",
-      surname: rest.join(" "),
+      name: who.name,
+      surname: who.surname,
       email: order.email,
-      phone: a.phone,
+      phone,
+      country: a.country,
       address_line1: [a.line1, a.line2].filter(Boolean).join(", "),
       city: a.city,
       postal_code: a.postcode,
-      country: a.country,
     },
-    items,
-  };
+    items: items.map((l) => ({ name: l.name, price: money(l.minor), quantity: l.quantity })),
+  });
   let res: Response;
   try {
-    res = await fetch(`${cfg.baseUrl}/api/orders`, {
+    res = await fetch(`${cfg.apiRoot}/orders`, {
       method: "POST",
       headers: { Authorization: `Bearer ${cfg.token}`, "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify(payload),
+      body,
       signal: AbortSignal.timeout(30000),
     });
   } catch {
-    log(`create failed for ${order.number}: network error`);
+    log(`create failed for ${order.number}: network or certificate error`);
     return { ok: false };
   }
-  let data: { checkout_url?: unknown; public_order_id?: unknown } = {};
+  if (res.status !== 201) {
+    // 401 / 403 / 422 and anything else: status code only — never the body (it can echo customer data).
+    log(`create failed for ${order.number}: HTTP ${res.status}${[401, 403].includes(res.status) ? " (token or access)" : res.status === 422 ? " (request rejected as invalid)" : ""}`);
+    return { ok: false };
+  }
+  let data: { public_order_id?: unknown; status?: unknown; expires_at?: unknown; checkout_url?: unknown } = {};
   try {
     data = (await res.json()) as typeof data;
   } catch {
     /* handled below */
   }
-  const checkoutUrl = typeof data.checkout_url === "string" ? data.checkout_url : "";
   const publicId = typeof data.public_order_id === "string" || typeof data.public_order_id === "number" ? String(data.public_order_id) : "";
-  let urlOk = false;
-  try {
-    const u = new URL(checkoutUrl);
-    urlOk = u.protocol === "https:" || (cfg.mode === "test" && (u.hostname === "localhost" || u.hostname === "127.0.0.1"));
-  } catch {
-    /* not a URL */
-  }
-  if (!res.ok || !urlOk || !publicId) {
-    log(`create failed for ${order.number}: HTTP ${res.status}, ${urlOk ? "" : "no valid checkout_url, "}${publicId ? "" : "no public_order_id"}`);
+  const checkoutUrl = typeof data.checkout_url === "string" ? data.checkout_url : "";
+  const expiresAt = typeof data.expires_at === "string" && !Number.isNaN(Date.parse(data.expires_at)) ? new Date(data.expires_at).toISOString() : null;
+  if (!publicId || !checkoutUrl) {
+    log(`create failed for ${order.number}: 201 without public_order_id or checkout_url`);
     return { ok: false };
   }
   // Saved at once, before the customer leaves: notifications are matched by this id.
-  setGatewayOrderId(paymentId, publicId);
+  setGatewayOrder(paymentId, publicId, String(data.status ?? "pending"), expiresAt);
+  if (!checkoutUrlAllowed(checkoutUrl, cfg)) {
+    let host = "?";
+    try {
+      host = new URL(checkoutUrl).hostname;
+    } catch {
+      /* not a URL */
+    }
+    log(`create for ${order.number}: checkout_url host "${host}" is not allowed (PAYMENT_CHECKOUT_HOSTS) or not https — customer not redirected`);
+    return { ok: false };
+  }
   log(`payment started for ${order.number}`);
   return { ok: true, checkoutUrl };
 }
 
-/** Constant-time check of the notification signature: HMAC-SHA256(public_order_id + amount). */
-export function signatureValid(secret: string, publicOrderId: string, amount: unknown, signature: string) {
+/** The exact characters of "amount" in the raw JSON body (the signature covers this string, not a re-formatted number). */
+export function rawAmount(raw: string): string | null {
+  const m = raw.match(/"amount"\s*:\s*("(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/);
+  if (!m) return null;
+  return m[1].startsWith('"') ? (JSON.parse(m[1]) as string) : m[1];
+}
+
+/** Constant-time check of HMAC-SHA256(public_order_id + amount). */
+export function signatureValid(secret: string, publicOrderId: string, amountText: string, signature: string) {
   if (!/^[0-9a-f]{64}$/i.test(signature)) return false;
-  const given = Buffer.from(signature.toLowerCase(), "hex");
-  // The amount is signed as the gateway writes it; accept the plain number form and the 2-decimal form.
-  const forms = new Set([String(amount), typeof amount === "number" || /^\d+(\.\d+)?$/.test(String(amount)) ? Number(amount).toFixed(2) : String(amount)]);
-  let ok = false;
-  for (const f of forms) {
-    const expected = crypto.createHmac("sha256", secret).update(`${publicOrderId}${f}`).digest();
-    if (crypto.timingSafeEqual(expected, given)) ok = true;
-  }
-  return ok;
+  const expected = crypto.createHmac("sha256", secret).update(`${publicOrderId}${amountText}`).digest();
+  return crypto.timingSafeEqual(expected, Buffer.from(signature.toLowerCase(), "hex"));
 }
 
 /** Connection check for the admin panel: only yes/no facts are shown, never tokens or raw responses. */
@@ -108,7 +134,7 @@ export async function testConnection() {
   const cfg = gateway();
   if (!cfg.ok) return { connected: false, detail: cfg.reason };
   try {
-    const res = await fetch(`${cfg.baseUrl}/api/merchants/test-connection`, {
+    const res = await fetch(`${cfg.apiRoot}/merchants/test-connection`, {
       method: "POST",
       headers: { Authorization: `Bearer ${cfg.token}`, Accept: "application/json", "Content-Type": "application/json" },
       body: JSON.stringify({ webhook_secret: cfg.secret }),

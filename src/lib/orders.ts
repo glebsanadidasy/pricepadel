@@ -8,7 +8,7 @@ import { db, now, tx } from "./db";
 import { sendMail } from "./mail";
 import { newPaymentId, type Notification } from "./payments";
 
-export const ORDER_STATUSES = ["Awaiting payment", "Paid", "Checking availability", "Ordered", "Shipped", "Delivered", "Cancelled", "Refunded"] as const;
+export const ORDER_STATUSES = ["Awaiting payment", "Paid", "Checking availability", "Ordered", "Shipped", "Delivered", "Cancelled", "Refunded", "Expired"] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export type OrderItem = { productId: string; slug: string; sku: string; name: string; brand: string; colour: string; size: string | null; qty: number; unitPrice: number };
@@ -148,13 +148,18 @@ export function applyNotification(n: Notification): { ok: boolean; reason: strin
  * "failed" or "canceled" never undoes Paid); a failed attempt can still be followed by a success; the order becomes
  * Paid only while it is awaiting payment.
  */
-export function settlePayment(p: { id: string; order_id: number; status: string }, outcome: "succeeded" | "declined" | "cancelled"): string {
+export function settlePayment(p: { id: string; order_id: number; status: string }, outcome: "succeeded" | "declined" | "cancelled" | "expired"): string {
   if (p.status === "succeeded") return "already succeeded";
   if (outcome !== "succeeded" && p.status !== "created") return `already ${p.status}`;
   const order = db().prepare("SELECT * FROM orders WHERE id = ?").get(p.order_id) as OrderRow;
   let paid = false;
   tx(() => {
     db().prepare("UPDATE payments SET status = ?, updated_at = ? WHERE id = ?").run(outcome, now(), p.id);
+    if (outcome === "expired") {
+      const active = db().prepare("SELECT 1 FROM payments WHERE order_id = ? AND status IN ('created', 'succeeded')").get(order.id);
+      if (order.status === "Awaiting payment" && !active) setOrderStatus(order.id, "Expired", "Payment page expired without payment", "gateway");
+      return;
+    }
     if (outcome === "succeeded" && order.status === "Awaiting payment") {
       db().prepare("UPDATE orders SET paid_at = ? WHERE id = ?").run(now(), order.id);
       setOrderStatus(order.id, "Paid", `Payment ${p.id} confirmed by the payment gateway`, "gateway");
@@ -170,15 +175,48 @@ export function settlePayment(p: { id: string; order_id: number; status: string 
   return outcome;
 }
 
+/**
+ * Unpaid card payments whose payment page expired (expires_at from the gateway): the payment becomes "expired" and an order
+ * still awaiting payment becomes "Expired" — the customer can order again. Run before reading orders and on notifications.
+ */
+export function expireStalePayments() {
+  const stale = db()
+    .prepare("SELECT p.id, p.order_id FROM payments p JOIN orders o ON o.id = p.order_id WHERE p.provider = 'card' AND p.status = 'created' AND p.expires_at IS NOT NULL AND p.expires_at < ?")
+    .all(now()) as { id: string; order_id: number }[];
+  for (const p of stale) {
+    tx(() => {
+      db().prepare("UPDATE payments SET status = 'expired', updated_at = ? WHERE id = ? AND status = 'created'").run(now(), p.id);
+      const o = db().prepare("SELECT status FROM orders WHERE id = ?").get(p.order_id) as { status: string };
+      const active = db().prepare("SELECT 1 FROM payments WHERE order_id = ? AND status IN ('created', 'succeeded')").get(p.order_id);
+      if (o.status === "Awaiting payment" && !active) setOrderStatus(p.order_id, "Expired", "Payment page expired without payment", "system");
+    });
+  }
+}
+
+/** A payment confirmed for an order that is no longer waiting for it (expired, cancelled …): store it for a manual check. */
+export function recordLatePayment(p: { id: string; amount: number; currency: string; order_number: string }, orderStatus: string) {
+  const seen = db().prepare("SELECT 1 FROM late_payments WHERE payment_id = ?").get(p.id);
+  if (!seen)
+    db().prepare("INSERT INTO late_payments (at, payment_id, order_number, amount, currency, order_status) VALUES (?, ?, ?, ?, ?, ?)").run(now(), p.id, p.order_number, p.amount, p.currency, orderStatus);
+  const o = getOrder(p.order_number);
+  if (o && !seen) db().prepare("INSERT INTO order_events (order_id, at, status, note, actor) VALUES (?, ?, ?, ?, 'gateway')").run(o.id, now(), o.status, `Payment ${p.id} confirmed AFTER the order was ${orderStatus} — check manually (refund or fulfil)`);
+}
+
+export function openLatePayments() {
+  return db().prepare("SELECT * FROM late_payments WHERE reviewed_at IS NULL ORDER BY id").all() as { id: number; at: string; payment_id: string; order_number: string; amount: number; currency: string; order_status: string }[];
+}
+
 /** Payment of the real card gateway by the gateway's own order id. */
 export function getPaymentByGatewayId(gatewayOrderId: string) {
   return db().prepare("SELECT p.*, o.number AS order_number FROM payments p JOIN orders o ON o.id = p.order_id WHERE p.provider = 'card' AND p.gateway_order_id = ?").get(gatewayOrderId) as
-    | { id: string; order_id: number; amount: number; currency: string; status: string; order_number: string }
+    | { id: string; order_id: number; amount: number; currency: string; status: string; order_number: string; expires_at: string | null }
     | undefined;
 }
 
-export function setGatewayOrderId(paymentId: string, gatewayOrderId: string) {
-  db().prepare("UPDATE payments SET provider = 'card', gateway_order_id = ?, updated_at = ? WHERE id = ?").run(gatewayOrderId, now(), paymentId);
+export function setGatewayOrder(paymentId: string, gatewayOrderId: string, gatewayStatus: string, expiresAt: string | null) {
+  db()
+    .prepare("UPDATE payments SET provider = 'card', gateway_order_id = ?, gateway_status = ?, expires_at = ?, updated_at = ? WHERE id = ?")
+    .run(gatewayOrderId, gatewayStatus.slice(0, 20), expiresAt, now(), paymentId);
 }
 
 // ---------- e-mails ----------

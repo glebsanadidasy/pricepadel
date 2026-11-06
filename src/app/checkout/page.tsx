@@ -7,6 +7,7 @@ import { Notice, SubmitButton } from "@/components/ui/Form";
 import { countryName } from "@/config/countries";
 import { resendVerification } from "@/app/account/actions";
 import { userAddresses } from "@/lib/addresses";
+import { paymentDetailsProblem } from "@/lib/customer-details";
 import { deliveryBlock, readSettings } from "@/lib/catalog-store";
 import { requireUser } from "@/lib/auth";
 import { readCart, resolveCart } from "@/lib/cart";
@@ -20,6 +21,7 @@ const ERRORS: Record<string, string> = {
   address: "Please choose a delivery address we can deliver to (UK mainland, Northern Ireland and Scottish islands; not the Channel Islands, Isle of Man, BFPO or PO boxes).",
   changed: "Prices or stock changed while you were checking out. Please review the updated summary.",
   verify: "Please confirm your e-mail before placing an order.",
+  details: "Your delivery address needs a first name and surname and a phone number with the country code (for example +44 7700 900123). Please add a new address below.",
   payments: "Card payment is temporarily unavailable. Please try again later — nothing has been charged.",
 };
 
@@ -76,6 +78,7 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
                       <input type="radio" name="address" value={a.id} defaultChecked={i === addresses.length - 1} required className="mt-[4px] accent-royal" />
                       <span>
                         {a.full_name}, {a.line1}, {a.postcode} {a.city}, {countryName(a.country)}
+                        {paymentDetailsProblem(a) && <span className="block text-[#c0392b]">Needs first name, surname and a phone number with the country code.</span>}
                       </span>
                     </label>
                   ))}
