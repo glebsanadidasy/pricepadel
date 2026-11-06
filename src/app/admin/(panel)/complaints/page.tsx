@@ -6,6 +6,8 @@ import { setComplaintAnswered } from "../../actions";
 
 export const metadata: Metadata = { title: "Data complaints" };
 
+const daysSince = (iso: string) => Math.floor((Date.now() - Date.parse(iso)) / 86400000);
+
 type Row = { id: number; at: string; name: string; email: string; order_number: string; message: string; status: string; answered_at: string | null };
 
 /** Data protection complaints from the Contact page form. Acknowledge within 2 working days, answer within 14 days. */
@@ -16,7 +18,7 @@ export default async function ComplaintsPage() {
     <div className="mt-[24px] space-y-[16px]">
       {rows.length === 0 && <p className="text-[15px]">No complaints.</p>}
       {rows.map((r) => {
-        const days = Math.floor((Date.now() - Date.parse(r.at)) / 86400000);
+        const days = daysSince(r.at);
         return (
           <Card key={r.id} title={`DC${1000 + r.id} — ${r.status === "open" ? `open, ${days} day(s)` : `answered ${r.answered_at?.slice(0, 10)}`}`}>
             <p>
