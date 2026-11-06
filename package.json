@@ -11,7 +11,8 @@
     "catalog:sheets": "node scripts/catalog/contact-sheets.mjs",
     "catalog:import": "node scripts/catalog/import.mjs",
     "catalog:refresh": "node scripts/catalog/refresh.mjs",
-    "catalog:check": "node scripts/catalog/check-public.mjs"
+    "catalog:check": "node scripts/catalog/check-public.mjs",
+    "catalog:seed": "node scripts/catalog/seed.mjs"
   },
   "dependencies": {
     "next": "16.4.5",
