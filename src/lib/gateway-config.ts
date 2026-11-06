@@ -27,7 +27,10 @@ export function gatewayConfig(env: Env): GatewayConfig {
   const token = (env.PAYMENT_API_TOKEN ?? "").trim();
   const secret = (env.PAYMENT_WEBHOOK_SECRET ?? "").trim();
   const mode = (env.PAYMENT_MODE ?? "test").trim();
-  const checkoutHosts = (env.PAYMENT_CHECKOUT_HOSTS ?? "").split(",").map((h) => h.trim().toLowerCase()).filter(Boolean);
+  const checkoutHosts = (env.PAYMENT_CHECKOUT_HOSTS ?? "")
+    .split(",")
+    .map((h) => h.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, ""))
+    .filter(Boolean);
   if (!base || !token) return { ok: false, reason: "not configured" };
   // Without a secret no notification could ever be verified: never start a payment.
   if (!secret) return { ok: false, reason: "webhook secret missing" };
