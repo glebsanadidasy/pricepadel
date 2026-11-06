@@ -18,6 +18,17 @@ if (!process.env.PP_TEST_DATA_READY) {
   fs.mkdirSync(path.join(DATA, "catalog"), { recursive: true });
   for (const f of ["products.json", "settings.json"]) fs.copyFileSync(path.join(ROOT, "data/catalog", f), path.join(DATA, "catalog", f));
   fs.cpSync(path.join(ROOT, "sources"), path.join(DATA, "sources"), { recursive: true, filter: (src) => !src.endsWith(".md") });
+  // Exchange rates for the test copy: EUR with a fresh manual rate, USD only with a 5-day-old ECB rate (must be switched off).
+  const settingsFile = path.join(DATA, "catalog", "settings.json");
+  const settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
+  const old = new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString();
+  settings.fx = {
+    marginPct: 2,
+    fetchedAt: new Date().toISOString(),
+    EUR: { ecb: 1.19, ecbDate: old, manual: 1.2, manualAt: new Date().toISOString() },
+    USD: { ecb: 1.34, ecbDate: old, manual: null, manualAt: null },
+  };
+  fs.writeFileSync(settingsFile, JSON.stringify(settings, null, 2));
   fs.writeFileSync(
     path.join(DATA, "secrets.json"),
     JSON.stringify({ admin: crypto.randomBytes(12).toString("base64url"), webhook: crypto.randomBytes(32).toString("hex") }),
@@ -52,6 +63,7 @@ export default defineConfig({
       ADMIN_PASSWORD: secrets.admin,
       PAYMENT_WEBHOOK_SECRET: secrets.webhook,
       MOCK_PAYMENTS: "1",
+      FX_AUTO: "0",
     },
   },
 });

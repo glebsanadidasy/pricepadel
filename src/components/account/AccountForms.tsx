@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { addAddress, login, register, updateProfile, type FormState } from "@/app/account/actions";
+import { addAddress, login, register, requestPasswordReset, resetPassword, updateProfile, type FormState } from "@/app/account/actions";
 import { COUNTRIES } from "@/config/countries";
 import { Field, inputClass, Notice, SubmitButton } from "@/components/ui/Form";
 
@@ -21,6 +21,11 @@ export function LoginForm({ next }: { next: string }) {
       <Field label="E-mail" name="email" type="email" autoComplete="email" required defaultValue={state?.email} />
       <Field label="Password" name="password" type="password" autoComplete="current-password" required />
       <SubmitButton>Sign in</SubmitButton>
+      <p className="text-[14px]">
+        <Link href="/account/forgot" className="text-royal underline">
+          Forgot your password?
+        </Link>
+      </p>
       <p className="text-[14px]">
         New here?{" "}
         <Link href={`/account/register?next=${encodeURIComponent(next)}`} className="text-royal underline">
@@ -92,6 +97,29 @@ export function AddressForm({ back, countries }: { back?: string; countries: str
       <div className="sm:col-span-2">
         <SubmitButton variant="plain">Save address</SubmitButton>
       </div>
+    </form>
+  );
+}
+
+export function ForgotForm() {
+  const [state, action] = useActionState(requestPasswordReset, undefined);
+  return (
+    <form action={action} className="space-y-[16px]" aria-label="Reset password">
+      <Message state={state} />
+      <Field label="E-mail" name="email" type="email" autoComplete="email" required />
+      <SubmitButton>Send reset link</SubmitButton>
+    </form>
+  );
+}
+
+export function ResetForm({ token }: { token: string }) {
+  const [state, action] = useActionState(resetPassword, undefined);
+  return (
+    <form action={action} className="space-y-[16px]" aria-label="Choose a new password">
+      <Message state={state} />
+      <input type="hidden" name="token" value={token} />
+      <Field label="New password" name="password" type="password" autoComplete="new-password" required minLength={10} hint="At least 10 characters." />
+      <SubmitButton>Save new password</SubmitButton>
     </form>
   );
 }

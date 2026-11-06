@@ -66,6 +66,47 @@ export async function login(_: FormState, form: FormData): Promise<FormState> {
   redirect(safeNext(str(form, "next", 300)));
 }
 
+const RESET_HOURS = 1;
+const RESET_SENT = "If an account exists for this e-mail, we’ve sent a link to reset the password. The link works once and expires in 1 hour.";
+
+/** Always the same answer, so the form never reveals whether an e-mail is registered. */
+export async function requestPasswordReset(_: FormState, form: FormData): Promise<FormState> {
+  const email = str(form, "email", 254).toLowerCase();
+  const key = await attemptKey("reset", email);
+  if (tooManyAttempts(key, 5, 3600 * 1000)) return { ok: RESET_SENT };
+  recordAttempt(key);
+  const user = EMAIL.test(email) ? (db().prepare("SELECT id FROM users WHERE email = ?").get(email) as { id: number } | undefined) : undefined;
+  if (user) {
+    const token = randomToken();
+    // Older unused links stop working when a new one is sent.
+    db().prepare("UPDATE email_tokens SET used_at = ? WHERE user_id = ? AND purpose = 'reset' AND used_at IS NULL").run(now(), user.id);
+    db()
+      .prepare("INSERT INTO email_tokens (token_hash, user_id, purpose, expires_at) VALUES (?, ?, 'reset', ?)")
+      .run(sha256(token), user.id, new Date(Date.now() + RESET_HOURS * 3600 * 1000).toISOString());
+    sendMail({
+      to: email,
+      subject: "Reset your Price Padel password",
+      text: `Someone asked to reset the password for your Price Padel account.\n\nTo choose a new password, open this link (it works once and expires in ${RESET_HOURS} hour):\n${await siteUrl()}/account/reset?token=${token}\n\nIf it wasn’t you, ignore this message — your password stays the same.\n\n${BUSINESS.email}`,
+    });
+  }
+  return { ok: RESET_SENT };
+}
+
+export async function resetPassword(_: FormState, form: FormData): Promise<FormState> {
+  const token = String(form.get("token") ?? "");
+  const password = String(form.get("password") ?? "");
+  if (password.length < 10 || password.length > 200) return { error: "Choose a password of at least 10 characters." };
+  const row = db().prepare("SELECT user_id, expires_at, used_at FROM email_tokens WHERE token_hash = ? AND purpose = 'reset'").get(sha256(token)) as
+    | { user_id: number; expires_at: string; used_at: string | null }
+    | undefined;
+  if (!row || row.used_at || row.expires_at < now()) return { error: "This link is invalid or has expired. Please ask for a new one." };
+  db().prepare("UPDATE email_tokens SET used_at = ? WHERE token_hash = ?").run(now(), sha256(token));
+  db().prepare("UPDATE users SET password_hash = ? WHERE id = ?").run(hashPassword(password), row.user_id);
+  // Every existing session ends; the customer signs in with the new password.
+  db().prepare("DELETE FROM sessions WHERE user_id = ? AND kind = 'customer'").run(row.user_id);
+  redirect("/account/login?reset=1");
+}
+
 export async function logout() {
   await signOutCustomer();
   redirect("/");

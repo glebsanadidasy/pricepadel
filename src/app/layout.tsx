@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Lato } from "next/font/google";
 import { Header } from "@/components/layout/Header";
+import { CookieBanner } from "@/components/consent/CookieBanner";
+import { CONSENT_COOKIE } from "@/config/consent";
 import { Footer } from "@/components/layout/Footer";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { currentUser } from "@/lib/auth";
 import { cartCount } from "@/lib/cart";
+import { cookies } from "next/headers";
 import { getCurrency } from "@/lib/currency";
 import { enabledCurrencies } from "@/lib/fx";
 import { db } from "@/lib/db";
@@ -31,6 +34,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const user = await currentUser();
   const wishlistCount = user ? (db().prepare("SELECT COUNT(*) AS n FROM wishlist WHERE user_id = ?").get(user.id) as { n: number }).n : 0;
   const inCart = await cartCount();
+  const consent = (await cookies()).get(CONSENT_COOKIE)?.value;
   return (
     <html lang="en-GB" className={`${lato.variable} antialiased`}>
       <body className="flex min-h-screen flex-col pb-[68px] lg:pb-0">
@@ -43,6 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </main>
         <Footer />
         <MobileNav wishlistCount={wishlistCount} />
+        <CookieBanner show={!consent} />
       </body>
     </html>
   );

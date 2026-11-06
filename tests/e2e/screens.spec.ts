@@ -1,5 +1,7 @@
 import { test } from "@playwright/test";
-import { addToCart, checkoutToGateway, registerAndVerify, simpleProduct, uniqueEmail } from "./helpers";
+import { addToCart, answerCookies, checkoutToGateway, registerAndVerify, simpleProduct, uniqueEmail } from "./helpers";
+
+test.beforeEach(async ({ context }) => answerCookies(context));
 
 /** Screenshots of the shopping flow for a visual check (desktop + phone). Run with SCREENS=1. */
 test.skip(!process.env.SCREENS, "screenshots only on request");

@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
-import { simpleProduct } from "./helpers";
+import { answerCookies, simpleProduct } from "./helpers";
+
+test.beforeEach(async ({ context }) => answerCookies(context));
 
 /**
  * Colour galleries: when a product has photos per colour, choosing a colour switches the gallery.

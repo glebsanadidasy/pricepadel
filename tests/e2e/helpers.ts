@@ -20,7 +20,7 @@ export function mails(): Mail[] {
 export const uniqueEmail = (tag: string) => `${tag}-${Date.now()}-${crypto.randomBytes(2).toString("hex")}@example.test`;
 
 /** A product on sale with a single in-stock variant (simplest to buy), taken from the test copy of the catalogue. */
-export function simpleProduct() {
+export function simpleProduct(minRetail = 0, maxRetail = Infinity) {
   const products = JSON.parse(fs.readFileSync(path.join(DATA, "catalog/products.json"), "utf8")) as {
     id: string;
     slug: string;
@@ -30,8 +30,18 @@ export function simpleProduct() {
     variants: { sku: string; size: string | null }[];
   }[];
   const offers = JSON.parse(fs.readFileSync(path.join(DATA, "sources/pn-uk/offers.json"), "utf8")) as Record<string, { variants: Record<string, { inStock: boolean; sourcePrice: number }> }>;
-  const p = products.find((x) => !x.hidden && x.images.length > 0 && x.variants.length === 1 && !x.variants[0].size && offers[x.id]?.variants[x.variants[0].sku]?.inStock);
-  if (!p) throw new Error("No simple in-stock product in the test catalogue");
+  const retail = (x: (typeof products)[number]) => Math.round(offers[x.id].variants[x.variants[0].sku].sourcePrice * 1.15);
+  const p = products.find(
+    (x) =>
+      !x.hidden &&
+      x.images.length > 0 &&
+      x.variants.length === 1 &&
+      !x.variants[0].size &&
+      offers[x.id]?.variants[x.variants[0].sku]?.inStock &&
+      retail(x) >= minRetail &&
+      retail(x) < maxRetail,
+  );
+  if (!p) throw new Error(`No simple in-stock product between ${minRetail} and ${maxRetail} pence in the test catalogue`);
   return { ...p, sourcePrice: offers[p.id].variants[p.variants[0].sku].sourcePrice };
 }
 
@@ -90,4 +100,12 @@ export function signedNotification(body: object, secret = process.env.TEST_WEBHO
 
 export function paymentIdFromUrl(url: string) {
   return url.match(/mock-gateway\/(pay_[0-9a-f]+)/)![1];
+}
+
+/** Customer delivery for a GBP subtotal, as in the default settings (£12.95 under £100, free from £100). */
+export const deliveryFor = (subtotal: number) => (subtotal >= 10000 ? 0 : 1295);
+
+/** The cookie notice is tested on its own; elsewhere it is answered up front so it never covers buttons. */
+export async function answerCookies(context: import("@playwright/test").BrowserContext) {
+  await context.addCookies([{ name: "pp_consent", value: "rejected", url: "http://localhost:3200" }]);
 }

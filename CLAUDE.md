@@ -28,7 +28,8 @@ Replacement for the old pricepadel.com, which was lost after the hosting was hac
 - Currencies: EUR, GBP, USD. Sales to the UK and Europe.
 
 ## Business data
-- Company: PRICE PADEL LTD — company number and address **[TBC]**
+- Seller: **HYPERION MOTION LTD, trading as Price Padel** (owner, stage 4). Company number 17358996.
+  Registered office: Academy House, 11 Dunraven Place, Bridgend, Mid Glamorgan, United Kingdom, CF31 1JF. VAT number [TBC].
 - Orders & support: contact@pricepadel.com
 - Partnerships: partners@pricepadel.com
 - Phone: +44 7576 567089
@@ -97,15 +98,29 @@ up to 5 photos in the best quality. Categories: rackets, shoes, apparel, bags, b
 - Source price and source link are visible only in the admin panel.
 - Retail price = source price × 1.15. The markup can be changed per category and per brand.
 - Source prices already include VAT (final prices).
-- Delivery is **free for the customer**: checkout shows a "Free delivery" line at £0 before payment.
+- Customer delivery (owner, stage 4): **£12.95 for orders under £100, free from £100**, editable in the admin panel.
+  Shown on the product page, in the cart and at checkout, never with delivery-time promises. **UK only** for now.
   Our own delivery cost (what we pay) is kept in the admin panel: £12.95 under £85, £6.95 from £85 to £169.99, free from £170.
 - Price and stock refresh command without re-downloading photos. Out-of-stock products and variants are hidden.
+
+## Stage 4 decisions (owner)
+- Exchange rates: ECB daily reference rates + configurable margin (2 %), manual rate possible in admin; a rate older than
+  3 days switches that currency off with an admin warning. The customer is charged exactly the amount shown.
+- Not padel products (antiseptics, cosmetics, food supplements, medical / therapeutic goods) are hidden by an import rule.
+- Affiliate Program and Brand Ambassador are hidden (404, no links) until those programmes exist.
+- Cookie banner with an equal Reject button; the site sets only strictly necessary cookies.
+- Policies: detailed drafts in `src/content/policies/`, plain English, numbered sections, "Last updated" date.
+  Never name the supplier, never say goods come from our warehouse or ship from the UK, never claim a lawyer wrote or checked them,
+  never limit statutory rights; unknown facts stay [TBC] (questions in `sources/policy-questions.md`).
+  Research and legal sources: `sources/policy-research.md` (not in Git). Review by a UK lawyer is mandatory before launch.
+- Launch blockers live in `launch-checklist.md`.
+- Margins are reported before card fees and taxes; prices are not changed without the owner.
 
 ## Not to copy from the mockup as-is
 - Without owner confirmation do not show: best price guarantee, free delivery, fast delivery, in stock,
   used on the World Padel Tour, "tested, trusted and loved", PCI DSS / 3D Secure badges, 10% discount, the popup.
 - Counters 256+, 15+, 220+: only from the real catalogue; hidden while there is no data.
-- Where the mockup says UK only → say UK and Europe, without delivery-time promises.
+- Delivery area: UK only for now (stage 4), without delivery-time promises.
 - "No thanks, I'll pay full price" → neutral wording.
 - Do not carry over YouTube layers, internal layer names or old file names. All public files get new neutral names.
 - Racket Finder block hidden for now (separate stage).
@@ -144,7 +159,6 @@ up to 5 photos in the best quality. Categories: rackets, shoes, apparel, bags, b
 ## Open items for the owner
 - Figma: View seat hit the MCP call limit — originals of some pictures are still temporary crops (see design/design-notes.md).
 - Hero background photo carries Vecteezy watermarks — needs a licence or replacement before launch.
-- Old site named HYPERION MOTION LTD (17358996) as the operator; new site uses PRICE PADEL LTD — owner to confirm.
 - Shoe sizes are EU sizes as on the source. Terms & Conditions and other policy texts are still empty pages.
 - With free delivery and 15 % markup, single-item orders under ~£86 source price lose money (see overnight-report.md).
 

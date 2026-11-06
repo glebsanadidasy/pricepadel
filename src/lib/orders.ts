@@ -156,6 +156,31 @@ export function applyNotification(n: Notification): { ok: boolean; reason: strin
 
 // ---------- e-mails ----------
 
+const STATUS_MAIL: Partial<Record<OrderStatus, { subject: string; text: string }>> = {
+  Ordered: {
+    subject: "accepted",
+    text: "Good news: the items in your order are available and we have accepted your order. This e-mail is our acceptance of your order (see our Terms & Conditions). We will e-mail you again when it has been dispatched.",
+  },
+  Shipped: { subject: "dispatched", text: "Your order has been dispatched." },
+  Delivered: { subject: "delivered", text: "Your order has been marked as delivered. If anything is wrong with it, please reply to this e-mail." },
+  Cancelled: {
+    subject: "cancelled",
+    text: "Your order has been cancelled. If you had paid, the full amount — including any delivery charge — is refunded to the card you paid with.",
+  },
+  Refunded: { subject: "refunded", text: "We have refunded your order to the card you paid with. Depending on your bank, it can take a few working days to appear." },
+};
+
+/** Tells the customer about a status change made in the admin panel (saved to outbox/ until mail is connected). */
+export function sendStatusEmail(o: OrderRow, status: OrderStatus, note: string) {
+  const m = STATUS_MAIL[status];
+  if (!m) return;
+  sendMail({
+    to: o.email,
+    subject: `Your Price Padel order ${o.number} has been ${m.subject}`,
+    text: [`Order ${o.number}`, "", m.text, note && `\nNote from us: ${note}`, "", `Questions? ${BUSINESS.email}, ${BUSINESS.phone} (${BUSINESS.hours}).`].filter((x) => x !== "").join("\n"),
+  });
+}
+
 function itemLines(o: OrderRow, withSource: boolean) {
   const offers = withSource ? readOffers() : {};
   const catalog = withSource ? new Map(readCatalog().map((p) => [p.id, p])) : new Map();
@@ -205,7 +230,8 @@ function sendOrderEmails(o: OrderRow) {
       "Thank you for your order.",
       "",
       `Order number: ${o.number}`,
-      "We have received your payment. We will now check availability and let you know when your order ships.",
+      "We have received your payment. This e-mail confirms we received your order; it is not yet our acceptance of it.",
+      "We will now check that the items are available and e-mail you when we accept your order. If an item is not available, we will cancel it and refund you in full.",
       "",
       "Items:",
       ...itemLines(o, false),

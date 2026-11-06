@@ -11,6 +11,7 @@ import { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import he from "he";
 import sharp from "sharp";
 import { titleCase } from "./lib/parse.mjs";
 import {
@@ -60,7 +61,7 @@ export const DEFAULT_SETTINGS = {
   hiddenPhotos: [],
 };
 
-const report = { mentions: [], promises: [], hidden: [], rejectedPhotos: [], badges: 0, nonPadel: [] };
+const report = { mentions: [], promises: [], hidden: [], rejectedPhotos: [], badges: 0, nonPadel: [], noName: [] };
 
 function slugify(s) {
   return String(s ?? "")
@@ -76,7 +77,9 @@ function slugify(s) {
 const shortHash = (s) => crypto.createHash("sha1").update(s).digest("hex").slice(0, 8);
 
 /** Removes only the offending sentences; a block left empty disappears. */
-function cleanText(text, hits) {
+function cleanText(raw, hits) {
+  // Source texts can contain named HTML entities (P&aacute;del): decode first, so checks and the shop see real characters.
+  const text = he.decode(he.decode(raw));
   const sentences = text.match(/[^.!?]+(?:[.!?]+|$)/g) ?? [text];
   const kept = sentences.filter((s) => {
     if (SOURCE_NAME.test(s)) return hits.mentions.push(s.trim()), false;
@@ -237,22 +240,35 @@ async function main() {
     const id = `p${shortHash(`${rec.source}:${rec.sourceSku}`)}`;
     if (seenIds.has(id)) continue; // the same product under two URLs
     seenIds.add(id);
-    rec.name = rec.name.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    rec.name = he.decode(rec.name).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
     // Some source titles are all capitals; shout less.
     const letters = rec.name.replace(/[^\p{L}]/gu, "");
     if (letters && letters.replace(/\p{Lu}/gu, "").length / letters.length < 0.2) rec.name = titleCase(rec.name).replace(/’S\b/g, "’s");
+    // Some source pages have only the source's own code as a title (e.g. "PN-110176-P"). Such a product has no real name,
+    // and its name would carry a source SKU into URLs and photo file names — leave it out entirely.
+    const code = String(rec.sourceSku ?? "").toUpperCase();
+    if ((code.length > 4 && rec.name.toUpperCase().includes(code.replace(/^C-/, ""))) || /^PN[-\s]?\d/i.test(rec.name)) {
+      report.noName.push({ code: rec.sourceSku, brand: rec.brand });
+      continue;
+    }
     let slug = slugify(rec.name) || id;
     if (slugs.has(slug)) slug = `${slug}-${id.slice(1, 5)}`;
     slugs.add(slug);
 
-    const { blocks, hits } = cleanDescription(rec.description ?? [], rec.name);
+    const { blocks: cleaned, hits } = cleanDescription(rec.description ?? [], rec.name);
+    // Never show the source's SKU in a description.
+    const sku = (t) => code.length > 4 && t.toUpperCase().includes(code.replace(/^C-/, ""));
+    const blocks = cleaned
+      .map((b) => (b.type === "list" ? { ...b, items: b.items.filter((t) => !sku(t)) } : b))
+      .filter((b) => (b.type === "list" ? b.items.length > 0 : !sku(b.text)));
     if (hits.mentions.length) report.mentions.push({ name: rec.name, removed: hits.mentions });
     if (hits.promises.length) report.promises.push({ name: rec.name, removed: hits.promises });
     if (rec.ignoredBadges?.length) report.badges++;
 
     const specs = rec.attributes
       .filter((a) => !DROP_ATTR.has(a.label.toLowerCase()) && !BADGE_ATTR.test(a.label) && !SOURCE_NAME.test(a.value) && a.value)
-      .map((a) => ({ label: a.label.replace(/^Color$/i, "Colour"), value: a.value }));
+      .map((a) => ({ label: he.decode(a.label).replace(/^Color$/i, "Colour"), value: he.decode(a.value) }))
+      .filter((a) => !SOURCE_NAME.test(a.value));
     const colourAttr = rec.attributes.find((a) => /^colou?r$/i.test(a.label))?.value ?? null;
 
     // Variants: one per source child product (configurable) or a single one (simple product).
@@ -391,6 +407,7 @@ function writeReport(state, items, offers) {
     onSale,
     hidden: report.hidden.length,
     nonPadel: report.nonPadel,
+    leftOutNoName: report.noName.length,
     photos,
     rejectedPhotos: report.rejectedPhotos.length,
     rejectedByReason,
@@ -419,6 +436,9 @@ function writeReport(state, items, offers) {
     "",
     "## Hidden: not padel products (antiseptics, cosmetics, supplements, medical)",
     ...(report.nonPadel.length ? report.nonPadel.map((n) => `- ${n.name} — ${n.kind}`) : ["- none"]),
+    "",
+    "## Left out: source page has no product name, only the source's code",
+    ...(report.noName.length ? report.noName.map((n) => `- ${n.code} (${n.brand})`) : ["- none"]),
     "",
     "## Rejected photos",
     ...(report.rejectedPhotos.length ? report.rejectedPhotos.map((r) => `- ${r.name}, ${r.photo}: ${r.reason}`) : ["- none"]),

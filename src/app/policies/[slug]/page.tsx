@@ -1,23 +1,20 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { StubPage } from "@/components/layout/StubPage";
+import { PolicyView } from "@/components/policy/PolicyView";
 import { POLICY_PAGES } from "@/config/site";
+import { getPolicy } from "@/content/policies";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export function generateStaticParams() {
-  return POLICY_PAGES.map((p) => ({ slug: p.slug }));
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const page = POLICY_PAGES.find((p) => p.slug === slug);
-  return page ? { title: page.label } : {};
+  const p = POLICY_PAGES.some((x) => x.slug === slug) ? getPolicy(slug) : undefined;
+  return p ? { title: p.title, description: p.summary } : {};
 }
 
 export default async function PolicyPage({ params }: Props) {
   const { slug } = await params;
-  const page = POLICY_PAGES.find((p) => p.slug === slug);
-  if (!page) notFound();
-  return <StubPage title={page.label} crumbs={[{ href: `/policies/${page.slug}`, label: page.label }]} />;
+  const policy = POLICY_PAGES.some((p) => p.slug === slug) ? getPolicy(slug) : undefined;
+  if (!policy) notFound();
+  return <PolicyView policy={policy} crumbs={[{ href: `/policies/${slug}`, label: policy.title }]} />;
 }

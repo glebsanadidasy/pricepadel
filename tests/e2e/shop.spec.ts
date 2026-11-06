@@ -1,8 +1,12 @@
 import { expect, test } from "@playwright/test";
-import { addToCart, checkoutToGateway, mails, orderStatus, paymentIdFromUrl, registerAndVerify, signedNotification, simpleProduct, uniqueEmail, PASSWORD } from "./helpers";
+import { addToCart, answerCookies, checkoutToGateway, deliveryFor, mails, orderStatus, paymentIdFromUrl, registerAndVerify, signedNotification, simpleProduct, uniqueEmail, PASSWORD } from "./helpers";
 
 const product = simpleProduct();
 const retail = Math.round(product.sourcePrice * 1.15);
+const delivery = deliveryFor(retail);
+const total = retail + delivery;
+
+test.beforeEach(async ({ context }) => answerCookies(context));
 const gbp = (p: number) => `£${(p / 100).toLocaleString("en-GB", { minimumFractionDigits: 2 })}`;
 
 test("registration needs a confirmed e-mail before checkout", async ({ page }) => {
@@ -40,7 +44,7 @@ test("catalogue and cart work without an account; prices come from the server", 
   await expect(page.getByText(gbp(retail)).first()).toBeVisible();
   await addToCart(page, product.slug);
   await page.goto("/cart");
-  await expect(page.getByText("Free delivery")).toBeVisible();
+  await expect(page.getByText(delivery === 0 ? "Free delivery" : "Delivery (UK)", { exact: true })).toBeVisible();
   await expect(page.getByText(gbp(retail)).first()).toBeVisible();
   // A forged cart cookie with an unknown SKU is refused by the server.
   await page.context().addCookies([{ name: "pp_cart", value: JSON.stringify([{ sku: "PP-FAKE-1", qty: 1 }]), url: page.url() }]);
@@ -55,8 +59,8 @@ test("successful payment: order is Paid only after the notification, e-mails go 
   await registerAndVerify(page, email);
   await addToCart(page, product.slug);
   await page.goto("/checkout");
-  await expect(page.getByTestId("checkout-total")).toHaveText(gbp(retail));
-  await expect(page.getByText("Free delivery")).toBeVisible();
+  await expect(page.getByTestId("checkout-total")).toHaveText(gbp(total));
+  await expect(page.getByTestId("delivery-terms")).toContainText("free on orders of £100.00 or more");
   const number = await checkoutToGateway(page);
   expect(await orderStatus(page, number)).toBe("Awaiting payment");
   await page.goBack();
@@ -94,7 +98,7 @@ test("forged and wrong-amount notifications are rejected", async ({ page, reques
   await addToCart(page, product.slug);
   const number = await checkoutToGateway(page);
   const paymentId = paymentIdFromUrl(page.url());
-  const body = { type: "payment.succeeded", payment_id: paymentId, order_number: number, amount: retail, currency: "GBP" };
+  const body = { type: "payment.succeeded", payment_id: paymentId, order_number: number, amount: total, currency: "GBP" };
 
   // Signed with the wrong secret.
   const forged = signedNotification(body, "f".repeat(64));
@@ -104,7 +108,7 @@ test("forged and wrong-amount notifications are rejected", async ({ page, reques
   r = await request.post("/api/payments/webhook", { data: JSON.stringify(body), headers: { "content-type": "application/json" } });
   expect(r.status()).toBe(401);
   // Correct signature, wrong amount.
-  const cheap = signedNotification({ ...body, amount: retail - 100 });
+  const cheap = signedNotification({ ...body, amount: total - 100 });
   r = await request.post("/api/payments/webhook", { data: cheap.raw, headers: { "content-type": "application/json", "x-pp-signature": cheap.signature } });
   expect(r.status()).toBe(400);
   // Correct signature, wrong currency.

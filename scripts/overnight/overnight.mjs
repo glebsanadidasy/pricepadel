@@ -251,7 +251,7 @@ async function finalChecks() {
         /* not up yet */
       }
     }
-    const code = await run("node", ["scripts/catalog/check-public.mjs", "http://localhost:3101", "--sample", "400"], "final-check.log");
+    const code = await run("node", ["scripts/catalog/check-public.mjs", "http://localhost:3101"], "final-check.log");
     result = code === 0 ? "OK (no source data in pages, prices match)" : "PROBLEMS — see .overnight/final-check.log";
     try {
       process.kill(-server.pid);

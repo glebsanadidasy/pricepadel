@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
-import { StubPage } from "@/components/layout/StubPage";
-import { BUSINESS } from "@/config/site";
-export const metadata: Metadata = { title: "Contact" };
+import { PolicyView } from "@/components/policy/PolicyView";
+import { getPolicy } from "@/content/policies";
+
+export function generateMetadata(): Metadata {
+  const p = getPolicy("contact")!;
+  return { title: p.title, description: p.summary };
+}
 
 export default function Page() {
-  return <StubPage title="Contact" crumbs={[{ href: "/contact", label: "Contact" }]}><p>Orders and support: <a className="text-royal underline" href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a><br />Phone: <a className="text-royal underline" href={BUSINESS.phoneHref}>{BUSINESS.phone}</a><br />{BUSINESS.hours}</p></StubPage>;
+  const policy = getPolicy("contact")!;
+  return <PolicyView policy={policy} crumbs={[{ href: "/contact", label: policy.title }]} />;
 }

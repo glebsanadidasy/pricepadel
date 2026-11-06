@@ -7,7 +7,7 @@ import { isCountry } from "@/config/countries";
 import { readSettings, writeSettings, type CatalogSettings } from "@/lib/catalog-store";
 import { refreshFromEcb } from "@/lib/fx";
 import { CATEGORY_LABELS, type Category } from "@/lib/catalog-types";
-import { getOrder, ORDER_STATUSES, setOrderStatus, type OrderStatus } from "@/lib/orders";
+import { getOrder, ORDER_STATUSES, sendStatusEmail, setOrderStatus, type OrderStatus } from "@/lib/orders";
 
 export type AdminFormState = { error?: string } | undefined;
 
@@ -135,6 +135,8 @@ export async function changeOrderStatus(number: string, form: FormData) {
   if (!o || !ORDER_STATUSES.includes(status)) return;
   // "Paid" comes only from a verified payment notification, never from a click.
   if (status === "Paid" || status === "Awaiting payment" || (o.status === "Awaiting payment" && status !== "Cancelled")) return;
-  setOrderStatus(o.id, status, String(form.get("note") ?? "").slice(0, 300), "admin");
+  const note = String(form.get("note") ?? "").slice(0, 300);
+  setOrderStatus(o.id, status, note, "admin");
+  sendStatusEmail(o, status, note);
   revalidatePath(`/admin/orders/${number}`);
 }
