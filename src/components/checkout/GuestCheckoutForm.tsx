@@ -6,7 +6,6 @@ import { placeGuestOrder } from "@/app/checkout/actions";
 import { COUNTRIES } from "@/config/countries";
 import { Field, inputClass, Notice } from "@/components/ui/Form";
 import { PayButton } from "./PayButton";
-import { PaymentModal } from "./PaymentModal";
 
 /**
  * Guest checkout: every field the payment provider and the carrier need — e-mail, first name and surname,
@@ -16,8 +15,6 @@ export function GuestCheckoutForm({ expected, countries, summary }: { expected: 
   const [state, action] = useActionState(placeGuestOrder, undefined);
   const v = state?.values ?? {};
   return (
-    <>
-    {state?.frame && <PaymentModal frame={state.frame} />}
     <form action={action} className="grid gap-[40px] lg:grid-cols-[1fr_380px]" aria-label="Guest checkout">
       <div className="space-y-[20px]">
         {state?.error && <Notice kind="error">{state.error}</Notice>}
@@ -74,6 +71,5 @@ export function GuestCheckoutForm({ expected, countries, summary }: { expected: 
         <p className="mt-[10px] text-[13px] leading-[19px] text-body">You’ll pay by Visa or Mastercard on the payment provider’s secure page. We never see your card details.</p>
       </div>
     </form>
-    </>
   );
 }

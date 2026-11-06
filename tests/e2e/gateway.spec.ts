@@ -46,11 +46,7 @@ test.beforeAll(async () => {
         res.writeHead(201, { "content-type": "application/json" }).end(JSON.stringify({ public_order_id: id, status: "pending", expires_at: expires.toISOString(), checkout_url: checkout }));
       } else if (req.method === "GET" && req.url?.startsWith("/pay/")) {
         const c = created.find((x) => req.url === `/pay/${x.id}`);
-        // Like a real checkout page: a link back (navigates this frame) and a message to the parent window.
-        res.writeHead(200, { "content-type": "text/html" }).end(
-          `<h1>Gateway test double</h1><a href="${c?.body.redirect_url}">Return to shop</a>` +
-            `<button onclick="parent.postMessage({event:'payment.success'}, '*')">Tell the shop: success</button>`,
-        );
+        res.writeHead(200, { "content-type": "text/html" }).end(`<h1>Gateway test double</h1><a href="${c?.body.redirect_url}">Return to shop</a>`);
       } else res.writeHead(404).end("{}");
     });
   });
@@ -83,13 +79,10 @@ async function checkout(page: Page, surname = "Tester", register = true) {
   return { before };
 }
 
-/** Places the order; the provider's checkout page opens in the payment window (iframe) on our site. */
-async function orderToGateway(page: Page, surname = "Tester", register = true) {
-  await checkout(page, surname, register);
-  await expect(page.getByRole("dialog", { name: "Secure payment" })).toBeVisible();
-  await expect(page.frameLocator("iframe[title='Secure payment page']").getByRole("heading", { name: "Gateway test double" })).toBeVisible();
+async function orderToGateway(page: Page, surname = "Tester") {
+  await checkout(page, surname);
+  await page.waitForURL(new RegExp(`localhost:${FAKE_PORT}/pay/`));
   const c = created[created.length - 1];
-  await expect(page.locator("iframe[title='Secure payment page']")).toHaveAttribute("src", `http://localhost:${FAKE_PORT}/pay/${c.id}`);
   return { c, number: new URL(c.body.redirect_url).searchParams.get("order")! };
 }
 
@@ -143,10 +136,8 @@ test("request follows the documentation and the amount comes from the stored ord
 
 test("notifications: only a fully valid order.paid makes the order Paid, once", async ({ page }) => {
   const { c, number } = await orderToGateway(page);
-  // Coming back (inside the payment window) moves to the full window and proves nothing.
-  await page.frameLocator("iframe[title='Secure payment page']").getByRole("link", { name: "Return to shop" }).click();
-  await expect(page).toHaveURL(new RegExp(`/checkout/result\\?order=${number}&from=payment$`));
-  await expect(page.getByRole("dialog", { name: "Secure payment" })).toHaveCount(0);
+  // Coming back without a notification proves nothing.
+  await page.getByRole("link", { name: "Return to shop" }).click();
   await expect(page.getByText(/We’re checking your payment/)).toBeVisible();
 
   const good = paid(c.id);
@@ -197,49 +188,6 @@ test("an expired payment page: order Expired, order again, a late payment goes t
   await expect(page.getByRole("link", { name: product.name })).toBeVisible();
 });
 
-test("payment window: messages only from the provider, close returns to the order, headers allow only its frames", async ({ page }) => {
-  const { number } = await orderToGateway(page);
-  // A message from any other origin is ignored.
-  await page.evaluate(() => window.postMessage({ event: "payment.success" }, "*"));
-  await page.waitForTimeout(500);
-  await expect(page.getByRole("dialog", { name: "Secure payment" })).toBeVisible();
-  // The provider's page reports success: the window closes and the result page checks the order (not Paid by a message).
-  await page.frameLocator("iframe[title='Secure payment page']").getByRole("button", { name: "Tell the shop: success" }).click();
-  await expect(page).toHaveURL(new RegExp(`/checkout/result\\?order=${number}&from=payment$`));
-  await expect(page.getByText(/We’re checking your payment/)).toBeVisible();
-  // Back from paying: the order is saved, so the cart is now empty.
-  await expect(page.getByRole("link", { name: "Cart (0)" })).toBeVisible();
-  await page.goto("/cart");
-  await expect(page.getByText("Your cart is empty.")).toBeVisible();
-
-  // Closing the window asks first, then goes to the order (still awaiting payment, "Pay now" available).
-  await orderToGateway(page, "Closer", false);
-  page.once("dialog", (d) => d.accept());
-  await page.getByRole("button", { name: "Close payment" }).click();
-  await expect(page).toHaveURL(/\/account\/orders\/PP\d+\?from=payment$/);
-  await expect(page.getByTestId("order-status")).toHaveText("Awaiting payment");
-
-  const csp = (await page.request.get(`${BASE}/checkout`)).headers()["content-security-policy"];
-  expect(csp).toContain(`frame-src 'self' http://localhost:*`);
-  expect(csp).toContain("frame-ancestors 'none'");
-  const resultCsp = (await page.request.get(`${BASE}/checkout/result?order=${number}`)).headers()["content-security-policy"];
-  expect(resultCsp).toContain("frame-ancestors 'self'");
-});
-
-test.describe("phone", () => {
-  test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
-  test("the payment window fills the screen and the page behind is blurred", async ({ page }) => {
-    await orderToGateway(page);
-    const box = await page.getByRole("dialog", { name: "Secure payment" }).boundingBox();
-    expect(Math.round(box!.width)).toBe(390);
-    expect(Math.round(box!.height)).toBeGreaterThanOrEqual(840);
-    const blur = await page.locator("[role=presentation]").evaluate((e) => getComputedStyle(e).backdropFilter);
-    expect(blur).toContain("blur");
-    await page.frameLocator("iframe[title='Secure payment page']").getByRole("link", { name: "Return to shop" }).tap();
-    await expect(page).toHaveURL(/\/checkout\/result/);
-  });
-});
-
 test("a failed payment can be followed by a successful one", async ({ page }) => {
   const { c, number } = await orderToGateway(page);
   expect((await notify(page, paid(c.id, { status: "failed", event: "order.failed" }))).status()).toBe(200);
@@ -270,7 +218,7 @@ test("guest checkout sends the guest's details to the gateway", async ({ page })
   await page.getByLabel("Postcode").fill("LS1 1AA");
   await page.getByLabel(/I have read and accept/).check();
   await page.getByRole("button", { name: "Pay by Wallet" }).click();
-  await expect(page.getByRole("dialog", { name: "Secure payment" })).toBeVisible();
+  await page.waitForURL(new RegExp(`localhost:${FAKE_PORT}/pay/`));
   const c = created[created.length - 1];
   expect(c.body.customer_details).toMatchObject({ name: "Grace", surname: "Guest", email: "guest-gw@example.test", phone: "+447700900456", country: "GB", address_line1: "2 Guest Road" });
   expect(Math.round(c.body.amount * 100)).toBe(total);

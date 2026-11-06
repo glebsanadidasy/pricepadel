@@ -7,13 +7,12 @@ import { expireStalePayments, getOrderForUser } from "@/lib/orders";
 export const metadata: Metadata = { title: "Order" };
 
 /** A customer can open only their own orders; anyone else's number answers "not found". */
-export default async function OrderPage({ params, searchParams }: { params: Promise<{ number: string }>; searchParams: Promise<{ pay?: string; from?: string }> }) {
+export default async function OrderPage({ params, searchParams }: { params: Promise<{ number: string }>; searchParams: Promise<{ pay?: string }> }) {
   const { number } = await params;
-  const q = await searchParams;
-  const payUnavailable = q.pay === "unavailable";
+  const payUnavailable = (await searchParams).pay === "unavailable";
   const user = await requireUser(`/account/orders/${number}`);
   expireStalePayments();
   const o = getOrderForUser(number, user.id);
   if (!o) notFound();
-  return <OrderView o={o} payUnavailable={payUnavailable} fromPayment={q.from === "payment"} />;
+  return <OrderView o={o} payUnavailable={payUnavailable} />;
 }

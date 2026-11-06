@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHero } from "@/components/layout/PageHero";
-import { EmptyCartAfterPayment, LeavePaymentFrame } from "@/components/checkout/PaymentModal";
 import { AutoRefresh } from "@/components/shop/AutoRefresh";
 import { LimeButton } from "@/components/ui/Button";
 import { Notice, SubmitButton } from "@/components/ui/Form";
@@ -13,9 +12,8 @@ import { payAgain } from "../actions";
 export const metadata: Metadata = { title: "Order status", robots: { index: false } };
 
 /** Where the gateway sends the customer back. The order status shown comes from our database, never from the URL. */
-export default async function ResultPage({ searchParams }: { searchParams: Promise<{ order?: string; from?: string }> }) {
-  const q = await searchParams;
-  const number = q.order ?? "";
+export default async function ResultPage({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
+  const number = (await searchParams).order ?? "";
   expireStalePayments();
   // The customer who placed it, or the guest browser holding its private token; anyone else: not found.
   const access = await viewableOrder(number);
@@ -26,8 +24,6 @@ export default async function ResultPage({ searchParams }: { searchParams: Promi
   const paid = o.status !== "Awaiting payment" && o.status !== "Expired";
   return (
     <>
-      <LeavePaymentFrame />
-      <EmptyCartAfterPayment when={q.from === "payment"} />
       <PageHero title={paid ? "Thank you" : payment === "created" ? "Checking your payment" : "Payment not completed"} crumbs={[{ href: view, label: o.number }]} />
       <div className="mx-auto max-w-[680px] space-y-[18px] px-[15px] pb-[80px] pt-[40px]">
         {paid ? (

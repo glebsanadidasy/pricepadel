@@ -4,14 +4,12 @@ import { countryName } from "@/config/countries";
 import { formatMinor } from "@/config/currency";
 import { charged, orderAddress, orderEvents, orderItems, type OrderRow } from "@/lib/orders";
 import { orderAgain, payAgain } from "@/app/checkout/actions";
-import { EmptyCartAfterPayment } from "@/components/checkout/PaymentModal";
 
 /** One order, as its customer (account or guest with the private link) sees it. */
-export function OrderView({ o, payUnavailable, token, fromPayment = false }: { o: OrderRow; payUnavailable: boolean; token?: string; fromPayment?: boolean }) {
+export function OrderView({ o, payUnavailable, token }: { o: OrderRow; payUnavailable: boolean; token?: string }) {
   const a = orderAddress(o);
   return (
     <div className="max-w-[760px] space-y-[24px]">
-      <EmptyCartAfterPayment when={fromPayment} />
       <div className="flex flex-wrap items-center gap-[12px]">
         <h2 className="text-[22px] font-bold text-ink">Order {o.number}</h2>
         <span className="rounded-[3px] bg-mist px-[8px] py-[2px] text-[14px] text-ink" data-testid="order-status">
