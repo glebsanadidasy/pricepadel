@@ -133,26 +133,52 @@ export function applyNotification(n: Notification): { ok: boolean; reason: strin
   if (!["payment.succeeded", "payment.declined", "payment.cancelled"].includes(n.type)) return record(false, "unknown event type");
   const p = typeof n.payment_id === "string" ? getPayment(n.payment_id) : undefined;
   if (!p) return record(false, "unknown payment");
+  // The local simulation can only settle its own payments, never real card payments.
+  if ((p as { provider?: string }).provider !== "mock") return record(false, "not a simulated payment");
   if (p.order_number !== n.order_number) return record(false, "order does not match the payment");
   if (!Number.isInteger(n.amount) || n.amount !== p.amount || n.currency !== p.currency) return record(false, "amount or currency does not match");
   const order = getOrder(p.order_number)!;
   if (order.total_charged !== p.amount || order.currency !== p.currency) return record(false, "amount or currency does not match the order");
-  if (p.status !== "created") return record(true, `already ${p.status}`); // repeated notification: nothing to do
-
   const status = n.type === "payment.succeeded" ? "succeeded" : n.type === "payment.declined" ? "declined" : "cancelled";
+  return record(true, settlePayment(p, status));
+}
+
+/**
+ * Moves a verified payment to its outcome. Rules: a succeeded payment is final (repeats change nothing; a later
+ * "failed" or "canceled" never undoes Paid); a failed attempt can still be followed by a success; the order becomes
+ * Paid only while it is awaiting payment.
+ */
+export function settlePayment(p: { id: string; order_id: number; status: string }, outcome: "succeeded" | "declined" | "cancelled"): string {
+  if (p.status === "succeeded") return "already succeeded";
+  if (outcome !== "succeeded" && p.status !== "created") return `already ${p.status}`;
+  const order = db().prepare("SELECT * FROM orders WHERE id = ?").get(p.order_id) as OrderRow;
   let paid = false;
   tx(() => {
-    db().prepare("UPDATE payments SET status = ?, updated_at = ? WHERE id = ?").run(status, now(), p.id);
-    if (status === "succeeded" && order.status === "Awaiting payment") {
+    db().prepare("UPDATE payments SET status = ?, updated_at = ? WHERE id = ?").run(outcome, now(), p.id);
+    if (outcome === "succeeded" && order.status === "Awaiting payment") {
       db().prepare("UPDATE orders SET paid_at = ? WHERE id = ?").run(now(), order.id);
       setOrderStatus(order.id, "Paid", `Payment ${p.id} confirmed by the payment gateway`, "gateway");
       paid = true;
-    } else if (status !== "succeeded") {
-      db().prepare("INSERT INTO order_events (order_id, at, status, note, actor) VALUES (?, ?, ?, ?, 'gateway')").run(order.id, now(), order.status, `Payment ${status}`);
+    } else if (outcome === "succeeded") {
+      // Paid twice (e.g. two attempts both went through): flag it for a refund, never change the order.
+      db().prepare("INSERT INTO order_events (order_id, at, status, note, actor) VALUES (?, ?, ?, ?, 'gateway')").run(order.id, now(), order.status, `Extra payment ${p.id} succeeded — refund it`);
+    } else {
+      db().prepare("INSERT INTO order_events (order_id, at, status, note, actor) VALUES (?, ?, ?, ?, 'gateway')").run(order.id, now(), order.status, `Payment ${outcome}`);
     }
   });
   if (paid) sendOrderEmails(getOrder(order.number)!);
-  return record(true, status);
+  return outcome;
+}
+
+/** Payment of the real card gateway by the gateway's own order id. */
+export function getPaymentByGatewayId(gatewayOrderId: string) {
+  return db().prepare("SELECT p.*, o.number AS order_number FROM payments p JOIN orders o ON o.id = p.order_id WHERE p.provider = 'card' AND p.gateway_order_id = ?").get(gatewayOrderId) as
+    | { id: string; order_id: number; amount: number; currency: string; status: string; order_number: string }
+    | undefined;
+}
+
+export function setGatewayOrderId(paymentId: string, gatewayOrderId: string) {
+  db().prepare("UPDATE payments SET provider = 'card', gateway_order_id = ?, updated_at = ? WHERE id = ?").run(gatewayOrderId, now(), paymentId);
 }
 
 // ---------- e-mails ----------

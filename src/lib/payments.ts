@@ -7,7 +7,7 @@ import crypto from "node:crypto";
  * it shows success / decline / cancel and sends a signed server-to-server notification like a real gateway would.
  *
  * Notification: POST /api/payments/webhook, JSON body, header `x-pp-signature: t=<unix>,v1=<hex HMAC-SHA256 of "t.body">`
- * with PAYMENT_WEBHOOK_SECRET. An order becomes Paid only from a notification that passes every check.
+ * with MOCK_PAYMENT_SECRET (the real gateway uses PAYMENT_WEBHOOK_SECRET, see lib/gateway.ts). An order becomes Paid only from a notification that passes every check.
  */
 export const SIGNATURE_HEADER = "x-pp-signature";
 const TOLERANCE_S = 300;
@@ -21,8 +21,8 @@ export function mockGatewayEnabled() {
 }
 
 function secret() {
-  const s = process.env.PAYMENT_WEBHOOK_SECRET;
-  if (!s || s.length < 32) throw new Error("PAYMENT_WEBHOOK_SECRET is not set");
+  const s = process.env.MOCK_PAYMENT_SECRET;
+  if (!s || s.length < 32) throw new Error("MOCK_PAYMENT_SECRET is not set");
   return s;
 }
 

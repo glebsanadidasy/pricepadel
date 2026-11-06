@@ -6,6 +6,7 @@ import { adminPasswordMatches, assertAdmin, attemptKey, recordAttempt, signInAdm
 import { isCountry } from "@/config/countries";
 import { readSettings, writeSettings, type CatalogSettings } from "@/lib/catalog-store";
 import { refreshFromEcb } from "@/lib/fx";
+import { testConnection } from "@/lib/gateway";
 import { CATEGORY_LABELS, type Category } from "@/lib/catalog-types";
 import { db } from "@/lib/db";
 import { getOrder, ORDER_STATUSES, sendStatusEmail, setOrderStatus, type OrderStatus } from "@/lib/orders";
@@ -133,6 +134,11 @@ export async function saveDelivery(form: FormData) {
 
 export async function setRewriteApproved(on: boolean) {
   await save((s) => void (s.rewriteApproved = on));
+}
+
+export async function checkGatewayConnection(): Promise<{ connected: boolean; detail: string }> {
+  await assertAdmin();
+  return testConnection();
 }
 
 export async function setComplaintAnswered(id: number, answered: boolean) {

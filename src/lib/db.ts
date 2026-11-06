@@ -121,7 +121,14 @@ export function db(): DatabaseSync {
     const d = new DatabaseSync(FILE);
     d.exec(SCHEMA);
     // Columns added after the first release (SQLite has no "ADD COLUMN IF NOT EXISTS").
-    for (const sql of ["ALTER TABLE orders ADD COLUMN tracking_number TEXT", "ALTER TABLE users ADD COLUMN last_active_at TEXT"]) {
+    for (const sql of [
+      "ALTER TABLE orders ADD COLUMN tracking_number TEXT",
+      "ALTER TABLE users ADD COLUMN last_active_at TEXT",
+      // Card gateway: which gateway took the payment ('mock' = local simulation, 'card' = real gateway) and its order id.
+      "ALTER TABLE payments ADD COLUMN provider TEXT NOT NULL DEFAULT 'mock'",
+      "ALTER TABLE payments ADD COLUMN gateway_order_id TEXT",
+      "CREATE UNIQUE INDEX IF NOT EXISTS payments_gateway_order ON payments(gateway_order_id)",
+    ]) {
       try {
         d.exec(sql);
       } catch {

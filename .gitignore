@@ -35,3 +35,7 @@ npm-debug.log*
 /.next-overnight/
 /.test-data/
 /test-results/
+
+# third-party payment plugin kept only as a local reference — never commit
+/.payment-reference/
+/.next-test-gw/

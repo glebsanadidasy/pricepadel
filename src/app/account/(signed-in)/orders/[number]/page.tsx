@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { SubmitButton } from "@/components/ui/Form";
+import { Notice, SubmitButton } from "@/components/ui/Form";
 import { countryName } from "@/config/countries";
 import { formatMinor } from "@/config/currency";
 import { requireUser } from "@/lib/auth";
@@ -11,8 +11,9 @@ import { payAgain } from "@/app/checkout/actions";
 export const metadata: Metadata = { title: "Order" };
 
 /** A customer can open only their own orders; anyone else's number answers "not found". */
-export default async function OrderPage({ params }: { params: Promise<{ number: string }> }) {
+export default async function OrderPage({ params, searchParams }: { params: Promise<{ number: string }>; searchParams: Promise<{ pay?: string }> }) {
   const { number } = await params;
+  const payUnavailable = (await searchParams).pay === "unavailable";
   const user = await requireUser(`/account/orders/${number}`);
   const o = getOrderForUser(number, user.id);
   if (!o) notFound();
@@ -25,6 +26,9 @@ export default async function OrderPage({ params }: { params: Promise<{ number: 
           {o.status}
         </span>
       </div>
+      {payUnavailable && o.status === "Awaiting payment" && (
+        <Notice kind="error">Card payment is temporarily unavailable. Your order is saved and nothing has been charged — please try “Pay now” again later.</Notice>
+      )}
       {o.tracking_number && (
         <p className="text-[15px]">
           Tracking number: <b className="text-ink">{o.tracking_number}</b>

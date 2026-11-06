@@ -167,10 +167,16 @@ up to 5 photos in the best quality. Categories: rackets, shoes, apparel, bags, b
   read only through `src/lib/catalog-store.ts` (server-only). `src/lib/catalog.ts` copies public fields one by one (`toPublic`).
 - Customers: SQLite (`node:sqlite`) in `.data/store.db` (`src/lib/db.ts`); auth `src/lib/auth.ts` (scrypt, hashed session tokens, rate limits);
   cart cookie `src/lib/cart.ts` (server re-prices); orders `src/lib/orders.ts`; e-mails go to `outbox/` (`src/lib/mail.ts`) until mail is connected.
-- Payments: only the gateway's hosted page. Local simulation `/mock-gateway/[id]` + signed webhook `/api/payments/webhook` (`src/lib/payments.ts`);
-  Paid only from a verified notification. Mock is on in `next dev`, or with `MOCK_PAYMENTS=1`.
+- Payments (stage 6): card gateway, **redirect flow only** (no H2H, no embedded/express modal, no card fields). `src/lib/gateway.ts`,
+  rules in `src/lib/gateway-config.ts`, notifications `/api/payments/notify`. **Never name the provider** in code, Git, pages or e-mails
+  (the reference plugin lives in git-ignored `.payment-reference/`). Settings only in `.env`: PAYMENT_API_BASE_URL, PAYMENT_API_TOKEN,
+  PAYMENT_WEBHOOK_SECRET, PAYMENT_ACCOUNT_ID, PAYMENT_MODE=test|live, PAYMENT_LIVE_ENABLED=false (live blocked until the gateway confirms
+  how the status is verified — launch-checklist.md). TLS always verified; no secret → no payment and every notification refused;
+  Paid only with a valid HMAC(public_order_id + amount), known order, matching amount + currency, order awaiting payment; repeats and
+  later failures never change Paid; returning to the shop proves nothing. Logs: order number + short reason only.
+  Local simulation `/mock-gateway` + `/api/payments/webhook` (secret MOCK_PAYMENT_SECRET) stays for tests and the preview.
 - Admin `/admin` (login with `ADMIN_PASSWORD` from `.env`; never print it): orders, products (hide product / photo), markups, rates, delivery cost.
-- Secrets in `.env`: `ADMIN_PASSWORD`, `PAYMENT_WEBHOOK_SECRET`.
+- Secrets in `.env`: `ADMIN_PASSWORD`, `MOCK_PAYMENT_SECRET`, `PAYMENT_*` (owner fills in), `SMTP_*` (owner fills in `SMTP_PASS`).
 - Tests: `npx playwright test` (own server on :3200 with a copy of the data in `.test-data/` and test-only secrets); `SCREENS=1` adds screenshots.
 - `NEXT_DIST_DIR` selects the build folder (`.next-test`, `.next-overnight`) so checks never disturb the preview.
 - Old-site redirects will be read from `data/redirects.json` by `next.config.ts` (list in `old-site/report.md`).

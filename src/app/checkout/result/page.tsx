@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHero } from "@/components/layout/PageHero";
+import { AutoRefresh } from "@/components/shop/AutoRefresh";
 import { LimeButton } from "@/components/ui/Button";
 import { Notice, SubmitButton } from "@/components/ui/Form";
 import { requireUser } from "@/lib/auth";
@@ -20,7 +21,7 @@ export default async function ResultPage({ searchParams }: { searchParams: Promi
   const paid = o.status !== "Awaiting payment";
   return (
     <>
-      <PageHero title={paid ? "Thank you" : "Payment not completed"} crumbs={[{ href: "/account/orders", label: "Orders" }]} />
+      <PageHero title={paid ? "Thank you" : payment === "created" ? "Checking your payment" : "Payment not completed"} crumbs={[{ href: "/account/orders", label: "Orders" }]} />
       <div className="mx-auto max-w-[680px] space-y-[18px] px-[15px] pb-[80px] pt-[40px]">
         {paid ? (
           <>
@@ -32,12 +33,20 @@ export default async function ResultPage({ searchParams }: { searchParams: Promi
         ) : (
           <>
             <Notice kind="error">
-              {payment === "declined" ? "Your card was declined." : payment === "cancelled" ? "The payment was cancelled." : "We haven’t received a payment confirmation yet."} Order{" "}
-              <b>{o.number}</b> is waiting for payment — you have not been charged.
+              {payment === "declined"
+                ? "Your card was declined."
+                : payment === "cancelled"
+                  ? "The payment was cancelled."
+                  : "We’re checking your payment with the payment provider. This page updates by itself."}{" "}
+              Order <b>{o.number}</b> is waiting for payment confirmation{payment === "created" ? "" : " — you have not been charged"}.
             </Notice>
-            <form action={payAgain.bind(null, o.number)}>
-              <SubmitButton>Try paying again</SubmitButton>
-            </form>
+            {payment === "created" ? (
+              <AutoRefresh />
+            ) : (
+              <form action={payAgain.bind(null, o.number)}>
+                <SubmitButton>Try paying again</SubmitButton>
+              </form>
+            )}
           </>
         )}
         <p data-testid="result-status" className="text-[14px] text-[#888]">

@@ -20,6 +20,7 @@ const ERRORS: Record<string, string> = {
   address: "Please choose a delivery address we can deliver to (UK mainland, Northern Ireland and Scottish islands; not the Channel Islands, Isle of Man, BFPO or PO boxes).",
   changed: "Prices or stock changed while you were checking out. Please review the updated summary.",
   verify: "Please confirm your e-mail before placing an order.",
+  payments: "Card payment is temporarily unavailable. Please try again later — nothing has been charged.",
 };
 
 export default async function CheckoutPage({ searchParams }: { searchParams: Promise<{ e?: string }> }) {

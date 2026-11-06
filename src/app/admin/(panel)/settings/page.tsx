@@ -4,7 +4,9 @@ import { formatGbp } from "@/lib/currency";
 import { requireAdmin } from "@/lib/auth";
 import { readCatalog, readSettings } from "@/lib/catalog-store";
 import { CATEGORY_LABELS, type Category } from "@/lib/catalog-types";
+import { GatewayCheck } from "@/components/admin/GatewayCheck";
 import { FX_CODES, rateInfo } from "@/lib/fx";
+import { gatewayConfig } from "@/lib/gateway-config";
 import { refreshRatesNow, saveDelivery, saveFx, saveMarkups, setRewriteApproved } from "../../actions";
 
 export const metadata: Metadata = { title: "Prices & settings" };
@@ -60,6 +62,25 @@ export default async function SettingsPage() {
       </Card>
 
       <div className="space-y-[20px]">
+        <Card title="Card payments">
+          {(() => {
+            const g = gatewayConfig(process.env);
+            return (
+              <>
+                <p>
+                  Hosted payment page (redirect). Keys are set only in <code>.env</code>: PAYMENT_API_BASE_URL, PAYMENT_API_TOKEN, PAYMENT_WEBHOOK_SECRET,
+                  PAYMENT_ACCOUNT_ID, PAYMENT_MODE, PAYMENT_LIVE_ENABLED. Notification address: <code>/api/payments/notify</code>.
+                </p>
+                <p className={`mt-[8px] font-bold ${g.ok ? "text-[#2e7d32]" : "text-[#c0392b]"}`}>
+                  {g.ok ? `On — ${g.mode} mode` : `Off — ${g.reason}`}
+                  {!g.ok && process.env.NODE_ENV !== "production" && " (the local payment simulation is used instead)"}
+                </p>
+                <GatewayCheck />
+              </>
+            );
+          })()}
+        </Card>
+
         <Card title="Exchange rates">
           <p>
             Prices are kept in GBP. Shown rate = ECB reference rate (updated daily) + margin, or your manual rate. A rate older than 3 days switches that
