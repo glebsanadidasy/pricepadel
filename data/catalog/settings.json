@@ -1,8 +1,12 @@
 {
   "markup": {
     "default": 1.15,
+    "minAmount": 300,
     "byCategory": {},
     "byBrand": {}
+  },
+  "assumptions": {
+    "gatewayFeePct": 3
   },
   "delivery": {
     "customer": {
@@ -12,6 +16,13 @@
     "countries": [
       "GB"
     ],
+    "blockedPostcodes": [
+      "GY",
+      "JE",
+      "IM",
+      "BFPO"
+    ],
+    "noPoBoxes": true,
     "ourCostTiers": [
       {
         "below": 8500,
