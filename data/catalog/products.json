@@ -4467,7 +4467,7 @@
     "hidden": false,
     "hiddenReason": null,
     "source": "pn-uk",
-    "collectedAt": "2026-11-05"
+    "collectedAt": "2026-11-06"
   },
   {
     "id": "pc7b9eabc",
@@ -6509,6 +6509,87 @@
     "collectedAt": "2026-11-05"
   },
   {
+    "id": "p3272e2ee",
+    "slug": "bullpadel-overgrips-three-units",
+    "name": "Bullpadel Overgrips, three units",
+    "brand": "Bullpadel",
+    "mpn": null,
+    "category": "accessories",
+    "audience": "unisex",
+    "specs": [
+      {
+        "label": "Size",
+        "value": "M/l"
+      },
+      {
+        "label": "Colour",
+        "value": "White"
+      }
+    ],
+    "description": [
+      {
+        "type": "heading",
+        "text": "Why choose these Bullpadel overgrips ?"
+      },
+      {
+        "type": "paragraph",
+        "text": "These Bullpadel overgrips are made of breathable material that provide a firmer and more secure grip on any padel racket. They feature HAC technology to improve moisture absorption and comfort throughout play. This pack contains three padel overgrips with a thickness of just 0.5 mm to protect the racket against the wear of the handle."
+      },
+      {
+        "type": "heading",
+        "text": "What type of player are these Bullpadel overgrips for?"
+      },
+      {
+        "type": "paragraph",
+        "text": "They are suitable for any level of play and for all types of padel rackets. They provide a firmer, more secure hold however you play."
+      },
+      {
+        "type": "heading",
+        "text": "Design and colours"
+      },
+      {
+        "type": "paragraph",
+        "text": "In classic white that looks good with all padel rackets. These overgrips are made of a breathable material resistant to wear and tear during play. It has some flexibility for fitting to the padel racket handle."
+      },
+      {
+        "type": "heading",
+        "text": "Technical characteristics of Bullpadel overgrips"
+      },
+      {
+        "type": "list",
+        "items": [
+          "Three overgrips give you the option to have two rackets ready to play and a spare.",
+          "HAC technology absorbs moisture from the hands for optimal touch and comfort.",
+          "Flexible material fits to the grip of the hand on the handle of the racket for enhanced stability.",
+          "White with the brand name on the outside. Looks good with any colour racket.",
+          "Reduced thickness of 0.5mm for an easy grip on the racket. Convenient and reliable."
+        ]
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/ea/bullpadel-overgrips-three-units-1.jpg",
+        "alt": "Bullpadel Overgrips, three units",
+        "width": 1500,
+        "height": 1500,
+        "colour": null
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-3272E2-WHITE",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": null
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
     "id": "p4d9e9918",
     "slug": "white-dunlop-tour-pro-professional-overgrip",
     "name": "White Dunlop Tour Pro professional Overgrip",
@@ -6547,6 +6628,315 @@
         "sku": "PP-4D9E99-WHITE",
         "colour": "White",
         "colourHex": "#ffffff",
+        "size": null
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "pd14456e7",
+    "slug": "dunlop-tour-pro-overgrips-in-various-colours",
+    "name": "Dunlop Tour Pro Overgrips in Various Colours",
+    "brand": "Dunlop",
+    "mpn": null,
+    "category": "accessories",
+    "audience": "unisex",
+    "specs": [
+      {
+        "label": "Colour",
+        "value": "Varied"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "This Dunlop Tour Pro Overgrip is available in a pack of 3. They have a design with a smooth surface and come in different colours: red, blue and white. In addition, they absorb sweat very well and provide a spectacular touch for the player’s comfort. They are very light, since each one weighs around 5 grams. Made with quality materials, such as polyester, for a long useful life."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/d0/dunlop-tour-pro-overgrips-in-various-colours-1.jpg",
+        "alt": "Dunlop Tour Pro Overgrips in Various Colours",
+        "width": 1000,
+        "height": 1000,
+        "colour": null
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-D14456-VARIED",
+        "colour": "Varied",
+        "colourHex": "#d9d9d9",
+        "size": null
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "p301c8a84",
+    "slug": "dunlop-tour-dry-overgrip-in-various-colours",
+    "name": "Dunlop Tour Dry Overgrip in Various Colours",
+    "brand": "Dunlop",
+    "mpn": null,
+    "category": "accessories",
+    "audience": "unisex",
+    "specs": [
+      {
+        "label": "Colour",
+        "value": "Varied"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "The Dunlop Tour Dry overgrip has top-quality materials such as polyester, so it ensures great resistance and durability . In this way, it can be used for more games in perfect condition. In addition, at high temperatures it gives very good results, because it prevents the accumulation of sweat on the hands and provides a drier grip, preventing blisters. It comes in various colours, such as blue, red and white."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/db/dunlop-tour-dry-overgrip-in-various-colours-1.jpg",
+        "alt": "Dunlop Tour Dry Overgrip in Various Colours",
+        "width": 1000,
+        "height": 1000,
+        "colour": null
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-301C8A-VARIED",
+        "colour": "Varied",
+        "colourHex": "#d9d9d9",
+        "size": null
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "p15c353dc",
+    "slug": "yellow-wilson-pro-comfort-overgrip",
+    "name": "Yellow Wilson Pro Comfort Overgrip",
+    "brand": "Wilson",
+    "mpn": null,
+    "category": "accessories",
+    "audience": "unisex",
+    "specs": [
+      {
+        "label": "Padel Rackets and Balls Accessories",
+        "value": "Overgrips"
+      },
+      {
+        "label": "Colour",
+        "value": "Yellow"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "The Wilson Pro o v ergrip comes in a comfortable pack of three yellow units, made with highly durable synthetic materials."
+      },
+      {
+        "type": "paragraph",
+        "text": "Among its advantages is its structure, adaptable to all types of rackets and whose grip mode does not require drilling. Also the surface, soft and slightly sticky, which maximises the feeling of the game; and its high moisture absorption rate, which prevents sweat dripping onto the palms."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/01/yellow-wilson-pro-comfort-overgrip-1.jpg",
+        "alt": "Yellow Wilson Pro Comfort Overgrip",
+        "width": 1000,
+        "height": 1000,
+        "colour": null
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-15C353-YELLOW",
+        "colour": "Yellow",
+        "colourHex": "#f2d600",
+        "size": null
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "pc48f5dd8",
+    "slug": "pink-wilson-pro-overgrip",
+    "name": "Pink Wilson Pro Overgrip",
+    "brand": "Wilson",
+    "mpn": null,
+    "category": "accessories",
+    "audience": "unisex",
+    "specs": [
+      {
+        "label": "Colour",
+        "value": "Pink"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "The Wilson Pro overgrip stands out for its striking pink colour, with its smooth surface. It is available in a pack of 3 units. This overgrip provides more comfort thanks to its excellent cushioning, since it prevents the vibration that is generated in the hit to reduce possible injuries to the arm. In addition, it keeps its performance intact for more games, thanks to its high quality materials, such as polyester."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [],
+    "variants": [
+      {
+        "sku": "PP-C48F5D-PINK",
+        "colour": "Pink",
+        "colourHex": "#e91e63",
+        "size": null
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "p2d755f4e",
+    "slug": "navy-blue-individual-head-hydrosorb-grip",
+    "name": "Navy Blue Individual Head Hydrosorb Grip",
+    "brand": "Head",
+    "mpn": null,
+    "category": "accessories",
+    "audience": "unisex",
+    "specs": [
+      {
+        "label": "Colour",
+        "value": "Blue"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "The navy blue Head hydrosorb grip offers a complete reduction of sweat on the grip of the padel racket. This reduces the risk of slipping and increases performance on the court."
+      },
+      {
+        "type": "paragraph",
+        "text": "Its smooth texture with high reliefs allows for a secure grip throughout each match. It is matte cobalt blue. It comes in a blister pack that is easy to open."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/18/navy-blue-individual-head-hydrosorb-grip-1.jpg",
+        "alt": "Navy Blue Individual Head Hydrosorb Grip",
+        "width": 1000,
+        "height": 1000,
+        "colour": null
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-2D755F-BLUE",
+        "colour": "Blue",
+        "colourHex": "#1e5bb8",
+        "size": null
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "p30353c98",
+    "slug": "white-and-black-head-hydrosorb-grip",
+    "name": "White and Black Head Hydrosorb Grip",
+    "brand": "Head",
+    "mpn": null,
+    "category": "accessories",
+    "audience": "unisex",
+    "specs": [
+      {
+        "label": "Colour",
+        "value": "White"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "The white Head Hydrosorb grip with black details has the Twin Channel system, which offers maximum comfort, as well as better air circulation on its perforated surface. This allows for great breathability to prevent the accumulation of sweat on the hands. Therefore, it offers an excellent grip on the racket, which prevents it from slipping easily from your hands."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/b6/white-and-black-head-hydrosorb-grip-1.jpg",
+        "alt": "White and Black Head Hydrosorb Grip",
+        "width": 1000,
+        "height": 1000,
+        "colour": null
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-30353C-WHITE",
+        "colour": "White",
+        "colourHex": "#ffffff",
+        "size": null
+      }
+    ],
+    "hidden": false,
+    "hiddenReason": null,
+    "source": "pn-uk",
+    "collectedAt": "2026-11-06"
+  },
+  {
+    "id": "pf678596f",
+    "slug": "black-head-dual-absorbing-grip",
+    "name": "Black Head Dual Absorbing Grip",
+    "brand": "Head",
+    "mpn": null,
+    "category": "accessories",
+    "audience": "unisex",
+    "specs": [
+      {
+        "label": "Colour",
+        "value": "Black"
+      }
+    ],
+    "description": [
+      {
+        "type": "paragraph",
+        "text": "The Black Head dual absorbing grip is made of highly elastic and resistant synthetic materials. The completely smooth finish completely reduces the possibility of scratches. Its double-absorption capacity keeps the palm of the hand dry and fresh constantly."
+      },
+      {
+        "type": "paragraph",
+        "text": "The soft consistency facilitates the overgrip’s application. It is glossy black. It comes in a blister pack."
+      }
+    ],
+    "descriptionRewritten": false,
+    "images": [
+      {
+        "src": "/images/products/9f/black-head-dual-absorbing-grip-1.jpg",
+        "alt": "Black Head Dual Absorbing Grip",
+        "width": 1000,
+        "height": 1000,
+        "colour": null
+      }
+    ],
+    "variants": [
+      {
+        "sku": "PP-F67859-BLACK",
+        "colour": "Black",
+        "colourHex": "#111111",
         "size": null
       }
     ],
