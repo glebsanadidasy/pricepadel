@@ -7,6 +7,7 @@ import { isCountry } from "@/config/countries";
 import { readSettings, writeSettings, type CatalogSettings } from "@/lib/catalog-store";
 import { refreshFromEcb } from "@/lib/fx";
 import { CATEGORY_LABELS, type Category } from "@/lib/catalog-types";
+import { db } from "@/lib/db";
 import { getOrder, ORDER_STATUSES, sendStatusEmail, setOrderStatus, type OrderStatus } from "@/lib/orders";
 
 export type AdminFormState = { error?: string } | undefined;
@@ -63,6 +64,9 @@ export async function setPhotoHidden(src: string, hidden: boolean) {
 export async function saveMarkups(form: FormData) {
   await save((s) => {
     s.markup.default = parsePercent(form.get("default")) ?? s.markup.default;
+    s.markup.minAmount = parseMoney(form.get("minAmount")) ?? s.markup.minAmount;
+    const fee = parseFloat(String(form.get("gatewayFeePct") ?? "").replace(",", "."));
+    if (Number.isFinite(fee) && fee >= 0 && fee <= 15) s.assumptions.gatewayFeePct = Math.round(fee * 100) / 100;
     s.markup.byCategory = {};
     for (const c of Object.keys(CATEGORY_LABELS) as Category[]) {
       const v = parsePercent(form.get(`category:${c}`));
@@ -116,6 +120,9 @@ export async function saveDelivery(form: FormData) {
       .split(/[\s,]+/)
       .filter((c) => /^[A-Z]{2}$/.test(c) && isCountry(c));
     if (countries.length) s.delivery.countries = [...new Set(countries)];
+    if (form.has("blockedPostcodes"))
+      s.delivery.blockedPostcodes = [...new Set(String(form.get("blockedPostcodes")).toUpperCase().split(/[\s,]+/).filter((c) => /^[A-Z]{1,4}$/.test(c)))];
+    s.delivery.noPoBoxes = form.get("noPoBoxes") === "yes";
     const t = s.delivery.ourCostTiers;
     for (const i of [0, 1, 2]) {
       const v = parseMoney(form.get(`tier${i}`));
@@ -128,6 +135,12 @@ export async function setRewriteApproved(on: boolean) {
   await save((s) => void (s.rewriteApproved = on));
 }
 
+export async function setComplaintAnswered(id: number, answered: boolean) {
+  await assertAdmin();
+  db().prepare("UPDATE data_complaints SET status = ?, answered_at = ? WHERE id = ?").run(answered ? "answered" : "open", answered ? new Date().toISOString() : null, id);
+  revalidatePath("/admin/complaints");
+}
+
 export async function changeOrderStatus(number: string, form: FormData) {
   await assertAdmin();
   const o = getOrder(number);
@@ -136,7 +149,9 @@ export async function changeOrderStatus(number: string, form: FormData) {
   // "Paid" comes only from a verified payment notification, never from a click.
   if (status === "Paid" || status === "Awaiting payment" || (o.status === "Awaiting payment" && status !== "Cancelled")) return;
   const note = String(form.get("note") ?? "").slice(0, 300);
+  const tracking = String(form.get("tracking") ?? "").trim().slice(0, 60) || o.tracking_number;
+  if (tracking !== o.tracking_number) db().prepare("UPDATE orders SET tracking_number = ? WHERE id = ?").run(tracking, o.id);
   setOrderStatus(o.id, status, note, "admin");
-  sendStatusEmail(o, status, note);
+  sendStatusEmail(o, status, note, tracking);
   revalidatePath(`/admin/orders/${number}`);
 }

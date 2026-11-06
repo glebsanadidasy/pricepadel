@@ -29,7 +29,9 @@ Replacement for the old pricepadel.com, which was lost after the hosting was hac
 
 ## Business data
 - Seller: **HYPERION MOTION LTD, trading as Price Padel** (owner, stage 4). Company number 17358996.
-  Registered office: Academy House, 11 Dunraven Place, Bridgend, Mid Glamorgan, United Kingdom, CF31 1JF. VAT number [TBC].
+  Registered office: Academy House, 11 Dunraven Place, Bridgend, Mid Glamorgan, United Kingdom, CF31 1JF. Registered in England and Wales.
+  **Not VAT-registered** (no VAT number). Never write "Prices include VAT": the checkout price is final, nothing is added except the delivery shown.
+- Returns address: Unit 18C, Kingsway Buildings, Kingsway, Bridgend Industrial Estate, Bridgend, CF31 3YH.
 - Orders & support: contact@pricepadel.com
 - Partnerships: partners@pricepadel.com
 - Phone: +44 7576 567089
@@ -96,7 +98,8 @@ up to 5 photos in the best quality. Categories: rackets, shoes, apparel, bags, b
 
 **Prices and stock**
 - Source price and source link are visible only in the admin panel.
-- Retail price = source price × 1.15. The markup can be changed per category and per brand.
+- Retail price = **the larger of source × 1.15 and source + £3** (owner, stage 5). Markup per category / brand and the
+  minimum amount are editable in admin. Margin reports also show a card-fee assumption (default 3 %, editable).
 - Source prices already include VAT (final prices).
 - Customer delivery (owner, stage 4): **£12.95 for orders under £100, free from £100**, editable in the admin panel.
   Shown on the product page, in the cart and at checkout, never with delivery-time promises. **UK only** for now.
@@ -115,6 +118,24 @@ up to 5 photos in the best quality. Categories: rackets, shoes, apparel, bags, b
   Research and legal sources: `sources/policy-research.md` (not in Git). Review by a UK lawyer is mandatory before launch.
 - Launch blockers live in `launch-checklist.md`.
 - Margins are reported before card fees and taxes; prices are not changed without the owner.
+
+## Stage 5 decisions (owner, 6 Nov)
+- Delivery: UK incl. Northern Ireland, Scottish Highlands and islands; not Channel Islands, Isle of Man, BFPO, PO boxes
+  (configurable blocklist, clear message at address entry and checkout). No orders from Europe yet.
+  Usual delivery 7–10 working days after payment (an estimate; tell the customer about delays). Tracking number e-mailed on dispatch.
+  Orders may ship from the EU incl. Spain. The customer pays nothing on delivery: if a carrier asks for duty/import VAT, we pay.
+- Orders accepted or declined within 2 working days of payment; refund for unavailable items ASAP, at most 14 days.
+- E-mails answered within 2 working days; complaints acknowledged within 2 working days, full answer within 14 days. No ADR scheme.
+- Customers must be 18+. Change-of-mind returns: customer pays postage; faulty / wrong item: we pay.
+  Not returnable once unsealed: sports underwear, socks, mouthguards.
+- Retention: inactive account deleted after 3 years (e-mail 30 days before); orders/payments 6 years after the financial year;
+  ordinary messages 2 years; complaints 6 years. Do not show an ICO number; keep the right to complain to the ICO.
+- Data recipients named only by category (hosting, payment provider, mail service, fulfilment and delivery partners); transfers
+  outside the UK incl. the EEA possible. Data complaint form on /contact (no login, anti-spam), complaints in admin.
+- FAQ "genuine?": "branded goods sourced from an established European padel supplier; not an official or authorised dealer unless
+  a product page says so."
+- Mail: SMTP of contact@pricepadel.com, settings only in `.env` (`SMTP_*`); the owner fills in `SMTP_PASS`. Without it, mail goes to outbox/.
+- Neoprene Elbow Support Softee stays hidden: its description claims it "helps prevent … epicondylitis" (a health claim).
 
 ## Not to copy from the mockup as-is
 - Without owner confirmation do not show: best price guarantee, free delivery, fast delivery, in stock,

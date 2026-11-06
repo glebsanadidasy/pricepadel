@@ -41,7 +41,7 @@ export const payment = (f: Facts): Policy => ({
       id: "total",
       title: "What the total includes",
       body: [
-        `The total at checkout includes the price of the products and the delivery charge (${f.deliveryPrice} for orders under ${f.freeFrom}, free from ${f.freeFrom}). We do not add any other fees. Whether prices include VAT: [TBC]. Possible import charges for orders sent from outside the UK: [TBC] — see our [Shipping Policy](/policies/shipping).`,
+        `The total at checkout includes the price of the products and the delivery charge (${f.deliveryPrice} for orders under ${f.freeFrom}, free from ${f.freeFrom}). This is the final price: we do not add any other taxes or fees. You pay nothing on delivery — if a carrier asks for import tax or customs charges, contact us and we will cover them (see our [Shipping Policy](/policies/shipping)).`,
       ],
     },
     {

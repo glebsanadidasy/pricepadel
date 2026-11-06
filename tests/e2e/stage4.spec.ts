@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
-import { addToCart, answerCookies, mails, PASSWORD, registerAndVerify, simpleProduct, uniqueEmail } from "./helpers";
+import { retailOf, addToCart, answerCookies, mails, PASSWORD, registerAndVerify, simpleProduct, uniqueEmail } from "./helpers";
 
 const gbp = (p: number) => `£${(p / 100).toLocaleString("en-GB", { minimumFractionDigits: 2 })}`;
 
@@ -64,7 +64,7 @@ test.describe("with cookies answered", () => {
     await expect(page.getByText("Delivery to the UK: £12.95, free on orders of £100.00 or more.")).toBeVisible();
     await addToCart(page, cheap.slug);
     await page.goto("/cart");
-    const retail = Math.round(cheap.sourcePrice * 1.15);
+    const retail = retailOf(cheap.sourcePrice);
     await expect(page.getByText("Delivery (UK)", { exact: true })).toBeVisible();
     await expect(page.getByText(gbp(retail + 1295)).first()).toBeVisible();
     await expect(page.getByTestId("delivery-terms")).toContainText(`Add ${gbp(10000 - retail)} more for free delivery`);
@@ -141,4 +141,22 @@ test("cookie notice: Reject is as easy as Accept and the choice is remembered", 
   expect((await context.cookies()).find((c) => c.name === "pp_consent")?.value).toBe("rejected");
   await page.reload();
   await expect(page.getByRole("dialog", { name: "Cookies" })).toHaveCount(0);
+});
+
+test("price rule: the larger of source × 1.15 and source + £3", async ({ page, context }) => {
+  await answerCookies(context);
+  // A cheap product shows the £3 minimum; a product above £20 at source shows the 15 % markup.
+  for (const [min, max] of [
+    [0, 2000],
+    [3000, 20000],
+  ]) {
+    let p;
+    try {
+      p = simpleProduct(min, max);
+    } catch {
+      continue;
+    }
+    await page.goto(`/product/${p.slug}`);
+    await expect(page.getByText(gbp(retailOf(p.sourcePrice))).first()).toBeVisible();
+  }
 });

@@ -30,9 +30,8 @@ export const warranty = (f: Facts): Policy => ({
       id: "manufacturer",
       title: "Manufacturer warranties",
       body: [
-        "Some manufacturers give their own warranty for their products. When they do, the terms, length and what it covers are set by the manufacturer, usually in the product’s packaging or on the manufacturer’s website.",
-        "A manufacturer warranty is **in addition** to your legal rights; it never replaces them.",
-        "Which of our products carry a manufacturer warranty: [TBC]. Where we know of one, we will mention it on the product page.",
+        "A manufacturer’s warranty applies only if the manufacturer gives one for that product. Its terms are in the documents that come with the product or are available from the manufacturer.",
+        "You can always contact us about a problem instead of the manufacturer. A manufacturer warranty is **in addition** to your legal rights; your legal rights against us do not depend on it.",
       ],
     },
     {

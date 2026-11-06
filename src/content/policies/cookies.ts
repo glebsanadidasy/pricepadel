@@ -39,7 +39,7 @@ export const cookies = (f: Facts): Policy => ({
       id: "payment",
       title: "The payment page",
       body: [
-        "When you pay, you go to our payment provider’s secure page. That page is run by the payment provider, which may set its own cookies there (for example for security and fraud prevention) under its own cookie policy. We do not control or receive those cookies. Payment provider name and policy link: [TBC].",
+        "When you pay, you go to our payment provider’s secure page. That page is run by the payment provider, and its own terms and cookie policy apply there. The provider may set its own cookies on that page (for example for security and fraud prevention). We do not control or receive those cookies.",
       ],
     },
     {

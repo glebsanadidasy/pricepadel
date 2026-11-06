@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { userAddress } from "@/lib/addresses";
-import { readSettings } from "@/lib/catalog-store";
+import { deliveryBlock, readSettings } from "@/lib/catalog-store";
 import { requireUser } from "@/lib/auth";
 import { clearCart, readCart, resolveCart } from "@/lib/cart";
 import { getMoney } from "@/lib/currency";
@@ -18,7 +18,7 @@ export async function placeOrder(form: FormData) {
   if (!user.email_verified_at) redirect("/checkout?e=verify");
   if (form.get("terms") !== "yes") redirect("/checkout?e=terms");
   const address = userAddress(user.id, Number(form.get("address")));
-  if (!address || !readSettings().delivery.countries.includes(address.country)) redirect("/checkout?e=address");
+  if (!address || deliveryBlock(address, readSettings())) redirect("/checkout?e=address");
 
   const cart = resolveCart(await readCart());
   if (!cart.ok) redirect("/cart");

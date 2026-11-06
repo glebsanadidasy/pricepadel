@@ -25,6 +25,11 @@ export default async function OrderPage({ params }: { params: Promise<{ number: 
           {o.status}
         </span>
       </div>
+      {o.tracking_number && (
+        <p className="text-[15px]">
+          Tracking number: <b className="text-ink">{o.tracking_number}</b>
+        </p>
+      )}
       {o.status === "Awaiting payment" && (
         <form action={payAgain.bind(null, o.number)}>
           <SubmitButton>Pay now</SubmitButton>

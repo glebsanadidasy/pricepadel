@@ -32,6 +32,7 @@ export type OrderRow = {
   created_at: string;
   updated_at: string;
   paid_at: string | null;
+  tracking_number: string | null;
 };
 
 export const orderItems = (o: OrderRow) => JSON.parse(o.items_json) as OrderItem[];
@@ -161,7 +162,7 @@ const STATUS_MAIL: Partial<Record<OrderStatus, { subject: string; text: string }
     subject: "accepted",
     text: "Good news: the items in your order are available and we have accepted your order. This e-mail is our acceptance of your order (see our Terms & Conditions). We will e-mail you again when it has been dispatched.",
   },
-  Shipped: { subject: "dispatched", text: "Your order has been dispatched." },
+  Shipped: { subject: "dispatched", text: "Your order has been dispatched. Delivery usually takes 7–10 working days after payment (an estimate); we will tell you if it is delayed." },
   Delivered: { subject: "delivered", text: "Your order has been marked as delivered. If anything is wrong with it, please reply to this e-mail." },
   Cancelled: {
     subject: "cancelled",
@@ -171,13 +172,14 @@ const STATUS_MAIL: Partial<Record<OrderStatus, { subject: string; text: string }
 };
 
 /** Tells the customer about a status change made in the admin panel (saved to outbox/ until mail is connected). */
-export function sendStatusEmail(o: OrderRow, status: OrderStatus, note: string) {
+export function sendStatusEmail(o: OrderRow, status: OrderStatus, note: string, tracking?: string | null) {
   const m = STATUS_MAIL[status];
   if (!m) return;
+  const track = status === "Shipped" && tracking ? `\nTracking number: ${tracking}` : "";
   sendMail({
     to: o.email,
     subject: `Your Price Padel order ${o.number} has been ${m.subject}`,
-    text: [`Order ${o.number}`, "", m.text, note && `\nNote from us: ${note}`, "", `Questions? ${BUSINESS.email}, ${BUSINESS.phone} (${BUSINESS.hours}).`].filter((x) => x !== "").join("\n"),
+    text: [`Order ${o.number}`, "", m.text + track, note && `\nNote from us: ${note}`, "", `Questions? ${BUSINESS.email}, ${BUSINESS.phone} (${BUSINESS.hours}).`].filter((x) => x !== "").join("\n"),
   });
 }
 

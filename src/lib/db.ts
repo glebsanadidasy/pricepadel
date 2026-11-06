@@ -94,6 +94,16 @@ CREATE TABLE IF NOT EXISTS payments (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS data_complaints (
+  id INTEGER PRIMARY KEY,
+  at TEXT NOT NULL,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  order_number TEXT NOT NULL DEFAULT '',
+  message TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'open',   -- open | answered
+  answered_at TEXT
+);
 CREATE TABLE IF NOT EXISTS payment_notifications (
   id INTEGER PRIMARY KEY,
   at TEXT NOT NULL,
@@ -110,6 +120,14 @@ export function db(): DatabaseSync {
     fs.mkdirSync(path.dirname(FILE), { recursive: true });
     const d = new DatabaseSync(FILE);
     d.exec(SCHEMA);
+    // Columns added after the first release (SQLite has no "ADD COLUMN IF NOT EXISTS").
+    for (const sql of ["ALTER TABLE orders ADD COLUMN tracking_number TEXT", "ALTER TABLE users ADD COLUMN last_active_at TEXT"]) {
+      try {
+        d.exec(sql);
+      } catch {
+        /* already there */
+      }
+    }
     g.__ppDb = d;
   }
   return g.__ppDb;

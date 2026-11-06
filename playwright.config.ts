@@ -64,6 +64,7 @@ export default defineConfig({
       PAYMENT_WEBHOOK_SECRET: secrets.webhook,
       MOCK_PAYMENTS: "1",
       FX_AUTO: "0",
+      SMTP_PASS: "", // tests never send real mail: everything goes to the test outbox
     },
   },
 });

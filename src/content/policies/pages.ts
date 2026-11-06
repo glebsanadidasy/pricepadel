@@ -27,8 +27,10 @@ export const faq = (f: Facts): Policy => ({
       body: [
         `**Where do you deliver?** At the moment to ${f.countries} only.`,
         `**How much is delivery?** ${f.deliveryPrice} for orders under ${f.freeFrom}; free from ${f.freeFrom}. You see the delivery charge as a separate line before you pay.`,
-        "**How long will delivery take?** [TBC]. See our [Shipping Policy](/policies/shipping).",
-        "**Where are orders sent from?** We work with fulfilment partners, and your order may be sent from outside the UK, including from the European Union. Import charges: [TBC].",
+        "**How long will delivery take?** Usually 7–10 working days after payment. This is an estimate; if your delivery is delayed, we will let you know. See our [Shipping Policy](/policies/shipping).",
+        "**Do you deliver to Northern Ireland and the Scottish islands?** Yes. We can’t deliver to the Channel Islands, the Isle of Man, BFPO addresses or PO boxes, or to other European countries for now.",
+        "**Will I get a tracking number?** Yes — we e-mail it to you when your order is dispatched.",
+        "**Where are orders sent from?** We work with fulfilment partners, and your order may be sent from the European Union, for example from Spain. You never pay anything on delivery: if a carrier asks for import tax or customs charges, contact us and we will pay them.",
         "**My parcel is damaged or missing.** E-mail us with your order number and photos; we will arrange a replacement or refund.",
       ],
     },
@@ -37,7 +39,8 @@ export const faq = (f: Facts): Policy => ({
       title: "Returns and faulty goods",
       body: [
         "**Can I return something if I change my mind?** Yes — tell us within 14 days of delivery and send it back within 14 days after that. Details are in our [Return Policy](/policies/returns).",
-        "**Who pays for return postage?** [TBC] for change-of-mind returns. For faulty goods, we pay reasonable return costs.",
+        "**Who pays for return postage?** You do if you changed your mind. If an item is faulty or we sent the wrong one, we pay.",
+        "**Can I return socks or a mouthguard?** Only unopened. Sports underwear, socks and mouthguards in sealed packaging can’t be returned once unsealed, for hygiene reasons.",
         "**My racket broke — is that a fault?** It depends on the cause. Breaks from impacts with walls, the fence or the floor are not faults. Contact us with photos and we will look at it fairly — see our [Warranty Policy](/policies/warranty).",
       ],
     },
@@ -47,7 +50,7 @@ export const faq = (f: Facts): Policy => ({
       body: [
         "**How can I pay?** By Visa or Mastercard on our payment provider’s secure page. We never see or store your card number.",
         "**Can I pay in euros or dollars?** Yes, when an up-to-date exchange rate is available. You pay exactly the amount shown at checkout; your bank may add its own fees.",
-        "**Do prices include VAT?** [TBC].",
+        "**Will I pay anything extra?** No. The price at checkout is final; the only addition is the delivery charge shown before you pay.",
         "**My payment was declined.** You have not been charged. Open the order in your account and choose “Pay now” to try again, or contact your bank.",
       ],
     },
@@ -57,7 +60,7 @@ export const faq = (f: Facts): Policy => ({
       body: [
         "**Which sizes are shoes?** EU sizes. Check the brand’s size guide if you are unsure.",
         "**Why can’t I choose some sizes?** Only sizes in stock can be chosen. Stock changes often, so check again later.",
-        "**Are the products genuine?** [TBC].",
+        "**Are the products genuine?** Our products are branded goods sourced from an established European padel supplier. We are not an official or authorised dealer of these brands unless a product page says so.",
       ],
     },
     {
@@ -129,7 +132,7 @@ export const contact = (f: Facts): Policy => ({
       body: [
         `E-mail: [${f.email}](mailto:${f.email})`,
         `Phone: ${f.phone}`,
-        `Hours: ${f.hours}. We aim to reply to e-mails within [TBC] working days.`,
+        `Hours: ${f.hours}. We reply to e-mails within 2 working days.`,
         "Please include your order number if your question is about an order.",
       ],
     },
@@ -145,15 +148,14 @@ export const contact = (f: Facts): Policy => ({
         `${f.seller}`,
         `Company number: ${f.number} (registered in England and Wales)`,
         `Registered office: ${f.office}`,
-        "VAT number: [TBC]",
-        "The registered office is not a shop or a returns address. Return address: [TBC] — see our [Return Policy](/policies/returns).",
+        "The registered office is not a shop or a returns address. Returns go to: Unit 18C, Kingsway Buildings, Kingsway, Bridgend Industrial Estate, Bridgend, CF31 3YH — please read our [Return Policy](/policies/returns) first.",
       ],
     },
     {
       id: "complaints",
       title: "Complaints",
       body: [
-        "If something has gone wrong, e-mail us with your order number and what happened. We will look into it and reply. Our complaints process is described in section 12 of our [Terms & Conditions](/policies/terms).",
+        "If something has gone wrong, e-mail us with your order number and what happened. We confirm receipt within 2 working days and give you a full answer within 14 days. Our complaints process is described in section 12 of our [Terms & Conditions](/policies/terms).",
       ],
     },
   ],

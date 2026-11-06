@@ -16,7 +16,7 @@ const TEST_ALLOWED = process.env.NODE_ENV !== "production" || process.env.SHOW_T
 function toPublic(p: CatalogProduct, offer: Offer, s: CatalogSettings): Product {
   const markup = markupFor(p, s);
   const onSale = p.variants.filter((v) => offer.variants[v.sku]?.inStock);
-  const variants = onSale.map((v) => ({ sku: v.sku, colour: v.colour, size: v.size ?? undefined, price: retailPrice(offer.variants[v.sku].sourcePrice, markup) }));
+  const variants = onSale.map((v) => ({ sku: v.sku, colour: v.colour, size: v.size ?? undefined, price: retailPrice(offer.variants[v.sku].sourcePrice, markup, s.markup.minAmount) }));
   const colours = [...new Map(onSale.filter((v) => v.colour).map((v) => [v.colour, { name: v.colour, swatch: v.colourHex }])).values()];
   return {
     id: p.id,

@@ -63,7 +63,7 @@ function BlockView({ b }: { b: Block }) {
 const longDate = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
 /** A long policy page: title band, last-updated date, table of contents, numbered sections. */
-export function PolicyView({ policy, crumbs }: { policy: Policy; crumbs: { href: string; label: string }[] }) {
+export function PolicyView({ policy, crumbs, children }: { policy: Policy; crumbs: { href: string; label: string }[]; children?: React.ReactNode }) {
   return (
     <>
       <PageHero title={policy.title} crumbs={crumbs} />
@@ -91,6 +91,7 @@ export function PolicyView({ policy, crumbs }: { policy: Policy; crumbs: { href:
               {s.body.map((b, j) => <BlockView key={j} b={b} />)}
             </section>
           ))}
+          {children}
         </article>
       </div>
     </>

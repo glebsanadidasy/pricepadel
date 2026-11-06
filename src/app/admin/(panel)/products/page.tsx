@@ -97,7 +97,7 @@ export default async function AdminProducts({ searchParams }: { searchParams: Pr
                   </td>
                   <td className="whitespace-nowrap py-[8px] pr-[10px]">{range(priced.map((v) => v.sourcePrice))}</td>
                   <td className="py-[8px] pr-[10px]">{Math.round((m - 1) * 1000) / 10}%</td>
-                  <td className="whitespace-nowrap py-[8px] pr-[10px] font-bold text-ink">{range(priced.map((v) => retailPrice(v.sourcePrice, m)))}</td>
+                  <td className="whitespace-nowrap py-[8px] pr-[10px] font-bold text-ink">{range(priced.map((v) => retailPrice(v.sourcePrice, m, s.markup.minAmount)))}</td>
                   <td className="py-[8px] pr-[10px]">
                     {reason ? <span className="text-[#c0392b]">{reason}</span> : <span className="text-[#2e7d32]">On sale</span>}
                     <form action={setProductHidden.bind(null, p.id, !hiddenByAdmin)} className="mt-[4px]">

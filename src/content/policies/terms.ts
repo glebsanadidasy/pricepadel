@@ -17,7 +17,7 @@ export const terms = (f: Facts): Policy => ({
       title: "Who we are and how to contact us",
       body: [
         `This website is run by **${f.seller}**. ${f.company} is a company registered in England and Wales under company number **${f.number}**. Our registered office is ${f.office}.`,
-        `You can contact us by e-mail at [${f.email}](mailto:${f.email}) or by phone on ${f.phone} (${f.hours}). Our VAT number is [TBC].`,
+        `You can contact us by e-mail at [${f.email}](mailto:${f.email}) or by phone on ${f.phone} (${f.hours}).`,
         "When we write to you, we will use the e-mail address you gave when you created your account or placed your order.",
       ],
     },
@@ -35,7 +35,7 @@ export const terms = (f: Facts): Policy => ({
       title: "Your account",
       body: [
         "You can browse the shop and fill your cart without an account. To place an order you need an account with a confirmed e-mail address: we send you a link when you register.",
-        "You must be at least [TBC] years old to create an account and place an order.",
+        "You must be at least 18 years old to create an account and place an order.",
         "Please keep your password private and tell us straight away if you think someone else has used your account. You can change your password at any time with the “Forgot your password?” link.",
         "You can ask us to delete your account from the “Delete account” page in your account. We keep records of orders for as long as the law requires — see our [Privacy Policy](/policies/privacy).",
       ],
@@ -55,9 +55,9 @@ export const terms = (f: Facts): Policy => ({
       title: "Prices, delivery charges and pricing errors",
       body: [
         "Prices are shown in pounds sterling (£). If you choose euros or US dollars, we convert our prices using the exchange rate shown on the website, and you pay exactly the amount shown at checkout. Your bank may charge its own fees.",
-        "Whether our prices include VAT: [TBC].",
+        "The price you see at checkout is the final price. No taxes or charges are added on top, apart from the delivery charge shown.",
         `Delivery costs ${f.deliveryPrice} for orders under ${f.freeFrom} and is free for orders of ${f.freeFrom} or more. The delivery charge is shown as a separate line in your cart and at checkout, and the total you see before you pay includes every charge you have to pay to us. There are no other fees from us.`,
-        "Import duties or taxes may apply if your order is sent from outside the UK: [TBC]. See our [Shipping Policy](/policies/shipping).",
+        "You do not pay anything when your order is delivered. Some orders are sent from the European Union; if a carrier ever asks you for import tax or customs charges, contact us and we will pay them. See our [Shipping Policy](/policies/shipping).",
         "We check prices carefully, but mistakes can happen. If we find that a price was clearly wrong (for example, a price that is obviously far too low), we will tell you before we accept your order and you can choose to order at the correct price or cancel. If you cancel, we refund what you paid in full.",
       ],
     },
@@ -76,9 +76,9 @@ export const terms = (f: Facts): Policy => ({
             "**The contract between you and us is made when we e-mail you to say that we have accepted your order.**",
           ],
         },
-        "If an item is not available, we will tell you by e-mail and cancel the order for that item (or the whole order, if you prefer). We refund the amount you paid for anything we cannot supply, including the delivery charge if no items are sent, without undue delay and within 14 days of telling you.",
+        "If an item is not available, we will tell you by e-mail and cancel the order for that item (or the whole order, if you prefer). We refund the amount you paid for anything we cannot supply, including the delivery charge if no items are sent, as soon as possible and no later than 14 days after telling you.",
         "We may also refuse an order, for example if the price was clearly wrong (see section 5) or we cannot deliver to your address. If we do, we refund you in full.",
-        "We will tell you if we expect a delay in confirming your order. If we have not accepted your order within [TBC] days of payment, you can ask us to cancel it and we will refund you in full.",
+        "We accept or decline your order within 2 working days of payment. If we have not done so by then, you can ask us to cancel it and we will refund you in full.",
       ],
     },
     {
@@ -99,13 +99,13 @@ export const terms = (f: Facts): Policy => ({
           list: [
             "You can cancel at any time from placing your order until **14 days after the day you (or someone you nominate) receive the goods**. If your order arrives in separate deliveries, the 14 days run from the day you receive the last item.",
             "To cancel, tell us clearly — for example by e-mail to " + f.email + " or by using the model cancellation form in our [Returns Policy](/policies/returns).",
-            "Send the goods back within 14 days of telling us. The return address and who pays for the return: [TBC] — see our [Returns Policy](/policies/returns).",
+            "Send the goods back within 14 days of telling us, to our returns address in our [Returns Policy](/policies/returns). If you have simply changed your mind, you pay for the return postage.",
             "We refund the price you paid and the standard delivery charge within 14 days of receiving the goods back, or of you showing us proof that you sent them back, whichever is earlier. If you cancel before the goods are sent, we refund you within 14 days of you telling us.",
             "We refund using the same card you paid with.",
           ],
         },
         "You can handle the goods as you would in a shop to check them, but please do not use them (for example, do not play with a racket or wear shoes outdoors). If the goods have lost value because they were handled more than that, we may reduce your refund by that amount.",
-        "Some goods cannot be returned once unsealed for health protection or hygiene reasons (for example, [TBC]). We say so on the product page where this applies.",
+        "Goods supplied in sealed packaging that are not suitable for return for health protection or hygiene reasons cannot be returned once unsealed: sports underwear, socks and mouthguards.",
       ],
     },
     {
@@ -145,8 +145,8 @@ export const terms = (f: Facts): Policy => ({
       id: "complaints",
       title: "Complaints",
       body: [
-        `If you are unhappy with anything, please contact us at [${f.email}](mailto:${f.email}) or on ${f.phone}, with your order number. We aim to reply within [TBC] working days.`,
-        "We will look into your complaint, tell you what we found and what we will do. When we give you our final answer, we will also tell you about any alternative dispute resolution (ADR) scheme we are obliged to use. Whether such a scheme applies to us: [TBC].",
+        `If you are unhappy with anything, please contact us at [${f.email}](mailto:${f.email}) or on ${f.phone}, with your order number. We confirm that we have received your complaint within 2 working days and give you a full answer within 14 days.`,
+        "We will look into your complaint, tell you what we found and what we will do. We are not obliged to use an alternative dispute resolution (ADR) scheme and we do not take part in one.",
         "You can also get free advice from Citizens Advice, and you keep your right to go to court (see section 13).",
       ],
     },

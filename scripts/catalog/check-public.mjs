@@ -3,6 +3,7 @@
 //   - every product page checked shows the right retail price (source × markup) and only in-stock sizes
 //   - hidden products answer 404
 // Needs a running site:  node scripts/catalog/check-public.mjs [baseUrl] [--sample N]
+import { retailFor } from "./lib/pricing.mjs";
 import { CATALOG_FILE, offersFile, readJson, SETTINGS_FILE, SOURCE } from "./lib/store.mjs";
 
 const args = process.argv.slice(2);
@@ -11,7 +12,6 @@ const SAMPLE = Number(args[args.indexOf("--sample") + 1]) || Infinity;
 const items = readJson(CATALOG_FILE, []);
 const offers = readJson(offersFile(SOURCE.id), {});
 const settings = readJson(SETTINGS_FILE, {});
-const markupFor = (p) => settings.markup?.byBrand?.[p.brand] ?? settings.markup?.byCategory?.[p.category] ?? settings.markup?.default ?? 1.15;
 const gbp = (pence) => `£${(pence / 100).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const hiddenPhotos = new Set(settings.hiddenPhotos ?? []);
 const onSaleCheck = (p) =>
@@ -60,10 +60,9 @@ for (const p of toCheck) {
     continue;
   }
   scan(path, body, [p]);
-  const m = markupFor(p);
   const vs = p.variants.map((v) => ({ ...v, ...offers[p.id].variants[v.sku] }));
   const stock = vs.filter((v) => v.inStock);
-  const retail = stock.map((v) => Math.round(v.sourcePrice * m));
+  const retail = stock.map((v) => retailFor(p, v.sourcePrice, settings));
   for (const r of new Set(retail)) if (!body.includes(gbp(r))) problems.push(`${path}: retail price ${gbp(r)} not shown`);
   // A source price must not appear unless it happens to equal a retail price on the page.
   for (const v of vs) {

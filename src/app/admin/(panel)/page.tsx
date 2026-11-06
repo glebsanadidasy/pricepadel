@@ -28,10 +28,19 @@ export default async function AdminOverview() {
     deletion_requested_at: string;
   }[];
 
+  const openComplaints = (db().prepare("SELECT COUNT(*) AS n FROM data_complaints WHERE status = 'open'").get() as { n: number }).n;
   const fxProblems = FX_CODES.map((c) => ({ c, r: rateInfo(c, s.fx) })).filter((x) => !x.r.enabled);
 
   return (
     <>
+    {openComplaints > 0 && (
+      <p role="alert" className="mt-[20px] border-l-4 border-[#c0392b] bg-[#fdecea] px-[16px] py-[10px] text-[15px] text-ink">
+        {openComplaints} open data protection complaint(s).{" "}
+        <Link href="/admin/complaints" className="text-royal underline">
+          Data complaints
+        </Link>
+      </p>
+    )}
     {fxProblems.length > 0 && (
       <p role="alert" className="mt-[20px] border-l-4 border-[#c0392b] bg-[#fdecea] px-[16px] py-[10px] text-[15px] text-ink">
         Currency switched off: {fxProblems.map((x) => `${x.c} (${x.r.problem})`).join(", ")}. Customers see GBP only.{" "}

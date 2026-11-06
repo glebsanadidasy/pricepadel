@@ -75,7 +75,7 @@ export default async function AdminProduct({ params }: { params: Promise<{ id: s
                   <td>{v.size ?? "—"}</td>
                   <td>{o?.inStock ? "in stock" : "out"}</td>
                   <td>{o ? formatGbp(o.sourcePrice) : "—"}</td>
-                  <td className="font-bold text-ink">{o ? formatGbp(retailPrice(o.sourcePrice, m)) : "—"}</td>
+                  <td className="font-bold text-ink">{o ? formatGbp(retailPrice(o.sourcePrice, m, s.markup.minAmount)) : "—"}</td>
                 </tr>
               );
             })}

@@ -42,11 +42,14 @@ function nonPadelKind(rec) {
 } // px; smaller files are thumbnails, not product photos
 
 export const DEFAULT_SETTINGS = {
-  markup: { default: 1.15, byCategory: {}, byBrand: {} },
+  markup: { default: 1.15, minAmount: 300, byCategory: {}, byBrand: {} },
+  assumptions: { gatewayFeePct: 3 },
   // Customer pays `price` below `freeFrom` (pence), UK only for now; ourCostTiers = what delivery costs us, by order value.
   delivery: {
     customer: { price: 1295, freeFrom: 10000 },
     countries: ["GB"],
+    blockedPostcodes: ["GY", "JE", "IM", "BFPO"],
+    noPoBoxes: true,
     ourCostTiers: [
       { below: 8500, price: 1295 },
       { below: 17000, price: 695 },
@@ -203,6 +206,7 @@ async function savePhoto(srcAbs, outAbs) {
 function migrateSettings(s) {
   const out = { ...DEFAULT_SETTINGS, ...s };
   out.markup = { ...DEFAULT_SETTINGS.markup, ...s.markup };
+  out.assumptions = { ...DEFAULT_SETTINGS.assumptions, ...s.assumptions };
   out.delivery = { ...DEFAULT_SETTINGS.delivery, ...(s.delivery?.ourCostTiers ? s.delivery : {}) };
   out.delivery.customer = { ...DEFAULT_SETTINGS.delivery.customer, ...s.delivery?.customer };
   delete out.delivery.customerPrice; // replaced by delivery.customer (owner, stage 4)

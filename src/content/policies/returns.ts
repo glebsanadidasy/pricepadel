@@ -19,7 +19,7 @@ export const returns = (f: Facts): Policy => ({
           table: [
             ["", "Changed your mind", "Faulty or not as described"],
             ["How long", "14 days after delivery to tell us, then 14 days to send the goods back", "Contact us as soon as you notice; see section 7 for time limits"],
-            ["Return postage", "[TBC]", "We pay reasonable costs"],
+            ["Return postage", "You pay", "We pay"],
             ["What you get back", "Price of the goods + standard delivery charge", "Refund, repair or replacement depending on timing"],
             ["Refund time", "Within 14 days of us receiving the goods back (or proof of posting)", "Without undue delay, within 14 days of agreeing a refund"],
           ],
@@ -78,11 +78,11 @@ export const returns = (f: Facts): Policy => ({
       title: "Sending goods back",
       body: [
         "Please send the goods back **within 14 days of telling us you are cancelling**.",
-        "Return address: [TBC]. Please do not send returns to our registered office unless we ask you to.",
-        "Who pays for return postage when you change your mind: [TBC].",
+        "Return address: **Price Padel Returns, Unit 18C, Kingsway Buildings, Kingsway, Bridgend Industrial Estate, Bridgend, CF31 3YH**. Please don’t send returns to our registered office.",
+        "If you have changed your mind, you pay for the return postage. If the goods are faulty or we sent you the wrong item, we pay for the return.",
         "Pack the goods carefully, include your order number, and keep proof of postage. We recommend a tracked service, because goods are your responsibility until they reach us.",
         "You can handle the goods as you would in a shop to check them (for example, try shoes on indoors on a clean surface). If they have been used beyond that — for example a racket used for play or shoes worn outdoors — we may reduce your refund to reflect the loss in value.",
-        "Goods that are sealed for health protection or hygiene reasons cannot be returned once the seal has been broken. Which products this applies to: [TBC]; we will say so on the product page.",
+        "Goods supplied in sealed packaging that are not suitable for return for health protection or hygiene reasons cannot be returned once unsealed: **sports underwear, socks and mouthguards**. You can still return them unopened, and your rights for faulty goods always apply.",
       ],
     },
     {
@@ -110,7 +110,7 @@ export const returns = (f: Facts): Policy => ({
             "**After 6 months** you still have rights, but you may need to show the fault was there at delivery.",
           ],
         },
-        `Please e-mail [${f.email}](mailto:${f.email}) with your order number, a description of the problem and photos. We will tell you how to return the item; we pay the reasonable cost of returning faulty goods. Normal wear and tear, accidental damage and damage from misuse (for example, a racket hitting the wall or the floor) are not faults.`,
+        `Please e-mail [${f.email}](mailto:${f.email}) with your order number, a description of the problem and photos. We will tell you how to return the item; we pay the cost of returning faulty goods or a wrong item we sent. Normal wear and tear, accidental damage and damage from misuse (for example, a racket hitting the wall or the floor) are not faults.`,
         "Manufacturer warranties, where offered, are explained in our [Warranty Policy](/policies/warranty). They are in addition to these rights.",
       ],
     },

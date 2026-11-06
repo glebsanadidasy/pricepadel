@@ -98,6 +98,7 @@ export default async function AdminOrder({ params }: { params: Promise<{ number:
                   <option key={s}>{s}</option>
                 ))}
               </select>
+              <input name="tracking" defaultValue={o.tracking_number ?? ""} placeholder="Tracking number (sent with “Shipped”)" className="h-[38px] w-full border border-line px-[8px]" />
               <input name="note" placeholder="Note (optional)" className="h-[38px] w-full border border-line px-[8px]" />
               <button type="submit" className={adminButton}>
                 Update status

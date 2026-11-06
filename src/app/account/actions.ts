@@ -8,7 +8,7 @@ import {
   attemptKey, currentUser, hashPassword, randomToken, recordAttempt, requireUser, sha256, signInCustomer, signOutCustomer, siteUrl, tooManyAttempts, verifyPassword,
 } from "@/lib/auth";
 import { getProductById } from "@/lib/catalog";
-import { readSettings } from "@/lib/catalog-store";
+import { deliveryBlock, readSettings } from "@/lib/catalog-store";
 import { db, now } from "@/lib/db";
 import { sendMail } from "@/lib/mail";
 
@@ -141,7 +141,9 @@ export async function addAddress(_: FormState, form: FormData): Promise<FormStat
     phone: str(form, "phone", 30),
   };
   if (!a.full_name || !a.line1 || !a.city || !a.postcode) return { error: "Please fill in name, address, city and postcode." };
-  if (!isCountry(a.country) || !readSettings().delivery.countries.includes(a.country)) return { error: "We currently deliver to the UK only — please choose a country from the list." };
+  if (!isCountry(a.country)) return { error: "We currently deliver to the UK only — please choose a country from the list." };
+  const blocked = deliveryBlock(a, readSettings());
+  if (blocked) return { error: blocked };
   const count = (db().prepare("SELECT COUNT(*) AS n FROM addresses WHERE user_id = ?").get(u.id) as { n: number }).n;
   if (count >= 10) return { error: "You can keep up to 10 addresses." };
   db()

@@ -103,6 +103,7 @@ async function endSession(kind: "customer" | "admin") {
 
 export async function signInCustomer(userId: number) {
   await startSession("customer", userId);
+  db().prepare("UPDATE users SET last_active_at = ? WHERE id = ?").run(now(), userId);
 }
 
 export async function signOutCustomer() {

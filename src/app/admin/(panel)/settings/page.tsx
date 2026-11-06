@@ -22,9 +22,18 @@ export default async function SettingsPage() {
     <div className="mt-[24px] grid gap-[20px] lg:grid-cols-2">
       <Card title="Markup">
         <form action={saveMarkups}>
-          <p>Retail price = source price × (1 + markup). A brand markup wins over a category markup, which wins over the default. Leave a field empty to inherit.</p>
+          <p>
+            Retail price = the larger of source price × (1 + markup) and source price + minimum markup. A brand markup wins over a category markup, which wins over the
+            default. Leave a field empty to inherit.
+          </p>
           <label className="mt-[12px] block font-bold text-ink">
             Default, % <input name="default" defaultValue={pct(s.markup.default)} inputMode="decimal" className={adminInput} required />
+          </label>
+          <label className="mt-[8px] block font-bold text-ink">
+            Minimum markup, £ <input name="minAmount" defaultValue={pounds(s.markup.minAmount)} inputMode="decimal" className={adminInput} required />
+          </label>
+          <label className="mt-[8px] block text-ink">
+            Card fee assumption for the margin report, % <input name="gatewayFeePct" defaultValue={s.assumptions.gatewayFeePct} inputMode="decimal" className={adminInput} />
           </label>
           <div className="mt-[14px] grid gap-[24px] sm:grid-cols-2">
             <fieldset>
@@ -123,6 +132,13 @@ export default async function SettingsPage() {
             <label className="flex items-center gap-[10px]">
               Countries (codes) <input name="countries" defaultValue={s.delivery.countries.join(", ")} className="h-[36px] w-[160px] border border-line px-[8px] text-ink" />
               <span className="text-[13px]">GB = UK only</span>
+            </label>
+            <label className="flex flex-wrap items-center gap-[10px]">
+              Blocked postcode areas <input name="blockedPostcodes" defaultValue={s.delivery.blockedPostcodes.join(", ")} className="h-[36px] w-[200px] border border-line px-[8px] text-ink" />
+              <span className="text-[13px]">GY, JE = Channel Islands, IM = Isle of Man</span>
+            </label>
+            <label className="flex items-center gap-[8px]">
+              <input type="checkbox" name="noPoBoxes" value="yes" defaultChecked={s.delivery.noPoBoxes} /> No delivery to PO boxes
             </label>
             <p className="pt-[8px] font-bold text-ink">Our delivery cost (what we pay), by order value at the source</p>
             <label className="flex items-center gap-[10px]">

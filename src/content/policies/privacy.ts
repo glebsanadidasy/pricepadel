@@ -16,7 +16,7 @@ export const privacy = (f: Facts): Policy => ({
       title: "Who is responsible for your data",
       body: [
         `The controller of your personal data is **${f.company}** (trading as Price Padel), company number ${f.number}, registered office ${f.office}.`,
-        `For anything about your data, contact us at [${f.email}](mailto:${f.email}) or ${f.phone}. Our registration number with the Information Commissioner’s Office (ICO): [TBC].`,
+        `For anything about your data, contact us at [${f.email}](mailto:${f.email}) or ${f.phone}.`,
       ],
     },
     {
@@ -68,7 +68,7 @@ export const privacy = (f: Facts): Policy => ({
             "**Payment provider** — processes your card payment on its own secure page and tells us whether it succeeded.",
             "**E-mail service provider** — sends our account and order e-mails.",
             "**Fulfilment and delivery partners** — receive the items ordered, your name, delivery address and, where needed for delivery, your phone number, so they can pack and deliver your order.",
-            "**Hosting and IT service providers** that run this website: [TBC].",
+            "**Hosting and IT service providers** that run this website and store its data.",
             "**Professional advisers** (such as accountants or lawyers) where needed, and **authorities** such as HMRC or the police where the law requires it.",
           ],
         },
@@ -80,7 +80,7 @@ export const privacy = (f: Facts): Policy => ({
       title: "Transfers outside the UK",
       body: [
         "Some of our partners are based outside the UK, including in the European Economic Area (EEA), for example fulfilment partners who send orders from the European Union. The UK recognises EEA countries as providing adequate protection for personal data.",
-        "If data is transferred to other countries, we will use a safeguard recognised by UK law, such as the UK International Data Transfer Agreement or Addendum. Which providers and countries are involved: [TBC]. You can ask us for details.",
+        "Your data may therefore be transferred outside the UK, including to the EEA. If data is transferred to a country without UK adequacy regulations, we use a safeguard recognised by UK law, such as the UK International Data Transfer Agreement or Addendum. You can ask us for details.",
       ],
     },
     {
@@ -90,12 +90,13 @@ export const privacy = (f: Facts): Policy => ({
         {
           table: [
             ["Data", "How long"],
-            ["Account, addresses and wishlist", "Until you ask us to delete your account, or after [TBC] years without activity"],
-            ["Orders and payment records", "As long as tax and company law require: [TBC] years after the end of the financial year of the order"],
+            ["Account, addresses and wishlist", "Until you ask us to delete your account. An account with no activity for 3 years is deleted; we e-mail you 30 days before"],
+            ["Orders and payment records", "6 years after the end of the financial year in which the order was placed"],
             ["Sign-in sessions", "Up to 30 days, or until you sign out"],
             ["Records of sign-in, registration and password reset attempts (with IP address)", "24 hours"],
             ["E-mail confirmation links", "48 hours; password reset links 1 hour (each works once)"],
-            ["Messages and complaints", "[TBC]"],
+            ["Ordinary messages to and from us", "2 years"],
+            ["Complaints (including data protection complaints)", "6 years"],
           ],
         },
       ],
@@ -122,7 +123,7 @@ export const privacy = (f: Facts): Policy => ({
       id: "complain",
       title: "Complaints to the ICO",
       body: [
-        `If you are unhappy with how we use your data, you can complain to us first: e-mail [${f.email}](mailto:${f.email}) with “Data protection complaint” in the subject. We will acknowledge your complaint within 30 days, look into it without undue delay and tell you the outcome. An online complaint form: [TBC].`,
+        `If you are unhappy with how we use your data, you can complain to us first: e-mail [${f.email}](mailto:${f.email}) with “Data protection complaint” in the subject. You can also use the [data protection complaint form](/contact#data-complaint) on our Contact page — no account needed. We will acknowledge your complaint within 2 working days and give you a full answer within 14 days.`,
         "You also have the right to complain to the Information Commissioner’s Office: [ico.org.uk/make-a-complaint](https://ico.org.uk/make-a-complaint/), phone 0303 123 1113.",
       ],
     },

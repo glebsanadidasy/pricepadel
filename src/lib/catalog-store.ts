@@ -49,12 +49,22 @@ export type FxEntry = { ecb: number | null; ecbDate: string | null; manual: numb
 export type FxSettings = { marginPct: number; fetchedAt?: string | null; lastError?: string | null; EUR: FxEntry; USD: FxEntry };
 
 export type CatalogSettings = {
-  markup: { default: number; byCategory: Partial<Record<Category, number>>; byBrand: Record<string, number> };
+  /** Retail = the larger of source × markup and source + minAmount (pence). */
+  markup: { default: number; minAmount: number; byCategory: Partial<Record<Category, number>>; byBrand: Record<string, number> };
+  /** Planning assumptions for the margin report (not charged to anyone). */
+  assumptions: { gatewayFeePct: number };
   /**
    * Customer delivery: `price` (pence) for orders below `freeFrom` (pence), free from it; `countries` we deliver to.
    * `ourCostTiers`: what delivery costs us, by the order's value at the source.
    */
-  delivery: { customer: { price: number; freeFrom: number }; countries: string[]; ourCostTiers: DeliveryTier[] };
+  delivery: {
+    customer: { price: number; freeFrom: number };
+    countries: string[];
+    /** Postcode areas we can't deliver to (start of the postcode), plus PO boxes when `noPoBoxes`. */
+    blockedPostcodes: string[];
+    noPoBoxes: boolean;
+    ourCostTiers: DeliveryTier[];
+  };
   fx: FxSettings;
   rewriteApproved: boolean;
   hiddenSources: string[];
@@ -69,10 +79,14 @@ const PRODUCTS_FILE = path.join(CATALOG_DIR, "products.json");
 const SETTINGS_FILE = path.join(CATALOG_DIR, "settings.json");
 
 export const DEFAULT_SETTINGS: CatalogSettings = {
-  markup: { default: 1.15, byCategory: {}, byBrand: {} },
+  markup: { default: 1.15, minAmount: 300, byCategory: {}, byBrand: {} },
+  assumptions: { gatewayFeePct: 3 },
   delivery: {
     customer: { price: 1295, freeFrom: 10000 },
     countries: ["GB"],
+    // Channel Islands (Guernsey GY, Jersey JE), Isle of Man (IM), British Forces (BFPO).
+    blockedPostcodes: ["GY", "JE", "IM", "BFPO"],
+    noPoBoxes: true,
     ourCostTiers: [
       { below: 8500, price: 1295 },
       { below: 17000, price: 695 },
@@ -143,6 +157,7 @@ export function readSettings(): CatalogSettings {
     ...DEFAULT_SETTINGS,
     ...s,
     markup: { ...DEFAULT_SETTINGS.markup, ...s.markup },
+    assumptions: { ...DEFAULT_SETTINGS.assumptions, ...s.assumptions },
     delivery: { ...DEFAULT_SETTINGS.delivery, ...s.delivery, customer: { ...DEFAULT_SETTINGS.delivery.customer, ...s.delivery?.customer } },
     fx: { ...DEFAULT_SETTINGS.fx, ...s.fx, EUR: { ...DEFAULT_SETTINGS.fx.EUR, ...s.fx?.EUR }, USD: { ...DEFAULT_SETTINGS.fx.USD, ...s.fx?.USD } },
   };
@@ -157,14 +172,27 @@ export function markupFor(p: Pick<CatalogProduct, "brand" | "category">, s: Cata
   return s.markup.byBrand[p.brand] ?? s.markup.byCategory[p.category] ?? s.markup.default;
 }
 
-/** Retail GBP pence = source price × markup, rounded to the penny. */
-export function retailPrice(sourcePence: number, markup: number) {
-  return Math.round(sourcePence * markup);
+/** Retail GBP pence = the larger of source × markup (rounded to the penny) and source + the minimum markup amount. */
+export function retailPrice(sourcePence: number, markup: number, minAmount: number) {
+  return Math.max(Math.round(sourcePence * markup), sourcePence + minAmount);
 }
 
 /** What the customer pays for delivery of an order with this subtotal (GBP pence). */
 export function customerDelivery(subtotal: number, s: CatalogSettings) {
   return subtotal >= s.delivery.customer.freeFrom ? 0 : s.delivery.customer.price;
+}
+
+const PO_BOX = /\bP\.?\s*O\.?\s*BOX\b|\bPOST\s*OFFICE\s*BOX\b|\bPOBOX\b/i;
+
+/** Why we can't deliver to this address (customer-facing message), or null. */
+export function deliveryBlock(a: { country: string; postcode: string; line1: string; line2: string }, s: CatalogSettings): string | null {
+  if (!s.delivery.countries.includes(a.country)) return "We currently deliver to the UK only.";
+  const pc = a.postcode.toUpperCase().replace(/\s+/g, "");
+  // A blocked area matches only as a whole postcode area: "IM1 1AA" is the Isle of Man, but "IP…" or "IMx" letters elsewhere are not.
+  if (s.delivery.blockedPostcodes.some((b) => pc.startsWith(b.toUpperCase()) && (b.toUpperCase() === "BFPO" || /\d/.test(pc.charAt(b.length)))))
+    return "Sorry, we can’t deliver to the Channel Islands, the Isle of Man or BFPO addresses. Please use another UK address.";
+  if (s.delivery.noPoBoxes && (PO_BOX.test(a.line1) || PO_BOX.test(a.line2))) return "Sorry, we can’t deliver to PO boxes. Please use a street address.";
+  return null;
 }
 
 /** What delivery of an order costs us (GBP pence), by the order's value at the source. */

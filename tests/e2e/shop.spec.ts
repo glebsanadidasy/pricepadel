@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { addToCart, answerCookies, checkoutToGateway, deliveryFor, mails, orderStatus, paymentIdFromUrl, registerAndVerify, signedNotification, simpleProduct, uniqueEmail, PASSWORD } from "./helpers";
+import { retailOf, addToCart, answerCookies, checkoutToGateway, deliveryFor, mails, orderStatus, paymentIdFromUrl, registerAndVerify, signedNotification, simpleProduct, uniqueEmail, PASSWORD } from "./helpers";
 
 const product = simpleProduct();
-const retail = Math.round(product.sourcePrice * 1.15);
+const retail = retailOf(product.sourcePrice);
 const delivery = deliveryFor(retail);
 const total = retail + delivery;
 
@@ -81,7 +81,7 @@ test("declined and cancelled payments leave the order unpaid, and paying again w
   expect(await orderStatus(page, number)).toBe("Awaiting payment");
 
   await page.getByRole("button", { name: "Pay now" }).click();
-  await expect(page.getByText("Test payment page")).toBeVisible();
+  await expect(page.getByText("Test payment page — simulation").first()).toBeVisible();
   await page.getByRole("button", { name: "Cancel and return" }).click();
   await expect(page.getByText("The payment was cancelled.")).toBeVisible();
   expect(await orderStatus(page, number)).toBe("Awaiting payment");

@@ -7,7 +7,7 @@ import { Notice, SubmitButton } from "@/components/ui/Form";
 import { countryName } from "@/config/countries";
 import { resendVerification } from "@/app/account/actions";
 import { userAddresses } from "@/lib/addresses";
-import { readSettings } from "@/lib/catalog-store";
+import { deliveryBlock, readSettings } from "@/lib/catalog-store";
 import { requireUser } from "@/lib/auth";
 import { readCart, resolveCart } from "@/lib/cart";
 import { getMoney } from "@/lib/currency";
@@ -17,7 +17,7 @@ export const metadata: Metadata = { title: "Checkout", robots: { index: false } 
 
 const ERRORS: Record<string, string> = {
   terms: "Please accept the Terms & Conditions to continue.",
-  address: "Please choose a delivery address.",
+  address: "Please choose a delivery address we can deliver to (UK mainland, Northern Ireland and Scottish islands; not the Channel Islands, Isle of Man, BFPO or PO boxes).",
   changed: "Prices or stock changed while you were checking out. Please review the updated summary.",
   verify: "Please confirm your e-mail before placing an order.",
 };
@@ -27,8 +27,10 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
   const cart = resolveCart(await readCart());
   if (cart.lines.length === 0 || !cart.ok) redirect("/cart");
   const money = await getMoney();
-  const deliverTo = readSettings().delivery.countries;
-  const addresses = userAddresses(user.id).filter((a) => deliverTo.includes(a.country));
+  const settings = readSettings();
+  const deliverTo = settings.delivery.countries;
+  // Saved addresses we can't deliver to (Channel Islands, Isle of Man, BFPO, PO box…) are not offered.
+  const addresses = userAddresses(user.id).filter((a) => !deliveryBlock(a, settings));
   const error = ERRORS[(await searchParams).e ?? ""];
 
   return (

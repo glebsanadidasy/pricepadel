@@ -30,7 +30,7 @@ export function simpleProduct(minRetail = 0, maxRetail = Infinity) {
     variants: { sku: string; size: string | null }[];
   }[];
   const offers = JSON.parse(fs.readFileSync(path.join(DATA, "sources/pn-uk/offers.json"), "utf8")) as Record<string, { variants: Record<string, { inStock: boolean; sourcePrice: number }> }>;
-  const retail = (x: (typeof products)[number]) => Math.round(offers[x.id].variants[x.variants[0].sku].sourcePrice * 1.15);
+  const retail = (x: (typeof products)[number]) => retailOf(offers[x.id].variants[x.variants[0].sku].sourcePrice);
   const p = products.find(
     (x) =>
       !x.hidden &&
@@ -44,6 +44,9 @@ export function simpleProduct(minRetail = 0, maxRetail = Infinity) {
   if (!p) throw new Error(`No simple in-stock product between ${minRetail} and ${maxRetail} pence in the test catalogue`);
   return { ...p, sourcePrice: offers[p.id].variants[p.variants[0].sku].sourcePrice };
 }
+
+/** Default price rule: the larger of source × 1.15 and source + £3. */
+export const retailOf = (source: number) => Math.max(Math.round(source * 1.15), source + 300);
 
 export const PASSWORD = "correct horse battery";
 
@@ -81,7 +84,7 @@ export async function checkoutToGateway(page: Page) {
   }
   await page.getByLabel(/I have read and accept/).check();
   await page.getByRole("button", { name: "Pay by card" }).click();
-  await expect(page.getByText("Test payment page")).toBeVisible();
+  await expect(page.getByText("Test payment page — simulation").first()).toBeVisible();
   const heading = await page.getByText(/Order PP\d+/).textContent();
   return heading!.match(/PP\d+/)![0];
 }

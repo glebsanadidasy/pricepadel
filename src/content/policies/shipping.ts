@@ -16,7 +16,9 @@ export const shipping = (f: Facts): Policy => ({
       title: "Where we deliver",
       body: [
         `We currently deliver to addresses in **${f.countries}** only. At checkout you can only choose a delivery address in a country we deliver to.`,
-        "Whether we deliver to the Channel Islands, the Isle of Man, Scottish Highlands and islands, Northern Ireland, BFPO addresses and PO boxes: [TBC].",
+        "This includes Northern Ireland, the Scottish Highlands and the Scottish islands.",
+        "We cannot deliver to the Channel Islands (Jersey, Guernsey and their islands), the Isle of Man, BFPO addresses or PO boxes. Checkout will tell you if your address is one of these.",
+        "We cannot take orders for delivery to other European countries at the moment.",
       ],
     },
     {
@@ -46,14 +48,14 @@ export const shipping = (f: Facts): Policy => ({
             "Your order is dispatched and we e-mail you to let you know.",
           ],
         },
-        "Tracking information: [TBC].",
+        "When your order is dispatched, we e-mail you the tracking number.",
       ],
     },
     {
       id: "times",
       title: "Delivery times",
       body: [
-        "Estimated delivery times: [TBC]. We will not promise a delivery date we cannot keep.",
+        "Delivery usually takes **7–10 working days after payment**. This is an estimate, not a guaranteed date. If your delivery is delayed, we will let you know.",
         "Unless we agree a different date with you, we deliver without undue delay and no later than 30 days after we accept your order. If we cannot deliver within that time, we will tell you, and you may cancel and get a full refund.",
       ],
     },
@@ -61,8 +63,8 @@ export const shipping = (f: Facts): Policy => ({
       id: "from",
       title: "Where orders are sent from",
       body: [
-        "We work with fulfilment partners. Your order may be sent from outside the UK, including from a country in the European Union.",
-        "Import VAT, customs duties and any handling fees for orders sent from outside the UK: [TBC]. We will make sure the total you see at checkout includes everything you have to pay to us; how any import charges are handled will be explained here before we take orders that could be subject to them.",
+        "We work with fulfilment partners. Your order may be sent from outside the UK, including from the European Union (for example from Spain).",
+        "**You do not pay anything on delivery.** The price at checkout is final. If a carrier asks you for import VAT, customs duty or a handling fee, please don’t pay it — contact us and we will cover these costs.",
       ],
     },
     {
@@ -70,7 +72,7 @@ export const shipping = (f: Facts): Policy => ({
       title: "Receiving your order",
       body: [
         "Please check that your delivery address is complete and correct, including the postcode. If it is wrong, delivery can be delayed or fail.",
-        "What happens if nobody is in when the carrier calls: [TBC] (this depends on the carrier).",
+        "If nobody is in, the carrier usually tries again the next working day. Where the carrier allows it, you can choose to have the parcel delivered to a nearby address or collection point instead. If a parcel is returned to us, we will contact you to arrange what happens next.",
         "The goods are your responsibility once they are delivered to you or to someone you nominate.",
       ],
     },
