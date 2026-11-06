@@ -30,6 +30,8 @@ if (!process.env.PP_TEST_DATA_READY) {
     EUR: { ecb: 1.19, ecbDate: old, manual: 1.2, manualAt: new Date().toISOString() },
     USD: { ecb: 1.34, ecbDate: old, manual: null, manualAt: null },
   };
+  // Most tests check GBP prices; the EUR-only shop setting is tested on its own (stage9.spec.ts).
+  settings.currencies = ["GBP", "EUR", "USD"];
   fs.writeFileSync(settingsFile, JSON.stringify(settings, null, 2));
   fs.writeFileSync(
     path.join(DATA, "secrets.json"),

@@ -55,7 +55,7 @@ export const terms = (f: Facts): Policy => ({
       id: "prices",
       title: "Prices, delivery charges and pricing errors",
       body: [
-        "Prices are shown in pounds sterling (£). If you choose euros or US dollars, we convert our prices using the exchange rate shown on the website, and you pay exactly the amount shown at checkout. Your bank may charge its own fees.",
+        `${f.currencyText} Your bank may charge its own fees.`,
         "The price you see at checkout is the final price. No taxes or charges are added on top, apart from the delivery charge shown.",
         `Delivery costs ${f.deliveryPrice} for orders under ${f.freeFrom} and is free for orders of ${f.freeFrom} or more. The delivery charge is shown as a separate line in your cart and at checkout, and the total you see before you pay includes every charge you have to pay to us. There are no other fees from us.`,
         "You do not pay anything when your order is delivered. Some orders are sent from the European Union; if a carrier ever asks you for import tax or customs charges, contact us and we will pay them. See our [Shipping Policy](/policies/shipping).",

@@ -18,7 +18,7 @@ const BUILDERS = { terms, privacy, cookies, shipping, returns, payment, warranty
 /** A policy page with today's delivery terms and FX margin from the admin settings. */
 export function getPolicy(slug: string): Policy | undefined {
   const s = readSettings();
-  const f = facts({ ...s.delivery.customer, countries: s.delivery.countries }, s.fx.marginPct);
+  const f = facts({ ...s.delivery.customer, countries: s.delivery.countries }, s.fx.marginPct, s.currencies);
   const build = BUILDERS[slug as keyof typeof BUILDERS];
   return build ? build(f) : undefined;
 }

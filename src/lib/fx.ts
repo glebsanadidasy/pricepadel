@@ -35,9 +35,14 @@ export function rateInfo(code: FxCode, fx: FxSettings, now = Date.now()): RateIn
   return { ...pick, enabled: true, problem: null };
 }
 
+/**
+ * Currencies a customer can use now: the ones chosen in the admin panel, minus any without a fresh rate.
+ * If none is left (e.g. the only currency is EUR and its rate is too old), prices fall back to GBP and the admin is warned.
+ */
 export function enabledCurrencies(): ("GBP" | FxCode)[] {
-  const fx = readSettings().fx;
-  return ["GBP", ...FX_CODES.filter((c) => rateInfo(c, fx).enabled)];
+  const s = readSettings();
+  const usable = s.currencies.filter((c) => c === "GBP" || rateInfo(c, s.fx).enabled);
+  return usable.length ? usable : ["GBP"];
 }
 
 /** Parses the ECB daily XML into GBP→EUR and GBP→USD cross rates. */

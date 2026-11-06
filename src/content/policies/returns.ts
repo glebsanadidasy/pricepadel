@@ -93,7 +93,7 @@ export const returns = (f: Facts): Policy => ({
           list: [
             "We refund the price of the goods and the standard delivery charge you paid.",
             "We refund within 14 days of receiving the goods back, or of you giving us proof that you sent them, whichever is earlier. If you cancel before dispatch, we refund within 14 days of you telling us.",
-            "Refunds go back to the card you paid with, in the currency you paid in. We do not charge a fee for refunds. Your bank decides how quickly the money appears, and exchange rates may have changed if you paid in euros or US dollars.",
+            "Refunds go back to the card you paid with, in the currency you paid in. We do not charge a fee for refunds. Your bank decides how quickly the money appears, and if your card is in a different currency from the one you paid in, your bank’s exchange rate may have changed.",
           ],
         },
       ],

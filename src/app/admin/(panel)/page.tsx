@@ -31,7 +31,8 @@ export default async function AdminOverview() {
 
   const late = openLatePayments();
   const openComplaints = (db().prepare("SELECT COUNT(*) AS n FROM data_complaints WHERE status = 'open'").get() as { n: number }).n;
-  const fxProblems = FX_CODES.map((c) => ({ c, r: rateInfo(c, s.fx) })).filter((x) => !x.r.enabled);
+  // Warn only about currencies that are offered to customers.
+  const fxProblems = FX_CODES.filter((c) => s.currencies.includes(c)).map((c) => ({ c, r: rateInfo(c, s.fx) })).filter((x) => !x.r.enabled);
 
   return (
     <>

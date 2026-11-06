@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { placeGuestOrder } from "@/app/checkout/actions";
 import { COUNTRIES } from "@/config/countries";
-import { Field, inputClass, Notice, SubmitButton } from "@/components/ui/Form";
+import { Field, inputClass, Notice } from "@/components/ui/Form";
+import { PayButton } from "./PayButton";
 
 /**
  * Guest checkout: every field the payment provider and the carrier need — e-mail, first name and surname,
@@ -66,7 +67,7 @@ export function GuestCheckoutForm({ expected, countries, summary }: { expected: 
             .
           </span>
         </label>
-        <SubmitButton className="mt-[16px] w-full">Pay by card</SubmitButton>
+        <PayButton />
         <p className="mt-[10px] text-[13px] leading-[19px] text-body">You’ll pay by Visa or Mastercard on the payment provider’s secure page. We never see your card details.</p>
       </div>
     </form>

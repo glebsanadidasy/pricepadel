@@ -8,7 +8,8 @@ import { enabledCurrencies, maybeRefreshRates, rateInfo } from "./fx";
 export async function getCurrency(): Promise<CurrencyCode> {
   maybeRefreshRates();
   const v = (await cookies()).get(CURRENCY_COOKIE)?.value;
-  return isCurrency(v) && enabledCurrencies().includes(v) ? v : DEFAULT_CURRENCY;
+  const enabled = enabledCurrencies();
+  return isCurrency(v) && enabled.includes(v) ? v : (enabled[0] ?? DEFAULT_CURRENCY);
 }
 
 /** 1 GBP in the given currency (ECB + margin, or the manual rate from the admin panel). */

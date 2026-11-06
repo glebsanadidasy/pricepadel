@@ -66,6 +66,8 @@ export type CatalogSettings = {
     ourCostTiers: DeliveryTier[];
   };
   fx: FxSettings;
+  /** Currencies offered to customers, the first is the default (owner, stage 9: EUR only). Prices are kept in GBP. */
+  currencies: ("GBP" | "EUR" | "USD")[];
   rewriteApproved: boolean;
   hiddenSources: string[];
   hiddenProducts: string[];
@@ -98,6 +100,7 @@ export const DEFAULT_SETTINGS: CatalogSettings = {
     EUR: { ecb: null, ecbDate: null, manual: null, manualAt: null },
     USD: { ecb: null, ecbDate: null, manual: null, manualAt: null },
   },
+  currencies: ["EUR"],
   rewriteApproved: false,
   hiddenSources: [],
   hiddenProducts: [],

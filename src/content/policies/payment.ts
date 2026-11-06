@@ -14,7 +14,7 @@ export const payment = (f: Facts): Policy => ({
       title: "How you can pay",
       body: [
         "We accept **Visa** and **Mastercard** cards.",
-        "You enter your card details only on our payment provider’s secure page, which opens when you click “Pay by card” at checkout. **Card details are never entered on our website, and we never see or store your card number.** We only receive the result of the payment (paid, declined or cancelled) and the amount.",
+        "You enter your card details only on our payment provider’s secure page, which opens when you click “Pay by Wallet” at checkout. **Card details are never entered on our website, and we never see or store your card number.** We only receive the result of the payment (paid, declined or cancelled) and the amount.",
         "Other payment methods: we do not offer any at the moment.",
       ],
     },
@@ -31,9 +31,9 @@ export const payment = (f: Facts): Policy => ({
       id: "currencies",
       title: "Currencies and exchange rates",
       body: [
-        "Our prices are set in pounds sterling (£). You can choose to see prices and pay in euros (€) or US dollars ($).",
-        `For euros and dollars we use the European Central Bank’s daily reference rate plus a margin (currently ${f.fxMargin}), or a rate we set manually. The rate in use is applied to every price you see, and **you are charged exactly the amount shown at checkout** in the currency you chose.`,
-        "If we do not have an up-to-date rate for a currency, that currency is temporarily unavailable and prices are shown in pounds.",
+        `Our prices are set in pounds sterling (£). They are shown and charged in ${f.currencyNames}.`,
+        `To convert them we use the European Central Bank’s daily reference rate plus a margin (currently ${f.fxMargin}), or a rate we set manually. The rate in use is applied to every price you see, and **you are charged exactly the amount shown at checkout**.`,
+        "If we do not have an up-to-date exchange rate (older than 3 days), we show and charge prices in pounds sterling until a new rate is available.",
         "Your bank or card issuer may charge its own fees for payments in a foreign currency. We do not control or receive these fees.",
       ],
     },

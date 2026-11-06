@@ -7,7 +7,7 @@ import { CATEGORY_LABELS, type Category } from "@/lib/catalog-types";
 import { GatewayCheck } from "@/components/admin/GatewayCheck";
 import { FX_CODES, rateInfo } from "@/lib/fx";
 import { gatewayConfig } from "@/lib/gateway-config";
-import { refreshRatesNow, saveDelivery, saveFx, saveMarkups, setRewriteApproved } from "../../actions";
+import { refreshRatesNow, saveCurrencies, saveDelivery, saveFx, saveMarkups, setRewriteApproved } from "../../actions";
 
 export const metadata: Metadata = { title: "Prices & settings" };
 
@@ -73,12 +73,28 @@ export default async function SettingsPage() {
                 </p>
                 <p className={`mt-[8px] font-bold ${g.ok ? "text-[#2e7d32]" : "text-[#c0392b]"}`}>
                   {g.ok ? `On — ${g.mode} mode` : `Off — ${g.reason}`}
-                  {!g.ok && process.env.NODE_ENV !== "production" && " (the local payment simulation is used instead)"}
+                  {!g.ok && g.reason === "not configured" && process.env.NODE_ENV !== "production" && " (the local payment simulation is used instead)"}
+                  {!g.ok && g.reason !== "not configured" && " — customers see “card payment temporarily unavailable”"}
                 </p>
                 <GatewayCheck />
               </>
             );
           })()}
+        </Card>
+
+        <Card title="Currencies for customers">
+          <form action={saveCurrencies} className="space-y-[8px]">
+            <p>Prices are kept in GBP and shown / charged in the chosen currencies. If none of them has a fresh rate, GBP is used and a warning appears.</p>
+            {(["EUR", "GBP", "USD"] as const).map((c) => (
+              <label key={c} className="flex items-center gap-[10px]">
+                <input type="checkbox" name={`cur:${c}`} value="yes" defaultChecked={s.currencies.includes(c)} /> {c}
+                <input type="radio" name="default" value={c} defaultChecked={s.currencies[0] === c} /> default
+              </label>
+            ))}
+            <button type="submit" className={adminButton}>
+              Save currencies
+            </button>
+          </form>
         </Card>
 
         <Card title="Exchange rates">

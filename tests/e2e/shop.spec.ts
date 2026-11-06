@@ -20,7 +20,7 @@ test("registration needs a confirmed e-mail before checkout", async ({ page }) =
   await addToCart(page, product.slug);
   await page.goto("/checkout");
   await expect(page.getByText(/Please confirm your e-mail/)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Pay by card" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Pay by Wallet" })).toHaveCount(0);
   // Confirm through the e-mail link.
   const mail = mails().reverse().find((m) => m.to === email)!;
   await page.goto(mail.text.match(/\/account\/verify\?token=\S+/)![0]);

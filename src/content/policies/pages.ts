@@ -49,7 +49,7 @@ export const faq = (f: Facts): Policy => ({
       title: "Payment and prices",
       body: [
         "**How can I pay?** By Visa or Mastercard on our payment provider’s secure page. We never see or store your card number.",
-        "**Can I pay in euros or dollars?** Yes, when an up-to-date exchange rate is available. You pay exactly the amount shown at checkout; your bank may add its own fees.",
+        `**Which currency do I pay in?** ${f.currencyText.replace(/ \[Payment Policy\]\(\/policies\/payment\)/, " Payment Policy")} Your bank may add its own fees.`,
         "**Will I pay anything extra?** No. The price at checkout is final; the only addition is the delivery charge shown before you pay.",
         "**My payment was declined.** You have not been charged. Open the order in your account and choose “Pay now” to try again, or contact your bank.",
       ],

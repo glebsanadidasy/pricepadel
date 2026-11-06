@@ -32,7 +32,7 @@ export const shipping = (f: Facts): Policy => ({
             [`${f.freeFrom} or more`, "Free"],
           ],
         },
-        "The delivery charge is worked out from the value of the products in your cart and is shown as a separate line in your cart and at checkout before you pay. If you pay in euros or US dollars, the charge is converted at the same rate as the products.",
+        "The delivery charge is worked out from the value of the products in your cart and is shown as a separate line in your cart and at checkout before you pay. Amounts here are in pounds sterling; the delivery charge is converted at the same rate as the products and shown in the currency you pay in.",
         "If you cancel an order or send goods back under your 14-day right to cancel, we refund the delivery charge you paid for the standard delivery option.",
       ],
     },

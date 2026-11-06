@@ -40,6 +40,14 @@ export function CurrencySwitcher({ value, available, className = "" }: { value: 
   }
 
   const current = CURRENCIES[value];
+  // Only one currency offered: show it, no menu.
+  if (available.length <= 1)
+    return (
+      <div className={`flex h-[30px] w-[158px] items-center gap-[8px] rounded-[3px] border border-[#dedede] bg-white pl-[7px] pr-[4px] text-[11.5px] leading-[14px] text-[#222] ${className}`} aria-label={`Prices in ${current.label}`}>
+        <Flag code={current.flag} />
+        <span className="flex-1 truncate">{current.label}</span>
+      </div>
+    );
   return (
     <div ref={ref} className={`relative ${className}`}>
       <button

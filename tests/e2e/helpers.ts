@@ -88,7 +88,7 @@ export async function checkoutToGateway(page: Page) {
     await expect(page.getByRole("radio", { name: /Test Street/ })).toBeVisible();
   }
   await page.getByLabel(/I have read and accept/).check();
-  await page.getByRole("button", { name: "Pay by card" }).click();
+  await page.getByRole("button", { name: "Pay by Wallet" }).click();
   await expect(page.getByText("Test payment page — simulation").first()).toBeVisible();
   const heading = await page.getByText(/Order PP\d+/).textContent();
   return heading!.match(/PP\d+/)![0];

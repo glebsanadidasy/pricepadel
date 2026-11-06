@@ -22,11 +22,16 @@ async function goToPayment(number: string, paymentId: string, guest: boolean): P
     if (!r.ok) redirect(back);
     redirect(r.checkoutUrl);
   }
-  if (mockGatewayEnabled()) redirect(`/mock-gateway/${paymentId}`);
+  if (simulationOnly()) redirect(`/mock-gateway/${paymentId}`);
   redirect(back);
 }
 
-const paymentsAvailable = () => gateway().ok || mockGatewayEnabled();
+/**
+ * The local simulation stands in only when NO gateway is configured (development / tests). If gateway keys are set but
+ * refused (e.g. live mode blocked), payments are unavailable — never silently simulated. The reason is in the admin panel.
+ */
+const simulationOnly = () => mockGatewayEnabled() && gateway().ok === false && (gateway() as { reason: string }).reason === "not configured";
+const paymentsAvailable = () => gateway().ok || simulationOnly();
 
 /** Cart re-checked on the server; the total must be the one the customer saw. Returns null when it changed. */
 async function checkedCart(expected: FormDataEntryValue | null) {

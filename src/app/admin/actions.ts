@@ -100,6 +100,14 @@ export async function saveFx(form: FormData) {
   });
 }
 
+export async function saveCurrencies(form: FormData) {
+  await save((s) => {
+    const picked = (["EUR", "GBP", "USD"] as const).filter((c) => form.get(`cur:${c}`) === "yes");
+    const first = String(form.get("default") ?? "");
+    if (picked.length) s.currencies = [...picked].sort((a, b) => (a === first ? -1 : b === first ? 1 : 0));
+  });
+}
+
 export async function refreshRatesNow() {
   await assertAdmin();
   try {

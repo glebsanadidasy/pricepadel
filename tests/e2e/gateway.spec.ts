@@ -75,7 +75,7 @@ async function checkout(page: Page, surname = "Tester", register = true) {
   await expect(page.getByRole("radio", { name: new RegExp(`Gateway ${surname}`) })).toBeVisible();
   await page.getByLabel(/I have read and accept/).check();
   const before = created.length;
-  await page.getByRole("button", { name: "Pay by card" }).click();
+  await page.getByRole("button", { name: "Pay by Wallet" }).click();
   return { before };
 }
 
@@ -217,7 +217,7 @@ test("guest checkout sends the guest's details to the gateway", async ({ page })
   await page.getByLabel("City").fill("Leeds");
   await page.getByLabel("Postcode").fill("LS1 1AA");
   await page.getByLabel(/I have read and accept/).check();
-  await page.getByRole("button", { name: "Pay by card" }).click();
+  await page.getByRole("button", { name: "Pay by Wallet" }).click();
   await page.waitForURL(new RegExp(`localhost:${FAKE_PORT}/pay/`));
   const c = created[created.length - 1];
   expect(c.body.customer_details).toMatchObject({ name: "Grace", surname: "Guest", email: "guest-gw@example.test", phone: "+447700900456", country: "GB", address_line1: "2 Guest Road" });
@@ -238,7 +238,7 @@ test("a price changed in the browser is never sent to the gateway", async ({ pag
   const before = created.length;
   await page.locator("input[name=expected]").evaluate((e: HTMLInputElement) => (e.value = "GBP:£0.01"));
   await page.getByLabel(/I have read and accept/).check();
-  await page.getByRole("button", { name: "Pay by card" }).click();
+  await page.getByRole("button", { name: "Pay by Wallet" }).click();
   await expect(page.getByText(/Prices or stock changed/)).toBeVisible();
   expect(created.length).toBe(before);
 });

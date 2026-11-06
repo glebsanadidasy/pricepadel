@@ -10,6 +10,7 @@ import { userAddresses } from "@/lib/addresses";
 import { paymentDetailsProblem } from "@/lib/customer-details";
 import { deliveryBlock, readSettings } from "@/lib/catalog-store";
 import { GuestCheckoutForm } from "@/components/checkout/GuestCheckoutForm";
+import { PayButton } from "@/components/checkout/PayButton";
 import { currentUser } from "@/lib/auth";
 import { readCart, resolveCart, type ResolvedCart } from "@/lib/cart";
 import { getMoney } from "@/lib/currency";
@@ -151,9 +152,7 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
                   .
                 </span>
               </label>
-              <SubmitButton className="mt-[16px] w-full" disabled={addresses.length === 0}>
-                Pay by card
-              </SubmitButton>
+              <PayButton disabled={addresses.length === 0} />
               <p className="mt-[10px] text-[13px] leading-[19px] text-body">You’ll pay by Visa or Mastercard on the payment provider’s secure page. We never see your card details.</p>
             </form>
           </div>

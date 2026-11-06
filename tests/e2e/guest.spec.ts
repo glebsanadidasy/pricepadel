@@ -25,21 +25,21 @@ test("a guest buys without an account; only the private link or the same browser
 
   // Missing payment fields are refused and what was typed is kept.
   await fillGuest(page, { phone: "07700 900123" });
-  await page.getByRole("button", { name: "Pay by card" }).click();
+  await page.getByRole("button", { name: "Pay by Wallet" }).click();
   await expect(page.getByText(/phone number with the country code/)).toBeVisible();
   await expect(page.getByLabel("Phone")).toHaveValue("07700 900123");
   await expect(page.getByLabel("Full name")).toHaveValue("Guest Buyer");
   await fillGuest(page, { full_name: "Cher" });
-  await page.getByRole("button", { name: "Pay by card" }).click();
+  await page.getByRole("button", { name: "Pay by Wallet" }).click();
   await expect(page.getByText(/first name and surname/)).toBeVisible();
   await expect(page.getByLabel("Full name")).toHaveValue("Cher"); // the answer to this submission has arrived
   await fillGuest(page, { postcode: "JE2 3AB" });
-  await page.getByRole("button", { name: "Pay by card" }).click();
+  await page.getByRole("button", { name: "Pay by Wallet" }).click();
   await expect(page.getByText(/Channel Islands, the Isle of Man or BFPO/)).toBeVisible();
   await expect(page.getByLabel("Postcode")).toHaveValue("JE2 3AB");
 
   const d = await fillGuest(page);
-  await page.getByRole("button", { name: "Pay by card" }).click();
+  await page.getByRole("button", { name: "Pay by Wallet" }).click();
   await expect(page.getByText("Test payment page — simulation").first()).toBeVisible();
   const number = (await page.getByText(/Order PP\d+/).textContent())!.match(/PP\d+/)![0];
   await page.getByRole("button", { name: "Pay (success)" }).click();
@@ -69,7 +69,7 @@ test("a guest can retry a declined payment from the private order page", async (
   await addToCart(page, product.slug);
   await page.goto("/checkout");
   await fillGuest(page);
-  await page.getByRole("button", { name: "Pay by card" }).click();
+  await page.getByRole("button", { name: "Pay by Wallet" }).click();
   const number = (await page.getByText(/Order PP\d+/).textContent())!.match(/PP\d+/)![0];
   await page.getByRole("button", { name: "Decline card" }).click();
   await expect(page.getByText("Your card was declined.")).toBeVisible();

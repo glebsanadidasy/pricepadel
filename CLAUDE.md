@@ -140,6 +140,14 @@ up to 5 photos in the best quality. Categories: rackets, shoes, apparel, bags, b
 - Mail: SMTP of contact@pricepadel.com, settings only in `.env` (`SMTP_*`); the owner fills in `SMTP_PASS`. Without it, mail goes to outbox/.
 - Neoprene Elbow Support Softee stays hidden: its description claims it "helps prevent … epicondylitis" (a health claim).
 
+## Stage 9 decisions (owner, 6 Nov)
+- Checkout button: **"Pay by Wallet"** with the wallet logo (`public/images/payment/wallet.png`, neutral file name). The provider's
+  name still never appears in text, code or e-mails. Logo use must be allowed by the gateway agreement (launch-checklist.md).
+- Customer currency: **EUR only** (admin setting `currencies`, first = default). Prices stay in GBP and are converted with the ECB
+  rate + margin; the customer pays exactly the amount shown. No fresh EUR rate → GBP is shown and the admin is warned.
+- The local payment simulation is used only when NO gateway keys are set. Keys set but refused (e.g. live mode blocked) →
+  "card payment temporarily unavailable", never a silent simulation.
+
 ## Not to copy from the mockup as-is
 - Without owner confirmation do not show: best price guarantee, free delivery, fast delivery, in stock,
   used on the World Padel Tour, "tested, trusted and loved", PCI DSS / 3D Secure badges, 10% discount, the popup.

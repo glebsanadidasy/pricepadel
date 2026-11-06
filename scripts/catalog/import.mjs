@@ -58,6 +58,7 @@ export const DEFAULT_SETTINGS = {
   },
   // GBP → other currencies (prices are kept in GBP): daily ECB reference rate + margin, or a manual rate from the admin panel.
   fx: { marginPct: 2, EUR: { ecb: null, ecbDate: null, manual: null, manualAt: null }, USD: { ecb: null, ecbDate: null, manual: null, manualAt: null } },
+  currencies: ["EUR"],
   rewriteApproved: false,
   hiddenSources: [],
   hiddenProducts: [],
