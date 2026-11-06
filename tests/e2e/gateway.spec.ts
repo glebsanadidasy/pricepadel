@@ -16,7 +16,15 @@ const FAKE_PORT = Number(process.env.TEST_FAKE_GATEWAY_PORT);
 test.use({ baseURL: BASE });
 test.describe.configure({ mode: "serial" });
 
-type Created = { id: string; raw: string; path: string; body: Record<string, any> };
+type Body = {
+  amount: number;
+  currency: string;
+  redirect_url: string;
+  webhook_url: string;
+  customer_details: Record<string, string>;
+  items: { name: string; price: number; quantity: number }[];
+};
+type Created = { id: string; raw: string; path: string; body: Body };
 const created: Created[] = [];
 let server: http.Server;
 
