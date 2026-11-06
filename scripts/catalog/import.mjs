@@ -251,7 +251,7 @@ async function main() {
     // Some source pages have only the source's own code as a title (e.g. "PN-110176-P"). Such a product has no real name,
     // and its name would carry a source SKU into URLs and photo file names — leave it out entirely.
     const code = String(rec.sourceSku ?? "").toUpperCase();
-    if ((code.length > 4 && rec.name.toUpperCase().includes(code.replace(/^C-/, ""))) || /^PN[-\s]?\d/i.test(rec.name)) {
+    if ((code.length > 4 && rec.name.toUpperCase().includes(code.replace(/^C-/, ""))) || /^PN[-\s]?\d/i.test(rec.name) || SOURCE_NAME.test(rec.name)) {
       report.noName.push({ code: rec.sourceSku, brand: rec.brand });
       continue;
     }
