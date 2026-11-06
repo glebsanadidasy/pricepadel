@@ -55,6 +55,9 @@
     "fetchedAt": "2026-11-06T07:02:52.210Z",
     "lastError": null
   },
+  "currencies": [
+    "EUR"
+  ],
   "rewriteApproved": false,
   "hiddenSources": [],
   "hiddenProducts": [],
