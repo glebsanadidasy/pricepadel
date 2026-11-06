@@ -13,15 +13,36 @@ import { gateway, startCardPayment } from "@/lib/gateway";
 import { newGuestToken, orderPath, rememberGuestOrder, viewableOrder } from "@/lib/order-access";
 import { createOrder, getOrder, orderItems, retryPayment, sendGuestOrderLink, type Address } from "@/lib/orders";
 import { mockGatewayEnabled } from "@/lib/payments";
+import type { PaymentFrame } from "@/components/checkout/PaymentModal";
 
-/** Sends the customer to the payment page: the card gateway if configured, the local simulation in development / tests. */
-async function goToPayment(number: string, paymentId: string, guest: boolean): Promise<never> {
+/**
+ * Starts the payment. Card gateway: returns its checkout page, shown in the payment window on our site (or opened in
+ * the full window when `fullPage`). Local simulation (development / tests only): redirect. Unavailable: back to the order.
+ */
+async function goToPayment(number: string, paymentId: string, guest: boolean, fullPage = false): Promise<PaymentFrame> {
   const back = `${orderPath(number, guest)}?pay=unavailable`;
+  // The cart is emptied when the customer leaves the checkout page. With the payment window it stays until the
+  // customer comes back from paying (result / order page): emptying it now would re-render checkout and close the window.
   if (gateway().ok) {
     const r = await startCardPayment(getOrder(number)!, paymentId, await siteUrl());
-    if (!r.ok) redirect(back);
-    redirect(r.checkoutUrl);
+    if (!r.ok) {
+      await clearCart();
+      redirect(back);
+    }
+    if (fullPage) {
+      await clearCart();
+      redirect(r.checkoutUrl);
+    }
+    const embedQuery = (process.env.PAYMENT_EMBED_QUERY ?? "").trim().replace(/^[?&]/, "");
+    return {
+      checkoutUrl: r.checkoutUrl,
+      embedUrl: embedQuery && /^[\w-]+=[\w-]+(&[\w-]+=[\w-]+)*$/.test(embedQuery) ? `${r.checkoutUrl}${r.checkoutUrl.includes("?") ? "&" : "?"}${embedQuery}` : r.checkoutUrl,
+      resultUrl: `/checkout/result?order=${encodeURIComponent(number)}&from=payment`,
+      orderUrl: `${orderPath(number, guest)}?from=payment`,
+      origins: [new URL(r.checkoutUrl).origin],
+    };
   }
+  await clearCart();
   if (simulationOnly()) redirect(`/mock-gateway/${paymentId}`);
   redirect(back);
 }
@@ -47,7 +68,9 @@ async function checkedCart(expected: FormDataEntryValue | null) {
  * if anything changed since the customer saw the summary, nothing is charged and the summary is shown again.
  * Then the customer goes to the payment gateway's own page — card details are never entered on this site.
  */
-export async function placeOrder(form: FormData) {
+export type PayState = { frame?: PaymentFrame } | undefined;
+
+export async function placeOrder(_: PayState, form: FormData): Promise<PayState> {
   const user = await currentUser();
   if (!user) redirect("/checkout");
   if (!user.email_verified_at) redirect("/checkout?e=verify");
@@ -61,11 +84,10 @@ export async function placeOrder(form: FormData) {
 
   // The amount is computed on the server from the cart and saved with the order; nothing from the browser is used.
   const { number, paymentId } = createOrder({ userId: user.id, email: user.email, cart: checked.cart, address, currency: checked.money.currency, rate: checked.money.rate });
-  await clearCart();
-  await goToPayment(number, paymentId, false);
+  return { frame: await goToPayment(number, paymentId, false) };
 }
 
-export type GuestState = { error?: string; values?: Record<string, string> } | undefined;
+export type GuestState = { error?: string; values?: Record<string, string>; frame?: PaymentFrame } | undefined;
 const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/;
 
 /**
@@ -95,8 +117,7 @@ export async function placeGuestOrder(_: GuestState, form: FormData): Promise<Gu
   const { number, paymentId } = createOrder({ userId: null, guestTokenHash: hash, email: values.email, cart: checked.cart, address, currency: checked.money.currency, rate: checked.money.rate });
   await rememberGuestOrder(number, token);
   sendGuestOrderLink(getOrder(number)!, `${await siteUrl()}/orders/${number}?t=${token}`);
-  await clearCart();
-  await goToPayment(number, paymentId, true);
+  return { frame: await goToPayment(number, paymentId, true) };
 }
 
 /** "Order again" for an expired order the visitor may see: puts the items that are still available back in the cart. */
@@ -121,6 +142,7 @@ export async function payAgain(number: string, token?: string) {
   const paymentId = retryPayment(access.order);
   if (!paymentId) redirect(orderPath(number, access.guest));
   if (access.guest && token) await rememberGuestOrder(number, token);
-  await goToPayment(number, paymentId, access.guest);
+  // From the order or result page the payment page opens in the full window.
+  await goToPayment(number, paymentId, access.guest, true);
 }
 

@@ -33,9 +33,12 @@ test("a guest buys without an account; only the private link or the same browser
   await page.getByRole("button", { name: "Pay by Wallet" }).click();
   await expect(page.getByText(/first name and surname/)).toBeVisible();
   await expect(page.getByLabel("Full name")).toHaveValue("Cher"); // the answer to this submission has arrived
-  await fillGuest(page, { postcode: "JE2 3AB" });
-  await page.getByRole("button", { name: "Pay by Wallet" }).click();
-  await expect(page.getByText(/Channel Islands, the Isle of Man or BFPO/)).toBeVisible();
+  // React may still be resetting the form after the previous answer: retry the fill until this answer arrives.
+  await expect(async () => {
+    await fillGuest(page, { postcode: "JE2 3AB" });
+    await page.getByRole("button", { name: "Pay by Wallet" }).click();
+    await expect(page.getByText(/Channel Islands, the Isle of Man or BFPO/)).toBeVisible({ timeout: 3000 });
+  }).toPass({ timeout: 20000 });
   await expect(page.getByLabel("Postcode")).toHaveValue("JE2 3AB");
 
   const d = await fillGuest(page);

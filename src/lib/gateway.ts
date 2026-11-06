@@ -55,7 +55,7 @@ export async function startCardPayment(order: OrderRow, paymentId: string, siteU
   const body = toJson({
     amount: money(order.total_charged),
     currency: order.currency.toUpperCase(),
-    redirect_url: `${siteUrl}/checkout/result?order=${encodeURIComponent(order.number)}`,
+    redirect_url: `${siteUrl}/checkout/result?order=${encodeURIComponent(order.number)}&from=payment`,
     webhook_url: `${siteUrl}/api/payments/notify`,
     customer_details: {
       name: who.name,

@@ -10,11 +10,12 @@ import { userAddresses } from "@/lib/addresses";
 import { paymentDetailsProblem } from "@/lib/customer-details";
 import { deliveryBlock, readSettings } from "@/lib/catalog-store";
 import { GuestCheckoutForm } from "@/components/checkout/GuestCheckoutForm";
+import { AccountPayForm } from "@/components/checkout/AccountPayForm";
 import { PayButton } from "@/components/checkout/PayButton";
 import { currentUser } from "@/lib/auth";
 import { readCart, resolveCart, type ResolvedCart } from "@/lib/cart";
 import { getMoney } from "@/lib/currency";
-import { placeOrder } from "./actions";
+
 
 export const metadata: Metadata = { title: "Checkout", robots: { index: false } };
 
@@ -123,7 +124,7 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
                 </div>
               </section>
             </div>
-            <form action={placeOrder} className="self-start border border-line p-[22px] lg:order-none" aria-label="Your order">
+            <AccountPayForm className="self-start border border-line p-[22px] lg:order-none">
               {addresses.length > 0 && (
                 <fieldset className="mt-[14px] space-y-[8px] text-[14px]">
                   <legend className="font-bold text-ink">Deliver to</legend>
@@ -154,7 +155,7 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
               </label>
               <PayButton disabled={addresses.length === 0} />
               <p className="mt-[10px] text-[13px] leading-[19px] text-body">You’ll pay by Visa or Mastercard on the payment provider’s secure page. We never see your card details.</p>
-            </form>
+            </AccountPayForm>
           </div>
         )}
       </div>

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { findVariant } from "@/lib/catalog";
-import { MAX_QTY, readCart, writeCart } from "@/lib/cart";
+import { clearCart, MAX_QTY, readCart, writeCart } from "@/lib/cart";
 
 /** Adds a variant (checked against the live catalogue) to the cart. No account needed. */
 export async function addToCart(sku: string, qty = 1): Promise<{ ok: boolean; count: number; message: string }> {
@@ -22,6 +22,12 @@ export async function setCartQty(sku: string, form: FormData) {
   const qty = Math.floor(Number(form.get("qty")));
   const lines = (await readCart()).map((l) => (l.sku === sku ? { ...l, qty: Math.min(MAX_QTY, Math.max(1, qty || 1)) } : l));
   await writeCart(lines);
+  revalidatePath("/", "layout");
+}
+
+/** After coming back from the payment page the order is saved: the cart is emptied. */
+export async function emptyCartAfterPayment() {
+  await clearCart();
   revalidatePath("/", "layout");
 }
 
