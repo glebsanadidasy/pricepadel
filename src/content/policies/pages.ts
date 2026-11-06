@@ -158,5 +158,13 @@ export const contact = (f: Facts): Policy => ({
         "If something has gone wrong, e-mail us with your order number and what happened. We confirm receipt within 2 working days and give you a full answer within 14 days. Our complaints process is described in section 12 of our [Terms & Conditions](/policies/terms).",
       ],
     },
+    {
+      id: "data-complaint",
+      title: "Data protection complaint form",
+      body: [
+        "Unhappy with how we use your personal data? Tell us here — no account needed — or e-mail us. We confirm receipt within 2 working days and give a full answer within 14 days. You can also complain to the Information Commissioner’s Office at any time: [ico.org.uk/make-a-complaint](https://ico.org.uk/make-a-complaint/).",
+        { component: "data-complaint-form" },
+      ],
+    },
   ],
 });

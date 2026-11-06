@@ -9,7 +9,7 @@ export type Block =
   | { table: string[][] }
   | { note: string }
   | { form: string[] }
-  | { component: "cookie-choice" | "contact-card" };
+  | { component: "cookie-choice" | "data-complaint-form" };
 
 export type PolicySection = { id: string; title: string; body: Block[] };
 

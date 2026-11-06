@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageHero } from "@/components/layout/PageHero";
 import { CookieChoiceButtons } from "@/components/consent/CookieBanner";
+import { DataComplaintForm } from "@/components/contact/DataComplaintForm";
 import type { Block, Policy } from "@/content/policies/types";
 
 /** **bold**, [text](href) and highlighted [TBC] placeholders. */
@@ -37,7 +38,7 @@ function BlockView({ b }: { b: Block }) {
   if ("note" in b) return <p className="border-l-4 border-lime bg-[#f7fbe5] px-[16px] py-[10px]"><Inline text={b.note} /></p>;
   if ("form" in b)
     return (
-      <div className="whitespace-pre-wrap border border-dashed border-line bg-[#fafafa] p-[16px] font-mono text-[13px] leading-[21px] text-ink">
+      <div className="whitespace-pre-wrap break-words border border-dashed border-line bg-[#fafafa] p-[12px] font-mono text-[12px] leading-[20px] text-ink [overflow-wrap:anywhere] sm:p-[16px] sm:text-[13px]">
         {b.form.join("\n")}
       </div>
     );
@@ -57,6 +58,7 @@ function BlockView({ b }: { b: Block }) {
       </div>
     );
   if (b.component === "cookie-choice") return <CookieChoiceButtons />;
+  if (b.component === "data-complaint-form") return <DataComplaintForm />;
   return null;
 }
 
