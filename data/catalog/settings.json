@@ -5,7 +5,13 @@
     "byBrand": {}
   },
   "delivery": {
-    "customerPrice": 0,
+    "customer": {
+      "price": 1295,
+      "freeFrom": 10000
+    },
+    "countries": [
+      "GB"
+    ],
     "ourCostTiers": [
       {
         "below": 8500,
@@ -21,9 +27,22 @@
       }
     ]
   },
-  "rates": {
-    "EUR": 1.15,
-    "USD": 1.3
+  "fx": {
+    "marginPct": 2,
+    "EUR": {
+      "ecb": 1.199141,
+      "ecbDate": "2026-11-05T15:00:00.000Z",
+      "manual": null,
+      "manualAt": null
+    },
+    "USD": {
+      "ecb": 1.345916,
+      "ecbDate": "2026-11-05T15:00:00.000Z",
+      "manual": null,
+      "manualAt": null
+    },
+    "fetchedAt": "2026-11-06T07:02:52.210Z",
+    "lastError": null
   },
   "rewriteApproved": false,
   "hiddenSources": [],
