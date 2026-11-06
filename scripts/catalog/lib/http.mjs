@@ -44,16 +44,23 @@ export function readHttpStats() {
   }
 }
 
-function recordStatus(status) {
+/**
+ * A page served from the source's CDN cache (x-cache: HIT) never reached their server, so it does not prove the server
+ * answers us again: it is counted, but it does not end a 503 period.
+ */
+function recordStatus(status, cacheHit) {
   const st = readHttpStats();
   const now = new Date().toISOString();
   st.requests++;
-  if (status === 503) {
+  if (cacheHit && status !== 503) {
+    st.cacheHits = (st.cacheHits ?? 0) + 1;
+    if (st.open) st.open.cacheHits = (st.open.cacheHits ?? 0) + 1;
+  } else if (status === 503) {
     st.s503++;
     st.open = st.open ? { ...st.open, last: now, count: st.open.count + 1 } : { start: now, last: now, count: 1 };
   } else if (st.open) {
     // A good answer ends the 503 period.
-    st.periods.push({ start: st.open.start, end: st.open.last, count: st.open.count, estimated: st.open.estimated, endedBy: `HTTP ${status} at ${now}` });
+    st.periods.push({ start: st.open.start, end: st.open.last, count: st.open.count, cacheHits: st.open.cacheHits ?? 0, estimated: st.open.estimated, endedBy: `HTTP ${status} at ${now}` });
     st.open = null;
   }
   writeJson(STATS_FILE, st);
@@ -77,7 +84,7 @@ async function rawFetch(url, accept, counted = true) {
   } catch (e) {
     throw Object.assign(new Error(`Network error for ${url}: ${e.message}`), { network: true });
   }
-  if (counted) recordStatus(res.status);
+  if (counted) recordStatus(res.status, /\bHIT\b/.test(res.headers.get("x-cache") ?? ""));
   return res;
 }
 

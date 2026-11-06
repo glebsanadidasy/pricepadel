@@ -188,7 +188,7 @@ function report503() {
   if (periods.length === 0) lines.push("  - периодов с 503 не было");
   for (const p of periods.slice(-30)) {
     const end = p.open ? `продолжается (последний 503: ${fmt(st.open.last)})` : fmt(p.end);
-    lines.push(`  - с ${fmt(p.start)} по ${end}: ${p.count} ответов 503${p.estimated ? " (начало периода восстановлено по логам)" : ""}`);
+    lines.push(`  - с ${fmt(p.start)} по ${end}: ${p.count} ответов 503${p.cacheHits ? ` (+${p.cacheHits} ответов из кэша сайта, период не прерывают)` : ""}${p.estimated ? " (начало периода восстановлено по логам)" : ""}`);
   }
   return lines;
 }
