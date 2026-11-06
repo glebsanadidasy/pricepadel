@@ -46,7 +46,7 @@ export const DEFAULT_SETTINGS = {
 const report = { mentions: [], promises: [], hidden: [], rejectedPhotos: [], badges: 0 };
 
 function slugify(s) {
-  return s
+  return String(s ?? "")
     .normalize("NFKD")
     .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
@@ -237,7 +237,8 @@ async function main() {
     const rawVariants = rec.variants ?? [{ sourceId: null, sourceSku: rec.sourceSku, colour: null, colourHex: null, size: null, sizeKind: null, price: rec.price, inStock: rec.inStock }];
     const variants = rawVariants
       .map((v) => {
-        const colour = v.colour ?? colourAttr ?? "";
+        const colour = String(v.colour ?? colourAttr ?? "");
+        v.size = v.size == null ? null : String(v.size);
         return {
           sku: [skuBase, slugify(colour).slice(0, 12), slugify(v.size ?? "")].filter(Boolean).join("-").toUpperCase(),
           colour,
